@@ -22,7 +22,19 @@
     { "route": "/careers/real-estate-intelligence-analyst", "rewrite": "/careers/real-estate-intelligence-analyst.html" },
     { "route": "/careers/senior-client-director", "rewrite": "/careers/senior-client-director.html" },
     { "route": "/careers/senior-research-analyst-difc", "rewrite": "/careers/senior-research-analyst-difc.html" },
-    { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" }
+    { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" },
+    { "route": "/allocators", "rewrite": "/allocators.html" },
+    { "route": "/deal-teams", "rewrite": "/deal-teams.html" },
+    { "route": "/partners", "rewrite": "/partners.html" },
+    { "route": "/india-gcc", "rewrite": "/india-gcc.html" },
+    { "route": "/council", "rewrite": "/council.html" },
+    { "route": "/case-studies", "rewrite": "/case-studies.html" },
+    { "route": "/methodology", "rewrite": "/methodology.html" },
+    { "route": "/insights", "rewrite": "/insights.html" },
+    { "route": "/strategic-intelligence", "rewrite": "/strategic-intelligence.html" },
+    { "route": "/founder", "rewrite": "/founder.html" },
+    { "route": "/about", "rewrite": "/about.html" },
+    { "route": "/reports", "rewrite": "/reports.html" }
   ],
   "mimeTypes": {
     ".pdf": "application/pdf",
