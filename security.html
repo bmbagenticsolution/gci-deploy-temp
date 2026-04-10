@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security & Data Handling | Gulf Capital Intelligence | DIFC Dubai</title>
+  <meta name="description" content="How Gulf Capital Intelligence handles your data. DIFC-registered, encrypted in transit and at rest, no training on client data. Built for capital allocators who need institutional-grade data handling.">
+  <link rel="canonical" href="https://gulfcapitalintelligence.com/security">
+  <meta property="og:title" content="Security & Data Handling | Gulf Capital Intelligence">
+  <meta property="og:description" content="DIFC-registered, encrypted, no training on client data. Institutional data handling for GCC capital allocators.">
+  <meta property="og:url" content="https://gulfcapitalintelligence.com/security">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Instrument+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0B1D35;
+      --navy2: #0F2540;
+      --gold: #B8860B;
+      --gold2: #C8A84B;
+      --gold3: #DFC07A;
+      --gold-bg: #FAF5E8;
+      --gold-bd: #E8D49A;
+      --white: #FFFFFF;
+      --off: #FAFBFD;
+      --bg: #F2F5FA;
+      --rule: #DDE2EE;
+      --body: #2A3A52;
+      --muted: #5A6A82;
+      --faint: #8E9BB0;
+      --green: #0A5C3E;
+      --red: #7D1A1A;
+      --amber: #7A4008;
+      --f-serif: 'Cormorant Garamond', Georgia, serif;
+      --f-sans: 'Instrument Sans', system-ui, sans-serif;
+      --f-mono: 'IBM Plex Mono', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--f-sans);
+      color: var(--body);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    nav.nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--white);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      z-index: 1000;
+    }
+
+    .nlogo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--body);
+    }
+
+    .nmark {
+      width: 40px;
+      height: 40px;
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--f-serif);
+      font-size: 20px;
+      font-weight: 600;
+      border-radius: 4px;
+    }
+
+    .nnm {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--navy);
+    }
+
+    .nsub {
+      font-size: 11px;
+      color: var(--faint);
+      margin-top: 2px;
+    }
+
+    .nlinks {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nlink {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+
+    .nlink:hover {
+      color: var(--navy);
+    }
+
+    .nright {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-g, .btn-n {
+      padding: 8px 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-g {
+      background: var(--gold);
+      color: var(--white);
+    }
+
+    .btn-g:hover {
+      background: var(--gold2);
+    }
+
+    .btn-n {
+      border: 1px solid var(--rule);
+      color: var(--navy);
+    }
+
+    .btn-n:hover {
+      border-color: var(--navy);
+    }
+
+    main {
+      margin-top: 64px;
+    }
+
+    .hero {
+      background: var(--navy);
+      color: var(--white);
+      padding: 80px 48px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: var(--f-serif);
+      font-size: 56px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--gold3);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 64px 48px;
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section h2 {
+      font-family: var(--f-serif);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 24px;
+    }
+
+    .section p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--body);
+      margin-bottom: 16px;
+    }
+
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .subsection {
+      margin: 32px 0;
+    }
+
+    .subsection h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .highlight {
+      background: var(--gold-bg);
+      border-left: 4px solid var(--gold);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .highlight p {
+      margin-bottom: 0;
+      color: var(--amber);
+    }
+
+    footer {
+      background: var(--navy);
+      color: var(--white);
+      padding: 48px;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 64px;
+    }
+
+    footer p {
+      margin-bottom: 8px;
+    }
+
+    footer a {
+      color: var(--gold3);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      nav.nav {
+        padding: 0 24px;
+        flex-wrap: wrap;
+        height: auto;
+      }
+
+      .nlinks {
+        gap: 16px;
+        font-size: 12px;
+      }
+
+      .hero {
+        padding: 48px 24px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .content {
+        padding: 48px 24px;
+      }
+
+      .section h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <a class="nlogo" href="index.html"><div class="nmark">GCI</div><div><div class="nnm">Gulf Capital Intelligence</div><div class="nsub">DIFC-Registered | GCC Investment Screening</div></div></a>
+    <div class="nlinks">
+      <a class="nlink" href="index.html">Home</a>
+      <a class="nlink" href="security.html">About</a>
+      <a class="nlink" href="security.html" style="color:var(--navy);font-weight:600">Security</a>
+      <a class="nlink" href="#pricing">Enterprise</a>
+      <a class="nlink" href="careers.html">Careers</a>
+    </div>
+    <div class="nright">
+      <a class="btn-g" href="app.html">Sign In</a>
+      <a class="btn-n" href="deal-health-score.html">Free Score</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <h1>Your Data, Your Control</h1>
+      <p>GCI is built for capital allocators handling sensitive deal information. Here is exactly how we handle your data.</p>
+    </section>
+
+    <section class="content">
+      <div class="section">
+        <h2>Data Architecture</h2>
+        <p>GCI runs on Vercel's global edge network with serverless compute. Session data and account credentials are stored in encrypted key-value storage. All connections use TLS 1.2+ encryption in transit.</p>
+      </div>
+
+      <div class="section">
+        <h2>How Report Generation Works</h2>
+        <p>When you submit a brief, the conviction engine processes it through 19 specialist modules. The analysis uses three independent engines (Claude by Anthropic, GPT by OpenAI, and Gemini by Google) via their respective APIs.</p>
+        <p>Your brief content is sent to these API providers for processing. It is used solely to generate your report and is not stored by GCI beyond the session. API providers process requests under their enterprise terms. GCI does not opt into any model training programs.</p>
+      </div>
+
+      <div class="section">
+        <h2>What We Do NOT Do</h2>
+        <p>We do not train models on your briefs, reports, or account data. GCI does not opt into any model training programs offered by API providers. We do not share your data with third parties for marketing, analytics, or any other purpose.</p>
+        <p>Brief content and uploaded documents are not retained beyond the active session unless you explicitly save a report to your report history. We do not track individual user behaviour beyond anonymised pageview counts for site operations. Feedback you provide through the rating feature improves internal quality benchmarks only and is not used to fine-tune language models.</p>
+      </div>
+
+      <div class="section">
+        <h2>What You Should Know</h2>
+        <p>Report data passes through US-based API infrastructure (Anthropic, OpenAI, Google) for processing. You should not upload material non-public information (MNPI), insider information, or confidential third-party documents you are not authorized to share with a third-party processor.</p>
+        <p>GCI reports are screening intelligence, not regulated advice. They complement, not replace, professional due diligence. If your organization requires a dedicated processing environment, custom data residency, or SOC 2 compliance documentation, contact <a href="mailto:difc@gulfcapitalintelligence.com" style="color:var(--gold);text-decoration:none">difc@gulfcapitalintelligence.com</a> for Enterprise options.</p>
+      </div>
+
+      <div class="section">
+        <h2>Enterprise Data Handling</h2>
+        <p>Enterprise clients receive dedicated processing options, custom data retention policies, and can request a data processing agreement (DPA). Enterprise tier includes analyst review, which means a human reviews reports before delivery. Custom API access and white-label deployment are available on Enterprise tier.</p>
+        <p>Contact <a href="mailto:difc@gulfcapitalintelligence.com" style="color:var(--gold);text-decoration:none">difc@gulfcapitalintelligence.com</a> for Enterprise security requirements.</p>
+      </div>
+
+      <div class="section">
+        <h2>DIFC Compliance</h2>
+        <p>GCI is registered in the Dubai International Financial Centre as Boost My Business AI Innovation Limited (CL11954). GCI operates under DIFC data protection regulations. For data subject requests, contact <a href="mailto:difc@gulfcapitalintelligence.com" style="color:var(--gold);text-decoration:none">difc@gulfcapitalintelligence.com</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>2026 Boost My Business AI Innovation Limited. All rights reserved.</p>
+    <p>DIFC, Dubai</p>
+  </footer>
+
+  <script>
+    (function() {
+      const pageUrl = window.location.pathname;
+      const timestamp = new Date().toISOString();
+      navigator.sendBeacon('/api/pageview', JSON.stringify({
+        page: pageUrl,
+        timestamp: timestamp,
+        referrer: document.referrer
+      }));
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCC Deal Health Score - Screening Process Diagnostic | Gulf Capital Intelligence</title>
+<meta name="description" content="Benchmark your GCC deal screening process in under a minute. Identify structural gaps in regulatory, sector, and conviction coverage.">
+<link rel="canonical" href="https://gulfcapitalintelligence.com/deal-health-score">
+<meta property="og:title" content="GCC Deal Health Score | Gulf Capital Intelligence">
+<meta property="og:description" content="A quick diagnostic that benchmarks your GCC deal screening process against institutional standards.">
+<meta property="og:image" content="https://gulfcapitalintelligence.com/og-deal-score.png">
+<meta property="og:url" content="https://gulfcapitalintelligence.com/deal-health-score">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GCC Deal Health Score | GCI">
+<meta name="twitter:description" content="Benchmark your GCC deal screening process in under a minute.">
+<link rel="icon" href="https://gulfcapitalintelligence.com/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0B1D35;
+  --gold:#C8A84B;
+  --gold-light:#DFC07A;
+  --white:#FFFFFF;
+  --off:#F2F5FA;
+  --muted:#6B7A8D;
+  --red:#E53935;
+  --amber:#F59E0B;
+  --green:#16A34A;
+  --f-serif:'DM Serif Display',serif;
+  --f-sans:'DM Sans',sans-serif;
+  --f-mono:'IBM Plex Mono',monospace;
+}
+html,body{height:100%;font-family:var(--f-sans);background:var(--navy);color:var(--white);overflow-x:hidden}
+
+/* ---- TOPBAR ---- */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(11,29,53,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(200,168,75,.15)}
+.tb-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.tb-badge{width:32px;height:32px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--f-serif);font-size:14px;font-weight:700;color:var(--navy)}
+.tb-name{font-family:var(--f-sans);font-size:13px;font-weight:600;color:var(--white);letter-spacing:.02em}
+.tb-right{font-family:var(--f-mono);font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+
+/* ---- HERO ---- */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,168,75,.08) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,.05) 0%, transparent 60%)}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.25);border-radius:100px;padding:6px 14px;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:var(--f-serif);font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.15;color:var(--white);max-width:700px;margin-bottom:20px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:rgba(255,255,255,.65);max-width:520px;line-height:1.7;margin-bottom:40px}
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
+.hs{text-align:center}
+.hs-v{font-family:var(--f-serif);font-size:2rem;color:var(--gold)}
+.hs-l{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--navy);font-family:var(--f-sans);font-size:15px;font-weight:700;padding:16px 36px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.01em}
+.cta-btn:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 8px 32px rgba(200,168,75,.3)}
+.cta-btn svg{width:18px;height:18px}
+.hero-note{margin-top:16px;font-size:11.5px;color:rgba(255,255,255,.35);font-family:var(--f-mono)}
+
+/* ---- QUIZ SHELL ---- */
+.quiz-wrap{display:none;min-height:100vh;padding:80px 24px 60px;align-items:center;justify-content:center;flex-direction:column}
+.quiz-wrap.active{display:flex}
+.quiz-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px;max-width:620px;width:100%;backdrop-filter:blur(8px)}
+.q-progress{margin-bottom:28px}
+.q-prog-label{display:flex;justify-content:space-between;margin-bottom:8px}
+.q-prog-step{font-family:var(--f-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em}
+.q-prog-pct{font-family:var(--f-mono);font-size:10px;color:rgba(255,255,255,.4)}
+.q-prog-bar{height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.q-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;transition:width .5s ease}
+.q-tag{font-family:var(--f-mono);font-size:10px;color:rgba(200,168,75,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.q-text{font-family:var(--f-serif);font-size:clamp(1.3rem,3vw,1.7rem);line-height:1.35;color:var(--white);margin-bottom:8px}
+.q-sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px;line-height:1.6}
+.q-options{display:flex;flex-direction:column;gap:10px}
+.q-opt{display:flex;align-items:center;gap:14px;padding:14px 18px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:all .18s;text-align:left}
+.q-opt:hover{border-color:rgba(200,168,75,.4);background:rgba(200,168,75,.06)}
+.q-opt.selected{border-color:var(--gold);background:rgba(200,168,75,.1)}
+.q-opt-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.q-opt-text{font-size:14px;color:var(--white);font-weight:500;line-height:1.4}
+.q-opt-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.q-nav{display:flex;justify-content:flex-end;margin-top:24px}
+.q-next{background:var(--gold);color:var(--navy);font-family:var(--f-sans);font-size:14px;font-weight:700;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;opacity:.4;pointer-events:none}
+.q-next.enabled{opacity:1;pointer-events:auto}
+.q-next.enabled:hover{background:var(--gold-light)}
+
+/* ---- SCALE (Q3) ---- */
+.scale-wrap{display:flex;gap:10px;flex-wrap:wrap}
+.scale-btn{flex:1;min-width:52px;padding:16px 8px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:10px;cursor:pointer;text-align:center;transition:all .18s}
+.scale-btn:hover{border-color:rgba(200,168,75,.4)}
+.scale-btn.selected{border-color:var(--gold);background:rgba(200,168,75,.1)}
+.scale-btn-n{font-family:var(--f-serif);font-size:1.5rem;color:var(--white)}
+.scale-btn-l{font-size:9px;color:rgba(255,255,255,.35);margin-top:4px;font-family:var(--f-mono);letter-spacing:.04em}
+
+/* ---- GATE FORM ---- */
+.gate-wrap{display:none;min-height:100vh;padding:80px 24px 60px;align-items:center;justify-content:center;flex-direction:column}
+.gate-wrap.active{display:flex}
+.gate-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px;max-width:540px;width:100%;backdrop-filter:blur(8px)}
+.gate-tag{font-family:var(--f-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.gate-title{font-family:var(--f-serif);font-size:clamp(1.5rem,3vw,2rem);color:var(--white);line-height:1.3;margin-bottom:10px}
+.gate-sub{font-size:13.5px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.65}
+.gate-preview{background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.2);border-radius:12px;padding:18px;margin-bottom:28px;display:flex;align-items:center;gap:14px}
+.gate-score-mock{width:56px;height:56px;border-radius:50%;border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--f-serif);font-size:1.4rem;color:var(--gold);flex-shrink:0;filter:blur(5px)}
+.gate-preview-text{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6}
+.gate-preview-text strong{color:var(--gold-light);display:block;font-size:13px;margin-bottom:3px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:6px;font-family:var(--f-mono);letter-spacing:.04em;text-transform:uppercase}
+.form-input{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:9px;padding:13px 16px;color:var(--white);font-family:var(--f-sans);font-size:14px;outline:none;transition:border-color .2s}
+.form-input::placeholder{color:rgba(255,255,255,.25)}
+.form-input:focus{border-color:var(--gold)}
+.form-input.phone{padding-left:48px}
+.phone-wrap{position:relative}
+.phone-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:rgba(255,255,255,.4);font-family:var(--f-mono)}
+.form-submit{width:100%;background:var(--gold);color:var(--navy);font-family:var(--f-sans);font-size:15px;font-weight:700;padding:15px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;margin-top:8px}
+.form-submit:hover{background:var(--gold-light)}
+.form-submit:disabled{opacity:.6;cursor:not-allowed}
+.form-legal{font-size:10.5px;color:rgba(255,255,255,.25);text-align:center;margin-top:12px;line-height:1.6}
+
+/* ---- RESULTS ---- */
+.results-wrap{display:none;min-height:100vh;padding:80px 24px 60px;align-items:center;justify-content:center;flex-direction:column}
+.results-wrap.active{display:flex}
+.results-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:40px;max-width:640px;width:100%;backdrop-filter:blur(8px)}
+.score-ring-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:32px}
+.score-ring{position:relative;width:140px;height:140px;margin-bottom:16px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:rgba(255,255,255,.08);stroke-width:10}
+.score-ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.5s ease}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-family:var(--f-serif);font-size:2.6rem;line-height:1;color:var(--white)}
+.score-of{font-family:var(--f-mono);font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.06em;margin-top:2px}
+.score-label{font-size:13px;font-weight:600;padding:5px 16px;border-radius:100px;letter-spacing:.04em}
+.score-label.red{background:rgba(229,57,53,.15);color:#EF9A9A;border:1px solid rgba(229,57,53,.3)}
+.score-label.amber{background:rgba(245,158,11,.15);color:#FCD34D;border:1px solid rgba(245,158,11,.3)}
+.score-label.green{background:rgba(22,163,74,.15);color:#86EFAC;border:1px solid rgba(22,163,74,.3)}
+.results-name{font-size:13px;color:rgba(255,255,255,.45);margin-top:6px}
+.results-title{font-family:var(--f-serif);font-size:clamp(1.3rem,3vw,1.7rem);color:var(--white);line-height:1.35;margin-bottom:8px;text-align:center}
+.results-summary{font-size:13.5px;color:rgba(255,255,255,.55);text-align:center;line-height:1.7;margin-bottom:28px}
+.insights{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.insight{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px}
+.insight-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.insight-dot.red{background:#EF4444}
+.insight-dot.amber{background:var(--amber)}
+.insight-dot.green{background:#22C55E}
+.insight-text{font-size:13px;color:rgba(255,255,255,.7);line-height:1.55}
+.insight-text strong{color:var(--white)}
+.results-cta-wrap{background:linear-gradient(135deg,rgba(200,168,75,.12),rgba(200,168,75,.04));border:1px solid rgba(200,168,75,.2);border-radius:14px;padding:24px;text-align:center;margin-bottom:16px}
+.rcta-title{font-family:var(--f-serif);font-size:1.2rem;color:var(--white);margin-bottom:8px}
+.rcta-sub{font-size:12.5px;color:rgba(255,255,255,.5);margin-bottom:18px;line-height:1.6}
+.rcta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);font-size:14px;font-weight:700;padding:13px 28px;border-radius:9px;text-decoration:none;transition:all .2s}
+.rcta-btn:hover{background:var(--gold-light);transform:translateY(-1px)}
+.results-share{text-align:center;font-size:12px;color:rgba(255,255,255,.3);margin-top:12px}
+.share-btn{display:inline-flex;align-items:center;gap:6px;color:var(--gold);text-decoration:none;font-size:12px;font-weight:600;margin:0 8px;transition:opacity .2s}
+.share-btn:hover{opacity:.7}
+
+/* ---- SOCIAL PROOF ---- */
+.proof-strip{background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);padding:24px;text-align:center}
+.proof-label{font-family:var(--f-mono);font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+.proof-items{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+.proof-item{font-size:11.5px;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:5px}
+.proof-item::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.5;flex-shrink:0}
+
+/* ---- FOOTER ---- */
+footer{padding:20px 24px;text-align:center;font-size:11px;color:rgba(255,255,255,.2);border-top:1px solid rgba(255,255,255,.06)}
+footer a{color:var(--gold);text-decoration:none;opacity:.7}
+
+/* ---- LOADING ---- */
+.loading-wrap{display:none;min-height:100vh;padding:80px 24px;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.loading-wrap.active{display:flex}
+.loader-ring{width:56px;height:56px;border:3px solid rgba(200,168,75,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-family:var(--f-serif);font-size:1.4rem;color:var(--white);margin-bottom:8px}
+.loader-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.6}
+.loader-steps{margin-top:24px;display:flex;flex-direction:column;gap:10px;text-align:left;max-width:320px}
+.ls{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,.35);transition:color .4s}
+.ls.done{color:rgba(255,255,255,.7)}
+.ls-dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .4s}
+.ls.done .ls-dot{background:rgba(200,168,75,.2);border-color:var(--gold)}
+.ls-check{display:none;font-size:10px;color:var(--gold)}
+.ls.done .ls-check{display:block}
+.ls-spin{width:10px;height:10px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+.ls.done .ls-spin{display:none}
+
+@media(max-width:480px){
+  .quiz-card,.gate-card,.results-card{padding:24px}
+  .hero-stats{gap:20px}
+  .scale-wrap{gap:6px}
+}
+</style>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "w5yaqn1ld4");
+</script>
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="tb-logo" href="https://gulfcapitalintelligence.com">
+    <div class="tb-badge">GCI</div>
+    <span class="tb-name">Gulf Capital Intelligence</span>
+  </a>
+  <span class="tb-right">DIFC · Dubai</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="screen-hero">
+  <div class="hero-bg"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center">
+    <div class="hero-tag"><span class="hero-tag-dot"></span>Screening Diagnostic · 5 Questions</div>
+    <h1>GCC <em>Deal Screening<br>Diagnostic</em></h1>
+    <p class="hero-sub">Five questions that benchmark how your team screens GCC private market opportunities. Identify structural gaps in regulatory, sector, and conviction coverage.</p>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-v">&lt;60s</div><div class="hs-l">To complete</div></div>
+      <div class="hs"><div class="hs-v">5</div><div class="hs-l">Dimensions</div></div>
+      <div class="hs"><div class="hs-v">6</div><div class="hs-l">Agent lenses</div></div>
+    </div>
+    <button class="cta-btn" onclick="startQuiz()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Begin Diagnostic
+    </button>
+    <p class="hero-note">Designed for capital allocators and deal teams evaluating GCC private markets</p>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="quiz-wrap" id="screen-quiz">
+  <div class="quiz-card">
+    <div class="q-progress">
+      <div class="q-prog-label">
+        <span class="q-prog-step" id="q-step-label">Question 1 of 5</span>
+        <span class="q-prog-pct" id="q-pct-label">20%</span>
+      </div>
+      <div class="q-prog-bar"><div class="q-prog-fill" id="q-prog-fill" style="width:20%"></div></div>
+    </div>
+    <div id="q-content"></div>
+    <div class="q-nav">
+      <button class="q-next" id="q-next-btn" onclick="nextQuestion()">Continue &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- GATE -->
+<section class="gate-wrap" id="screen-gate">
+  <div class="gate-card">
+    <div class="gate-tag">Diagnostic Complete</div>
+    <div class="gate-title">Your Screening Benchmark Is Ready</div>
+    <div class="gate-sub">We have benchmarked your screening process across six intelligence dimensions. Enter your details to view the full diagnostic and personalised coverage map.</div>
+    <div class="gate-preview">
+      <div class="gate-score-mock" id="gate-score-preview">72</div>
+      <div class="gate-preview-text">
+        <strong>Benchmark complete</strong>
+        Enter your details to view the full screening diagnostic with dimension scores and coverage gaps.
+      </div>
+    </div>
+    <form id="gate-form" onsubmit="submitGate(event)">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="g-name" type="text" placeholder="Your Full Name" required autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" id="g-email" type="email" placeholder="you@firm.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">WhatsApp / Mobile <span style="opacity:.4">(optional -  for priority alerts)</span></label>
+        <div class="phone-wrap">
+          <span class="phone-prefix">+</span>
+          <input class="form-input phone" id="g-phone" type="tel" placeholder="971 50 123 4567" autocomplete="tel">
+        </div>
+      </div>
+      <button class="form-submit" type="submit" id="gate-submit-btn">Reveal My Score &rarr;</button>
+      <p class="form-legal">No spam. No sales calls unless you ask for one. Your data is protected under DIFC Data Protection Law. Unsubscribe anytime.</p>
+    </form>
+  </div>
+</section>
+
+<!-- LOADING -->
+<section class="loading-wrap" id="screen-loading">
+  <div class="loader-ring"></div>
+  <div class="loader-text">Calculating your score...</div>
+  <div class="loader-sub">Analysing 5 signal dimensions against<br>GCC market benchmarks</div>
+  <div class="loader-steps">
+    <div class="ls" id="ls-1"><div class="ls-dot"><div class="ls-spin"></div><span class="ls-check">✓</span></div><span>Benchmarking investment focus</span></div>
+    <div class="ls" id="ls-2"><div class="ls-dot"><div class="ls-spin"></div><span class="ls-check">✓</span></div><span>Analysing capital tier exposure</span></div>
+    <div class="ls" id="ls-3"><div class="ls-dot"><div class="ls-spin"></div><span class="ls-check">✓</span></div><span>Scoring regulatory awareness</span></div>
+    <div class="ls" id="ls-4"><div class="ls-dot"><div class="ls-spin"></div><span class="ls-check">✓</span></div><span>Mapping deal flow signals</span></div>
+    <div class="ls" id="ls-5"><div class="ls-dot"><div class="ls-spin"></div><span class="ls-check">✓</span></div><span>Generating personalised insights</span></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-wrap" id="screen-results">
+  <div class="results-card">
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle class="score-ring-bg" cx="70" cy="70" r="60"/>
+          <circle class="score-ring-fill" id="score-ring-fill" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num" id="score-display">0</div>
+          <div class="score-of">/ 100</div>
+        </div>
+      </div>
+      <div class="score-label" id="score-zone-badge">Calculating...</div>
+      <div class="results-name" id="results-name-display"></div>
+    </div>
+    <div class="results-title" id="results-headline"></div>
+    <div class="results-summary" id="results-summary"></div>
+    <div class="insights" id="results-insights"></div>
+    <div class="results-cta-wrap">
+      <div class="rcta-title">Want to see how GCI addresses these gaps?</div>
+      <div class="rcta-sub">Book a 20-minute walkthrough with our team. We will map your screening process against our six-agent conviction framework.</div>
+      <a href="https://wa.me/971554639500?text=Hi%2C%20I%20just%20completed%20the%20GCC%20Deal%20Health%20Score.%20I%27d%20like%20to%20book%20a%2020-minute%20strategy%20call." target="_blank" class="rcta-btn">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Book Free 20-Min Call on WhatsApp
+      </a>
+    </div>
+    <div class="results-share">
+      Share your score:
+      <a class="share-btn" id="share-linkedin" href="#" target="_blank">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a class="share-btn" id="share-whatsapp" href="#" target="_blank">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+  </div>
+  <div class="proof-strip" style="max-width:640px;width:100%;margin-top:16px;border-radius:14px">
+    <div class="proof-label">GCI Intelligence Platform</div>
+    <div class="proof-items">
+      <div class="proof-item">DIFC Registered</div>
+      <div class="proof-item">19 Agents</div>
+      <div class="proof-item">Source Confidence Rated</div>
+      <div class="proof-item">Verdict Driven</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2026 Gulf Capital Intelligence DIFC &nbsp;·&nbsp;
+  <a href="https://gulfcapitalintelligence.com/privacy">Privacy</a> &nbsp;·&nbsp;
+  <a href="https://gulfcapitalintelligence.com">Back to GCI</a>
+</footer>
+
+<script>
+// ==================== QUIZ DATA ====================
+var QUESTIONS = [
+  {
+    id:'q1', tag:'Investment Focus',
+    text:'What is your primary investment focus in the GCC region?',
+    sub:'Select the category that represents the majority of your current or target portfolio.',
+    type:'options',
+    options:[
+      {icon:'🏢', text:'Real Estate & Infrastructure', sub:'DIFC, Abu Dhabi, KSA Vision 2030 assets', value:2},
+      {icon:'📈', text:'Equities & Public Markets', sub:'Tadawul, DFM, ADX listed securities', value:1},
+      {icon:'🔒', text:'Private Equity & Venture Capital', sub:'Direct deals, co-investments, fund stakes', value:3},
+      {icon:'💼', text:'Fixed Income & Sukuk', sub:'GCC sovereign and corporate bonds', value:1},
+      {icon:'🌐', text:'Multi-Asset / Family Office', sub:'Diversified portfolio across all classes', value:3},
+    ]
+  },
+  {
+    id:'q2', tag:'Capital Tier',
+    text:'What is your typical single-deal or single-fund investment ticket?',
+    sub:'This helps us benchmark against GCC market norms for your tier.',
+    type:'options',
+    options:[
+      {icon:'💵', text:'Under $500K', sub:'Early-stage or entry position', value:1},
+      {icon:'💰', text:'$500K -  $2M', sub:'Mid-tier allocation', value:2},
+      {icon:'🏦', text:'$2M -  $10M', sub:'Institutional-grade ticket', value:3},
+      {icon:'🌟', text:'$10M and above', sub:'Ultra-HNW / Family Office scale', value:3},
+    ]
+  },
+  {
+    id:'q3', tag:'Market Intelligence',
+    text:'How confident are you in your current GCC market intelligence?',
+    sub:'1 = Flying blind. 5 = I see every signal before it moves markets.',
+    type:'scale',
+    labels:['Flying Blind','Poor','Average','Good','Elite'],
+    values:[3,2,1,1,0]
+  },
+  {
+    id:'q4', tag:'Regulatory Awareness',
+    text:'Are you up to date with the latest DIFC and ADGM regulatory changes affecting your asset class?',
+    sub:'New frameworks in 2025-2026 have created significant deal opportunities that most investors are missing.',
+    type:'options',
+    options:[
+      {icon:'✅', text:'Fully up to date', sub:'I track DIFC and ADGM announcements regularly', value:0},
+      {icon:'🔄', text:'Partially aware', sub:'I hear about major changes but miss the detail', value:2},
+      {icon:'❌', text:'Not tracking it actively', sub:'I rely on advisors or find out late', value:3},
+      {icon:'🤷', text:'Not sure what applies to me', sub:'I am unsure which regulations affect my portfolio', value:3},
+    ]
+  },
+  {
+    id:'q5', tag:'Deal Flow Quality',
+    text:'How would you describe the quality of your current GCC deal flow?',
+    sub:'Be honest -  this is where most investors have the biggest gap.',
+    type:'options',
+    options:[
+      {icon:'🚀', text:'Exceptional -  I see deals before they market', sub:'Strong network, proprietary signals', value:0},
+      {icon:'👍', text:'Good -  I get most major opportunities', sub:'Solid network, occasional gaps', value:1},
+      {icon:'⚠️', text:'Average -  I miss good deals regularly', sub:'Reactive, not proactive intelligence', value:2},
+      {icon:'🔴', text:'Poor -  I find out after the window closes', sub:'My deal flow has significant blind spots', value:3},
+    ]
+  }
+];
+
+// ==================== STATE ====================
+var currentQ = 0;
+var answers = {};
+var userData = {};
+
+function startQuiz(){
+  show('screen-quiz');
+  hide('screen-hero');
+  renderQuestion(0);
+}
+
+function renderQuestion(idx){
+  var q = QUESTIONS[idx];
+  var pct = Math.round((idx+1)/QUESTIONS.length*100);
+  document.getElementById('q-step-label').textContent = 'Question '+(idx+1)+' of '+QUESTIONS.length;
+  document.getElementById('q-pct-label').textContent = pct+'%';
+  document.getElementById('q-prog-fill').style.width = pct+'%';
+  var btn = document.getElementById('q-next-btn');
+  btn.classList.remove('enabled');
+
+  var html = '<div class="q-tag">'+q.tag+'</div><div class="q-text">'+q.text+'</div><div class="q-sub">'+q.sub+'</div>';
+
+  if(q.type === 'options'){
+    html += '<div class="q-options">';
+    q.options.forEach(function(opt, i){
+      html += '<div class="q-opt" data-idx="'+i+'" onclick="selectOpt(this,\''+q.id+'\','+opt.value+')">'+
+        '<div class="q-opt-icon">'+opt.icon+'</div>'+
+        '<div><div class="q-opt-text">'+opt.text+'</div><div class="q-opt-sub">'+opt.sub+'</div></div>'+
+      '</div>';
+    });
+    html += '</div>';
+  } else if(q.type === 'scale'){
+    html += '<div class="scale-wrap">';
+    q.labels.forEach(function(lbl, i){
+      html += '<div class="scale-btn" onclick="selectScale(this,\''+q.id+'\','+q.values[i]+','+(i+1)+')" data-val="'+(i+1)+'">'+
+        '<div class="scale-btn-n">'+(i+1)+'</div>'+
+        '<div class="scale-btn-l">'+lbl+'</div>'+
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('q-content').innerHTML = html;
+}
+
+function selectOpt(el, qid, val){
+  el.closest('.q-options').querySelectorAll('.q-opt').forEach(function(o){o.classList.remove('selected');});
+  el.classList.add('selected');
+  answers[qid] = val;
+  document.getElementById('q-next-btn').classList.add('enabled');
+}
+
+function selectScale(el, qid, val, num){
+  el.closest('.scale-wrap').querySelectorAll('.scale-btn').forEach(function(b){b.classList.remove('selected');});
+  el.classList.add('selected');
+  answers[qid] = val;
+  document.getElementById('q-next-btn').classList.add('enabled');
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ < QUESTIONS.length){
+    renderQuestion(currentQ);
+  } else {
+    showGate();
+  }
+}
+
+function showGate(){
+  show('screen-gate');
+  hide('screen-quiz');
+}
+
+function submitGate(e){
+  e.preventDefault();
+  var name = document.getElementById('g-name').value.trim();
+  var email = document.getElementById('g-email').value.trim();
+  var phone = document.getElementById('g-phone').value.trim();
+  if(!name || !email) return;
+  userData = {name:name, email:email, phone:phone};
+  var btn = document.getElementById('gate-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Calculating...';
+  show('screen-loading');
+  hide('screen-gate');
+  runLoadingAnimation(function(){
+    submitLead(name, email, phone);
+    showResults(name);
+  });
+}
+
+function runLoadingAnimation(cb){
+  var steps = ['ls-1','ls-2','ls-3','ls-4','ls-5'];
+  var i = 0;
+  var interval = setInterval(function(){
+    if(i < steps.length){
+      document.getElementById(steps[i]).classList.add('done');
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(cb, 400);
+    }
+  }, 420);
+}
+
+function calcScore(){
+  var raw = 0;
+  var maxRaw = 15; // max penalty points
+  Object.values(answers).forEach(function(v){ raw += v; });
+  // Invert: high penalty = low score
+  var score = Math.max(20, Math.round(100 - (raw / maxRaw) * 78));
+  // Add slight variance based on name to feel personalised
+  return Math.min(99, Math.max(21, score));
+}
+
+function showResults(name){
+  var score = calcScore();
+  var firstName = name.split(' ')[0];
+
+  // Zone
+  var zone, zoneClass, headline, summary, insights;
+  if(score <= 45){
+    zone = 'HIGH RISK ZONE';
+    zoneClass = 'red';
+    headline = 'Significant blind spots detected in your GCC strategy';
+    summary = firstName+', your score reveals 3 critical signal gaps that competitors are already exploiting. The good news: these are fixable within 30 days with the right intelligence layer.';
+    insights = [
+      {dot:'red', text:'<strong>Regulatory exposure:</strong> You are missing DIFC and ADGM framework updates that have opened 4 new investment structures since Q4 2024. Competitors are already moving.'},
+      {dot:'red', text:'<strong>Deal flow quality:</strong> Your signals are arriving after market consensus -  meaning you are pricing risk on stale intelligence, not live signals.'},
+      {dot:'amber', text:'<strong>Capital deployment timing:</strong> Without a live signal layer, you are likely entering positions 2-3 weeks after optimal entry windows in your target asset class.'},
+    ];
+  } else if(score <= 70){
+    zone = 'MODERATE GAPS';
+    zoneClass = 'amber';
+    headline = 'Solid foundation -  but 2 gaps are costing you returns';
+    summary = firstName+', you have the right instincts but your intelligence infrastructure has gaps that are creating timing risk. One upgrade to your signal stack closes this fast.';
+    insights = [
+      {dot:'amber', text:'<strong>Signal latency:</strong> You are catching most major moves but missing the early-stage signals that separate 2x deals from 8x deals in GCC private markets.'},
+      {dot:'amber', text:'<strong>Regulatory delta:</strong> Partial awareness means you are capturing some opportunities from new frameworks but leaving others on the table.'},
+      {dot:'green', text:'<strong>Network strength:</strong> Your deal flow network is functional -  adding an intelligence layer to it will compound your existing advantages significantly.'},
+    ];
+  } else {
+    zone = 'STRONG POSITION';
+    zoneClass = 'green';
+    headline = 'Elite-tier intelligence posture -  with one gap to close';
+    summary = firstName+', you are operating at the top tier of GCC investor intelligence. One targeted upgrade to your proprietary signal stack turns good into exceptional.';
+    insights = [
+      {dot:'green', text:'<strong>Regulatory intelligence:</strong> You are ahead of 80% of GCC investors on framework awareness. Stay ahead with automated DIFC and ADGM monitoring.'},
+      {dot:'green', text:'<strong>Deal flow quality:</strong> Your network is strong. The next level is intercepting liquidity events and capital unlocks before they surface in any network.'},
+      {dot:'amber', text:'<strong>Signal automation:</strong> Even elite investors leave returns on the table without a systematic early-warning layer for GCC-specific investment signals.'},
+    ];
+  }
+
+  // Animate ring
+  setTimeout(function(){
+    var circumference = 377;
+    var offset = circumference - (score / 100) * circumference;
+    var fill = document.getElementById('score-ring-fill');
+    fill.style.stroke = zoneClass === 'red' ? '#EF4444' : zoneClass === 'amber' ? '#F59E0B' : '#22C55E';
+    fill.style.strokeDashoffset = offset;
+    // Count up
+    var start = 0, dur = 1500, step = 16;
+    var timer = setInterval(function(){
+      start += Math.ceil(score / (dur/step));
+      if(start >= score){ start = score; clearInterval(timer); }
+      document.getElementById('score-display').textContent = start;
+    }, step);
+  }, 100);
+
+  document.getElementById('score-zone-badge').textContent = zone;
+  document.getElementById('score-zone-badge').className = 'score-label '+zoneClass;
+  document.getElementById('results-name-display').textContent = firstName+"'s Score";
+  document.getElementById('results-headline').textContent = headline;
+  document.getElementById('results-summary').textContent = summary;
+  document.getElementById('results-insights').innerHTML = insights.map(function(ins){
+    return '<div class="insight"><div class="insight-dot '+ins.dot+'"></div><div class="insight-text">'+ins.text+'</div></div>';
+  }).join('');
+
+  // Share links
+  var shareText = encodeURIComponent('I just got my GCC Deal Health Score: '+score+'/100 from Gulf Capital Intelligence. Get yours free in 30 seconds:');
+  var shareUrl = encodeURIComponent('https://gulfcapitalintelligence.com/deal-health-score');
+  document.getElementById('share-linkedin').href = 'https://www.linkedin.com/sharing/share-offsite/?url='+shareUrl;
+  document.getElementById('share-whatsapp').href = 'https://wa.me/?text='+shareText+'%20'+shareUrl;
+
+  show('screen-results');
+  hide('screen-loading');
+}
+
+function submitLead(name, email, phone){
+  var score = calcScore();
+  fetch('/api/capture-lead', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: name,
+      email: email,
+      phone: phone,
+      score: score,
+      answers: answers,
+      source: 'deal-health-score',
+      url: window.location.href,
+      ts: new Date().toISOString()
+    })
+  }).catch(function(){});
+}
+
+function show(id){ document.getElementById(id).classList.add('active'); }
+function hide(id){ document.getElementById(id).classList.remove('active'); document.getElementById(id).style.display=''; }
+
+// Init: make sure hero visible
+document.getElementById('screen-hero').style.display='flex';
+</script>
+
+<!-- ARIA Voice Widget -->
+<style>
+/* Sticky bottom bar trigger */
+#aria-bar{position:fixed;bottom:0;left:0;right:0;z-index:999997;background:linear-gradient(90deg,#001f3f,#003d7a);border-top:1px solid rgba(212,175,55,.4);padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:background .2s}
+#aria-bar:hover{background:linear-gradient(90deg,#002a52,#004a9a)}
+#aria-bar-pulse{width:10px;height:10px;border-radius:50%;background:#4caf50;flex-shrink:0;animation:aria-live 1.8s infinite}
+@keyframes aria-live{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+#aria-bar-mic{width:36px;height:36px;border-radius:50%;background:rgba(212,175,55,.15);border:1.5px solid #d4af37;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#aria-bar-mic svg{width:18px;height:18px;fill:#d4af37}
+#aria-bar-text{display:flex;flex-direction:column}
+#aria-bar-title{color:#d4af37;font-size:13px;font-weight:700;letter-spacing:.5px;line-height:1.2}
+#aria-bar-sub{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.3px}
+#aria-bar-cta{background:#d4af37;color:#001f3f;font-size:12px;font-weight:700;border:none;border-radius:20px;padding:7px 16px;cursor:pointer;white-space:nowrap;margin-left:8px}
+
+/* Call card */
+#aria-overlay{display:none;position:fixed;bottom:65px;right:0;left:auto;transform:none;z-index:999999;width:240px;background:#1a1f2e;border-radius:14px 14px 0 0;padding:14px 14px 11px;box-shadow:-4px -4px 24px rgba(0,0,0,.5);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media(max-width:480px){#aria-overlay{width:100%;right:0;left:0;border-radius:14px 14px 0 0}}
+#aria-overlay.open{display:block}
+#aria-ov-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+#aria-dot{width:9px;height:9px;border-radius:50%;background:#4caf50;margin-right:8px;flex-shrink:0;transition:background .3s}
+#aria-ov-name{color:#fff;font-size:12px;font-weight:700;letter-spacing:.3px}
+#aria-x{background:none;border:none;color:#555;cursor:pointer;font-size:20px;line-height:1;padding:0 2px}#aria-min{background:none;border:none;color:#555;cursor:pointer;font-size:16px;line-height:1;padding:0 4px;margin-right:2px}#aria-min:hover,#aria-x:hover{color:#aaa}#aria-overlay.minimized #aria-body{display:none}#aria-overlay.minimized{padding:8px 14px;border-radius:14px 14px 0 0}
+#aria-x:hover{color:#aaa}
+#aria-ring{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#1a6b8a,#0d9488);margin:0 auto 11px;display:flex;align-items:center;justify-content:center;position:relative}
+@keyframes aria-ripple{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.3);opacity:0}}
+#aria-ring.speaking::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid #0d9488;animation:aria-ripple 1.4s infinite}
+#aria-bars{display:flex;align-items:center;gap:3px;height:30px}
+.ab{width:3px;border-radius:2px;background:rgba(255,255,255,.85);height:5px}
+@keyframes ab-anim{0%{height:4px}100%{height:var(--h,24px)}}
+#aria-ring.speaking .ab,#aria-ring.listening .ab{animation:ab-anim var(--d,.4s) ease-in-out infinite alternate}
+#aria-ring.listening .ab{background:rgba(255,210,80,.9)}
+#aria-title{color:#fff;font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+#aria-st{color:#6b7280;font-size:11px;text-align:center;margin-bottom:12px;min-height:14px}
+#aria-btns{display:flex;justify-content:center;gap:18px;margin-bottom:14px}
+.ac{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.ac:hover{transform:scale(1.08)}
+#ac-wa{background:#25d366}
+#ac-wa svg{width:18px;height:18px;fill:white}
+#ac-mic{background:#374151}
+#ac-mic.muted{background:#6b7280}
+#ac-mic svg{width:15px;height:15px;fill:white}
+#ac-end{background:#ef4444}
+#ac-end svg{width:16px;height:16px;fill:white}
+#aria-pw{color:#374151;font-size:10px;text-align:center;letter-spacing:.3px}
+</style>
+
+<!-- Sticky bottom bar -->
+<div id="aria-bar">
+  <div id="aria-bar-pulse"></div>
+  <div id="aria-bar-mic">
+    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+  </div>
+  <div id="aria-bar-text">
+    <div id="aria-bar-title">Talk to ARIA, GCI Intelligence Analyst</div>
+    <div id="aria-bar-sub">Your GCC Investment Intelligence Analyst</div>
+  </div>
+  <button id="aria-bar-cta">Speak Now</button>
+</div>
+
+<!-- Call card -->
+<div id="aria-overlay">
+  <div id="aria-ov-head">
+    <div style="display:flex;align-items:center"><div id="aria-dot"></div><div id="aria-ov-name">ARIA</div></div>
+    <button id="aria-min" title="Minimise">&#8722;</button><button id="aria-x">&times;</button>
+  </div>
+  <div id="aria-body"><div id="aria-ring">
+    <div id="aria-bars">
+      <div class="ab" style="--d:.38s;--h:16px"></div>
+      <div class="ab" style="--d:.26s;--h:28px"></div>
+      <div class="ab" style="--d:.44s;--h:20px"></div>
+      <div class="ab" style="--d:.32s;--h:34px"></div>
+      <div class="ab" style="--d:.50s;--h:18px"></div>
+      <div class="ab" style="--d:.22s;--h:26px"></div>
+      <div class="ab" style="--d:.42s;--h:14px"></div>
+      <div class="ab" style="--d:.30s;--h:22px"></div>
+    </div>
+  </div>
+  <div id="aria-title">ARIA</div>
+  <div id="aria-st">Tap the mic to speak</div>
+  <div id="aria-btns">
+    <button class="ac" id="ac-wa" onclick="window.open('https://wa.me/971554024667','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </button>
+    <button class="ac" id="ac-mic">
+      <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+    </button>
+    <button class="ac" id="ac-end">
+      <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    </button>
+  </div>
+  </div><div id="aria-pw">Powered by Gulf Capital Intelligence</div>
+</div>
+
+<script>
+(function(){
+  const bar=document.getElementById('aria-bar');
+  const overlay=document.getElementById('aria-overlay');
+  const ring=document.getElementById('aria-ring');
+  const dot=document.getElementById('aria-dot');
+  const st=document.getElementById('aria-st');
+  const micBtn=document.getElementById('ac-mic');
+  const endBtn=document.getElementById('ac-end');
+  const xBtn=document.getElementById('aria-x');
+  let open=false,listening=false,processing=false,speaking=false,muted=false;
+  let lang=sessionStorage.getItem('aria-lang')||'en',
+    history=JSON.parse(sessionStorage.getItem('aria-history')||'[]'),
+    recognition=null,currentAudio=null,audioUnlocked=false,inactivityTimer=null;
+  function saveState(){sessionStorage.setItem('aria-history',JSON.stringify(history));sessionStorage.setItem('aria-lang',lang);}
+
+  function unlockAudio(){
+    if(audioUnlocked)return; audioUnlocked=true;
+    try{const c=new(window.AudioContext||window.webkitAudioContext)();const b=c.createBuffer(1,1,22050);const s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume().then(()=>c.close())}catch(e){}
+    try{const a=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');a.volume=0.001;a.play().catch(()=>{})}catch(e){}
+  }
+
+  function setState(state,label){
+    ring.className=state||'';
+    dot.style.background=state==='speaking'?'#4caf50':state==='listening'?'#f59e0b':'#6b7280';
+    st.textContent=label||'';
+  }
+
+  function openCard(){
+    unlockAudio();
+    overlay.classList.add('open');
+    bar.style.display='none';
+    open=true;
+    sessionStorage.setItem('aria-open','1');
+    if(history.length>0){
+      setState('listening','Listening...');
+      resetInactivityTimer();
+      setTimeout(startListening,350);
+    } else {
+      playGreeting();
+    }
+  }
+
+  bar.addEventListener('click',openCard);
+
+  function endCall(){
+    clearInactivityTimer();
+    stopAudio();
+    try{if(recognition)recognition.abort()}catch(e){}
+    overlay.classList.remove('open');
+    bar.style.display='flex';
+    open=false;listening=false;processing=false;speaking=false;
+    setState('','Tap the mic to speak');
+    history=[];sessionStorage.removeItem('aria-history');sessionStorage.removeItem('aria-lang');sessionStorage.removeItem('aria-open');
+  }
+  xBtn.addEventListener('click',endCall);
+  endBtn.addEventListener('click',endCall);
+
+  // Minimize / expand
+  const minBtn=document.getElementById('aria-min');
+  let minimized=false;
+  minBtn.addEventListener('click',(e)=>{
+    e.stopPropagation();
+    minimized=!minimized;
+    overlay.classList.toggle('minimized',minimized);
+    minBtn.innerHTML=minimized?'&#43;':'&#8722;';
+  });
+
+  // Page context
+  function getPageCtx(){
+    return{page:window.location.pathname,title:document.title.replace(' | Gulf Capital Intelligence','').trim()};
+  }
+
+  function resetInactivityTimer(){
+    clearInactivityTimer();
+    inactivityTimer=setTimeout(()=>{
+      if(open){
+        setState('','No response for 30s...');
+        try{if(recognition)recognition.abort()}catch(e){}
+        stopAudio();
+        setTimeout(endCall,1800);
+      }
+    },30000);
+  }
+  function clearInactivityTimer(){if(inactivityTimer){clearTimeout(inactivityTimer);inactivityTimer=null;}}
+
+  micBtn.addEventListener('click',()=>{
+    muted=!muted;
+    micBtn.classList.toggle('muted',muted);
+    if(muted){try{if(recognition)recognition.abort()}catch(e){}}
+    else if(open&&!processing&&!speaking)startListening();
+  });
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){
+    recognition=new SR();
+    recognition.continuous=false;
+    recognition.interimResults=false;
+    recognition.onstart=()=>{listening=true;setState('listening','Listening...')};
+    recognition.onresult=e=>{
+      let txt='';
+      for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)txt+=e.results[i][0].transcript;
+      if(txt.trim()){clearInactivityTimer();sendToARIA(txt.trim());}
+    };
+    recognition.onerror=e=>{
+      listening=false;
+      if(e.error!=='no-speech'&&e.error!=='aborted')setState('','Mic error. Try again.');
+      if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,800);
+    };
+    recognition.onend=()=>{listening=false;if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,400)};
+  }
+
+  async function playGreeting(attempt){
+    attempt=attempt||1;
+    if(processing&&attempt===1)return;
+    processing=true;
+    setState('speaking',attempt===1?'ARIA is connecting...':'Connecting...');
+    try{
+      const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({transcript:'__greet__',history:[],sessionLanguage:lang,pageContext:getPageCtx()})});
+      if(!r.ok)throw new Error(r.status);
+      const enc=r.headers.get('X-ARIA-Text');
+      if(enc){history.push({role:'assistant',content:atob(enc)});saveState();}
+      const blob=await r.blob();
+      processing=false;speaking=true;
+      setState('speaking','Speaking...');
+      await playAudio(blob);
+      speaking=false;
+      setState('listening','Listening...');
+      resetInactivityTimer();
+      setTimeout(startListening,350);
+    }catch(e){
+      processing=false;
+      if(attempt<2){
+        // Retry once after 1.5s before giving up
+        setState('speaking','Connecting...');
+        setTimeout(()=>playGreeting(2),1500);
+      } else {
+        setState('listening','Listening...');
+        setTimeout(startListening,500);
+      }
+    }
+  }
+
+  function startListening(){
+    if(!recognition||muted||processing||speaking||listening)return;
+    try{recognition.start()}catch(e){}
+  }
+
+  async function sendToARIA(txt){
+    listening=false;processing=true;
+    setState('','ARIA is thinking...');
+    const ar=/[؀-ۿ]/;
+    lang=ar.test(txt)?'ar':'en';
+    history.push({role:'user',content:txt});saveState();
+    try{
+      const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({transcript:txt,history,sessionLanguage:lang,pageContext:getPageCtx()})});
+      if(!r.ok)throw new Error(r.status);
+      const enc=r.headers.get('X-ARIA-Text');
+      if(enc)history.push({role:'assistant',content:atob(enc)});
+      const blob=await r.blob();
+      processing=false;speaking=true;
+      setState('speaking','Speaking...');
+      await playAudio(blob);
+      speaking=false;
+      setState('listening','Listening...');
+      setTimeout(startListening,350);
+    }catch(e){
+      processing=false;
+      setState('','Error. Retrying...');
+      setTimeout(()=>{if(open&&!muted)startListening()},2500);
+    }
+  }
+
+  function playAudio(blob){
+    return new Promise((res,rej)=>{
+      stopAudio();
+      const url=URL.createObjectURL(blob);
+      const a=new Audio(url);
+      currentAudio=a;
+      a.onended=()=>{URL.revokeObjectURL(url);currentAudio=null;res()};
+      a.onerror=()=>{URL.revokeObjectURL(url);currentAudio=null;rej()};
+      a.play().catch(e=>{URL.revokeObjectURL(url);currentAudio=null;rej(e)});
+    });
+  }
+
+  function stopAudio(){if(currentAudio){currentAudio.pause();currentAudio=null}}
+
+  // Auto-reopen if ARIA was active before page navigation
+  if(sessionStorage.getItem('aria-open')==='1'){
+    setTimeout(openCard,600);
+  }
+})();
+</script>
+<script>fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'pageview',page:location.pathname})}).catch(function(){});</script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "routes": [
+    { "route": "/app", "rewrite": "/app.html" },
+    { "route": "/admin", "rewrite": "/admin.html" },
+    { "route": "/disclaimer", "rewrite": "/disclaimer.html" },
+    { "route": "/terms", "rewrite": "/terms.html" },
+    { "route": "/privacy", "rewrite": "/privacy.html" },
+    { "route": "/security", "rewrite": "/security.html" },
+    { "route": "/deal-health-score", "rewrite": "/deal-health-score.html" },
+    { "route": "/careers", "rewrite": "/careers.html" },
+    { "route": "/news", "rewrite": "/news.html" },
+    { "route": "/news/*", "rewrite": "/news.html" },
+    { "route": "/sitemap.xml", "rewrite": "/api/sitemap" },
+    { "route": "/careers/client-development-associate", "rewrite": "/careers/client-development-associate.html" },
+    { "route": "/careers/due-diligence-analyst-dubai", "rewrite": "/careers/due-diligence-analyst-dubai.html" },
+    { "route": "/careers/due-diligence-analyst-riyadh", "rewrite": "/careers/due-diligence-analyst-riyadh.html" },
+    { "route": "/careers/gcc-investment-intelligence-associate", "rewrite": "/careers/gcc-investment-intelligence-associate.html" },
+    { "route": "/careers/healthcare-consumer-intelligence-analyst", "rewrite": "/careers/healthcare-consumer-intelligence-analyst.html" },
+    { "route": "/careers/investment-research-analyst-dubai", "rewrite": "/careers/investment-research-analyst-dubai.html" },
+    { "route": "/careers/investment-research-analyst-riyadh", "rewrite": "/careers/investment-research-analyst-riyadh.html" },
+    { "route": "/careers/private-credit-analyst", "rewrite": "/careers/private-credit-analyst.html" },
+    { "route": "/careers/real-estate-intelligence-analyst", "rewrite": "/careers/real-estate-intelligence-analyst.html" },
+    { "route": "/careers/senior-client-director", "rewrite": "/careers/senior-client-director.html" },
+    { "route": "/careers/senior-research-analyst-difc", "rewrite": "/careers/senior-research-analyst-difc.html" },
+    { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" }
+  ],
+  "mimeTypes": {
+    ".pdf": "application/pdf",
+    ".xml": "application/xml"
+  },
+  "responseOverrides": {
+    "404": {
+      "statusCode": 404
+    }
+  },
+  "platform": {
+    "apiRuntime": "node:20"
+  }
+}

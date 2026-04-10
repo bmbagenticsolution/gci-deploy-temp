@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">GCI Intelligence Briefings | Gulf Capital Markets Analysis | DIFC Dubai</title>
+<meta name="description" id="page-desc" content="Daily intelligence briefings on Gulf capital markets, DIFC regulations, Saudi Vision 2030, and GCC investment trends. Published every morning from DIFC, Dubai.">
+<meta property="og:type" content="website">
+<meta property="og:title" id="og-title" content="GCI Intelligence Briefings | Gulf Capital Markets">
+<meta property="og:description" id="og-desc" content="Daily intelligence briefings on Gulf capital markets, DIFC regulations, and GCC investment trends.">
+<meta property="og:url" id="og-url" content="https://gulfcapitalintelligence.com/news">
+<meta property="og:image" content="https://gulfcapitalintelligence.com/og-news.png">
+<link rel="canonical" id="canonical" href="https://gulfcapitalintelligence.com/news">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GCI Intelligence Briefings | Gulf Capital Markets">
+<meta name="twitter:description" content="Daily intelligence briefings on Gulf capital markets and GCC investment trends.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='8' fill='%230B1D35'/><text x='50%25' y='58%25' dominant-baseline='middle' text-anchor='middle' fill='%23C8A84B' font-family='Georgia' font-weight='700' font-size='13'>GCI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Instrument+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#0B1D35;--navy2:#0F2540;
+  --gold:#B8860B;--gold2:#C8A84B;--gold3:#DFC07A;
+  --gold-bg:#FAF5E8;--gold-bd:#E8D49A;
+  --white:#FFFFFF;--off:#FAFBFD;--bg:#F2F5FA;
+  --rule:#DDE2EE;--rule2:#E8ECF5;
+  --body:#2A3A52;--muted:#5A6A82;--faint:#8E9BB0;
+  --f-serif:'Cormorant Garamond',Georgia,serif;
+  --f-sans:'Instrument Sans',system-ui,sans-serif;
+  --f-mono:'IBM Plex Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--f-sans);background:var(--white);color:var(--body);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;background:rgba(255,255,255,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--rule);display:flex;align-items:center;padding:0 52px;transition:box-shadow .3s}
+.nav.sc{box-shadow:0 2px 24px rgba(11,29,53,0.09)}
+.nlogo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nmark{width:38px;height:38px;background:var(--navy);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--f-serif);font-size:13px;font-weight:600;color:var(--gold2)}
+.nnm{font-size:14px;font-weight:600;color:var(--navy);line-height:1.2}
+.nsub{font-family:var(--f-mono);font-size:9px;color:var(--faint);letter-spacing:0.08em;text-transform:uppercase}
+.nlinks{margin-left:auto;display:flex;align-items:center;gap:28px}
+.nlink{font-size:13.5px;color:var(--muted);text-decoration:none;transition:color .15s}
+.nlink:hover,.nlink.active{color:var(--navy);font-weight:500}
+.nright{margin-left:28px;display:flex;gap:10px;align-items:center}
+.btn-n{font-size:13px;font-weight:600;padding:9px 20px;border-radius:7px;border:none;background:var(--navy);color:#fff;transition:all .18s;display:inline-block;text-decoration:none;cursor:pointer}
+.btn-n:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-g{font-size:13px;font-weight:500;padding:8px 18px;border-radius:7px;border:1px solid var(--rule);background:transparent;color:var(--body);transition:all .15s;display:inline-block;text-decoration:none;cursor:pointer}
+.btn-g:hover{border-color:var(--navy);color:var(--navy)}
+.ctr{max-width:1120px;margin:0 auto;padding:0 52px}
+.mob-menu-btn{display:none;margin-left:auto;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px}
+.mob-menu-btn span{display:block;width:22px;height:2px;background:var(--navy);border-radius:2px;transition:all .25s}
+.mob-drawer{display:none;position:fixed;top:64px;left:0;right:0;background:#fff;border-bottom:1px solid var(--rule);z-index:99;padding:16px 20px 20px;box-shadow:0 8px 32px rgba(11,29,53,.12)}
+.mob-drawer.open{display:block}
+.mob-drawer a{display:block;padding:11px 0;font-size:14px;color:var(--body);text-decoration:none;border-bottom:1px solid var(--rule2)}
+@media(max-width:900px){.nlinks,.nright{display:none}.ctr{padding:0 20px}.nav{padding:0 20px}.mob-menu-btn{display:flex !important}}
+@media(max-width:480px){.ctr{padding:0 16px}.nav{padding:0 16px}}
+
+/* PAGE HEADER */
+.news-header{background:var(--navy);padding:120px 0 60px;position:relative;overflow:hidden}
+.news-header::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(200,168,75,0.07) 0%,transparent 65%);pointer-events:none}
+.stag{font-family:var(--f-mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.stag::before{content:'';display:inline-block;width:24px;height:1px;background:var(--gold2)}
+.news-header h1{font-family:var(--f-serif);font-size:clamp(38px,5vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:16px;max-width:700px}
+.news-header h1 em{font-style:italic;color:var(--gold3)}
+.news-header p{font-size:16px;color:rgba(255,255,255,0.78);max-width:520px;font-weight:300;line-height:1.75}
+.hdr-live{display:inline-flex;align-items:center;gap:7px;background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.22);border-radius:100px;padding:5px 15px;margin-top:20px;font-family:var(--f-mono);font-size:9.5px;color:var(--gold2);letter-spacing:0.1em;text-transform:uppercase}
+.ldot{width:5px;height:5px;background:#34D399;border-radius:50%;animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* SUBSCRIBE STRIP */
+.sub-strip{background:var(--gold-bg);border-bottom:1px solid var(--gold-bd);padding:20px 0}
+.sub-strip .ctr{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.sub-label{font-size:14px;color:var(--navy);font-weight:500;flex:1;min-width:200px}
+.sub-label span{color:var(--gold);font-weight:600}
+.sub-form{display:flex;gap:10px;flex-wrap:wrap}
+.sub-input{font-size:13px;padding:9px 16px;border:1px solid var(--gold-bd);border-radius:7px;background:#fff;color:var(--body);outline:none;transition:border-color .15s;width:220px;font-family:var(--f-sans)}
+.sub-input:focus{border-color:var(--gold2)}
+.sub-btn{font-size:13px;font-weight:600;padding:9px 20px;border-radius:7px;border:none;background:var(--navy);color:#fff;cursor:pointer;transition:all .15s;font-family:var(--f-sans)}
+.sub-btn:hover{background:var(--navy2)}
+.sub-msg{font-size:12px;color:var(--gold);display:none;align-items:center;gap:6px}
+.sub-msg.show{display:flex}
+@media(max-width:640px){.sub-strip .ctr{flex-direction:column;align-items:flex-start}.sub-input{width:100%}.sub-form{width:100%;flex-direction:column}}
+
+/* MAIN LAYOUT */
+.news-main{padding:60px 0 100px;background:var(--white)}
+.news-grid-wrap{display:grid;grid-template-columns:1fr 340px;gap:52px;align-items:start}
+@media(max-width:1020px){.news-grid-wrap{grid-template-columns:1fr}}
+
+/* FILTERS */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;align-items:center}
+.filter-label{font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-right:4px}
+.cat-btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:100px;border:1px solid var(--rule);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--f-sans)}
+.cat-btn:hover,.cat-btn.active{border-color:var(--navy);background:var(--navy);color:#fff}
+
+/* ARTICLE CARDS */
+.article-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:48px}
+@media(max-width:740px){.article-grid{grid-template-columns:1fr}}
+.art-card{border:1px solid var(--rule);border-radius:12px;padding:28px;background:var(--white);transition:all .2s;cursor:pointer;display:flex;flex-direction:column;gap:14px;text-decoration:none;color:inherit}
+.art-card:hover{border-color:var(--navy);box-shadow:0 6px 28px rgba(11,29,53,0.08);transform:translateY(-2px)}
+.art-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+@media(max-width:740px){.art-card.featured{grid-template-columns:1fr}}
+.art-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.art-cat{font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);padding:3px 10px;border-radius:100px;background:rgba(184,134,11,0.08);border:1px solid rgba(184,134,11,0.18)}
+.art-date{font-family:var(--f-mono);font-size:9px;color:var(--faint);letter-spacing:0.06em}
+.art-read{font-family:var(--f-mono);font-size:9px;color:var(--faint)}
+.art-title{font-family:var(--f-serif);font-size:22px;font-weight:500;color:var(--navy);line-height:1.25;transition:color .15s}
+.art-card.featured .art-title{font-size:28px}
+.art-card:hover .art-title{color:var(--gold)}
+.art-excerpt{font-size:13.5px;color:var(--muted);line-height:1.7;flex:1}
+.art-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid var(--rule2)}
+.art-author{font-size:12px;color:var(--faint);font-weight:500}
+.art-arrow{font-size:18px;color:var(--gold2)}
+
+/* PAGINATION */
+.pagination{display:flex;gap:8px;justify-content:center;align-items:center}
+.pg-btn{font-size:13px;font-weight:500;padding:8px 16px;border-radius:7px;border:1px solid var(--rule);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--f-sans)}
+.pg-btn:hover,.pg-btn.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.pg-btn:disabled{opacity:0.35;cursor:not-allowed}
+.pg-info{font-family:var(--f-mono);font-size:10px;color:var(--faint);letter-spacing:0.08em}
+
+/* SIDEBAR */
+.sidebar{}
+.sidebar-card{border:1px solid var(--rule);border-radius:12px;padding:24px;margin-bottom:24px;background:var(--white)}
+.sidebar-card.dk{background:var(--navy);border-color:var(--navy)}
+.sidebar-title{font-family:var(--f-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold2);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.sidebar-title::before{content:'';display:inline-block;width:16px;height:1px;background:var(--gold2)}
+.sidebar-card.dk .sidebar-title{color:var(--gold3)}
+.sidebar-card.dk .sidebar-title::before{background:var(--gold3)}
+.hot-topic{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule2);cursor:pointer;transition:opacity .15s}
+.hot-topic:last-child{border:none;padding-bottom:0}
+.hot-topic:hover{opacity:0.75}
+.ht-num{font-family:var(--f-mono);font-size:18px;font-weight:500;color:var(--rule);min-width:24px;line-height:1.2}
+.ht-info{}
+.ht-cat{font-family:var(--f-mono);font-size:9px;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.ht-title{font-size:13px;font-weight:500;color:var(--navy);line-height:1.4}
+.ht-date{font-family:var(--f-mono);font-size:9px;color:var(--faint);margin-top:3px}
+.sidebar-sub-input{width:100%;font-size:13px;padding:9px 14px;border:1px solid rgba(255,255,255,0.15);border-radius:7px;background:rgba(255,255,255,0.06);color:#fff;outline:none;margin-bottom:10px;font-family:var(--f-sans)}
+.sidebar-sub-input::placeholder{color:rgba(255,255,255,0.78)}
+.sidebar-sub-input:focus{border-color:var(--gold2)}
+.sidebar-sub-btn{width:100%;font-size:13px;font-weight:600;padding:10px;border-radius:7px;border:none;background:var(--gold2);color:var(--navy);cursor:pointer;transition:all .15s;font-family:var(--f-sans)}
+.sidebar-sub-btn:hover{background:var(--gold3)}
+.sidebar-sub-note{font-size:11px;color:rgba(255,255,255,0.78);margin-top:8px;line-height:1.5}
+.topics-list{display:flex;flex-wrap:wrap;gap:8px}
+.topic-tag{font-size:12px;padding:5px 12px;border-radius:100px;border:1px solid var(--rule);color:var(--muted);cursor:pointer;transition:all .15s}
+.topic-tag:hover{border-color:var(--gold2);color:var(--gold)}
+
+/* ARTICLE DETAIL VIEW */
+.article-detail{display:none;padding:40px 0 100px}
+.ad-back{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:32px;transition:color .15s;border:none;background:none;padding:0;font-family:var(--f-sans)}
+.ad-back:hover{color:var(--navy)}
+.ad-wrap{max-width:760px}
+.ad-cat-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.ad-cat{font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);padding:4px 12px;border-radius:100px;background:rgba(184,134,11,0.08);border:1px solid rgba(184,134,11,0.18)}
+.ad-date{font-family:var(--f-mono);font-size:10px;color:var(--faint)}
+.ad-read{font-family:var(--f-mono);font-size:10px;color:var(--faint)}
+.ad-title{font-family:var(--f-serif);font-size:clamp(30px,4vw,48px);font-weight:400;color:var(--navy);line-height:1.12;margin-bottom:20px}
+.ad-author-bar{display:flex;align-items:center;gap:16px;padding:16px 0;border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule2);margin-bottom:36px}
+.ad-author-icon{width:36px;height:36px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--f-serif);font-size:14px;color:var(--gold2);font-weight:600}
+.ad-author-name{font-size:13px;font-weight:500;color:var(--navy)}
+.ad-author-role{font-size:11px;color:var(--faint)}
+.ad-body{font-size:16px;color:var(--body);line-height:1.85}
+.ad-body h2{font-family:var(--f-serif);font-size:26px;font-weight:500;color:var(--navy);margin:36px 0 16px;line-height:1.2}
+.ad-body h3{font-size:17px;font-weight:600;color:var(--navy);margin:28px 0 12px}
+.ad-body p{margin-bottom:20px}
+.ad-body strong{color:var(--navy);font-weight:600}
+.ad-body blockquote{border-left:3px solid var(--gold2);padding:16px 24px;margin:28px 0;background:var(--gold-bg);border-radius:0 8px 8px 0}
+.ad-body blockquote p{margin:0;color:var(--body);font-style:italic;font-size:15px}
+.ad-body ul,.ad-body ol{margin:0 0 20px 24px}
+.ad-body li{margin-bottom:8px;font-size:16px;color:var(--body)}
+.ad-body a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.ad-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:36px;padding-top:24px;border-top:1px solid var(--rule2)}
+.ad-tag{font-size:12px;padding:5px 12px;border-radius:100px;border:1px solid var(--rule);color:var(--muted)}
+.ad-cta{background:var(--navy);border-radius:14px;padding:36px;margin-top:40px;text-align:center}
+.ad-cta-title{font-family:var(--f-serif);font-size:24px;color:#fff;margin-bottom:10px}
+.ad-cta-sub{font-size:14px;color:rgba(255,255,255,0.78);margin-bottom:24px;line-height:1.6}
+.btn-gold{font-size:14px;font-weight:600;padding:13px 28px;border-radius:8px;border:none;background:var(--gold2);color:var(--navy);cursor:pointer;display:inline-block;text-decoration:none;transition:all .18s}
+.btn-gold:hover{background:var(--gold3);transform:translateY(-1px)}
+
+/* EMPTY / LOADING STATES */
+.articles-loading{text-align:center;padding:80px 20px;color:var(--faint)}
+.loading-spinner{width:32px;height:32px;border:2px solid var(--rule);border-top-color:var(--gold2);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.articles-empty{text-align:center;padding:80px 20px}
+.articles-empty h3{font-family:var(--f-serif);font-size:26px;color:var(--navy);margin-bottom:10px}
+.articles-empty p{font-size:14px;color:var(--muted)}
+
+/* SCHEMA MARKUP AREA */
+#schema-ld{display:none}
+
+/* FOOTER */
+.footer{background:var(--navy);padding:40px 0;border-top:1px solid rgba(255,255,255,0.06)}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--f-serif);font-size:18px;color:var(--gold2);text-decoration:none}
+.footer-links{display:flex;gap:24px;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:rgba(255,255,255,0.78);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:rgba(255,255,255,0.8)}
+.footer-copy{font-family:var(--f-mono);font-size:10px;color:rgba(255,255,255,0.78);letter-spacing:0.06em}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nlogo" onclick="location.href='/'">
+    <div class="nmark">GCI</div>
+    <div>
+      <div class="nnm">Gulf Capital Intelligence</div>
+      <div class="nsub">DIFC · Dubai · Reg. 11954</div>
+    </div>
+  </div>
+  <div class="nlinks">
+    <a href="/" class="nlink">Platform</a>
+    <a href="/news" class="nlink active">Intelligence</a>
+    <a href="/deal-health-score" class="nlink">Deal Health Score</a>
+  </div>
+  <div class="nright">
+    <a href="/app" class="btn-g">Sign In</a>
+    <a href="/#pricing" class="btn-n">Get Access</a>
+  </div>
+  <button class="mob-menu-btn" id="mobBtn" onclick="toggleMob()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mob-drawer" id="mobDrawer">
+  <a href="/">Platform</a>
+  <a href="/news">Intelligence</a>
+  <a href="/deal-health-score">Deal Health Score</a>
+  <a href="/app">Sign In</a>
+  <a href="/#pricing">Get Access</a>
+</div>
+
+<!-- PAGE HEADER -->
+<section class="news-header" id="news-header">
+  <div class="ctr">
+    <div class="stag">Intelligence Briefings</div>
+    <h1>Gulf Capital Markets,<br><em>analysed daily</em></h1>
+    <p>Every morning at 5AM, our Intelligence Desk publishes one deep briefing on the most important development in GCC capital markets, DIFC regulations, and Gulf investment flows.</p>
+    <div class="hdr-live"><div class="ldot"></div>Published daily from DIFC, Dubai</div>
+  </div>
+</section>
+
+<!-- SUBSCRIBE STRIP -->
+<div class="sub-strip" id="sub-strip">
+  <div class="ctr">
+    <div class="sub-label">Subscribe to receive <span>one briefing per day</span> at 5AM Dubai time. No noise. Just signal.</div>
+    <div class="sub-form">
+      <input type="email" class="sub-input" id="sub-email-top" placeholder="your@email.com" />
+      <button class="sub-btn" onclick="subscribe('top')">Subscribe Free</button>
+      <div class="sub-msg" id="sub-msg-top">Subscribed. Briefing arrives at 5AM.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="news-main" id="list-view">
+  <div class="ctr">
+    <div class="news-grid-wrap">
+
+      <!-- LEFT: ARTICLES -->
+      <div>
+        <!-- FILTERS -->
+        <div class="filter-row" id="filter-row">
+          <span class="filter-label">Filter:</span>
+          <button class="cat-btn active" onclick="filterCat('', this)">All</button>
+          <button class="cat-btn" onclick="filterCat('Market Intelligence', this)">Market Intelligence</button>
+          <button class="cat-btn" onclick="filterCat('DIFC & Regulation', this)">DIFC &amp; Regulation</button>
+          <button class="cat-btn" onclick="filterCat('Saudi Vision 2030', this)">Saudi Vision 2030</button>
+          <button class="cat-btn" onclick="filterCat('Family Office', this)">Family Office</button>
+          <button class="cat-btn" onclick="filterCat('AI & Fintech', this)">AI &amp; Fintech</button>
+        </div>
+
+        <!-- ARTICLES GRID -->
+        <div class="article-grid" id="article-grid">
+          <div class="articles-loading">
+            <div class="loading-spinner"></div>
+            <div style="font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase">Loading briefings...</div>
+          </div>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination" id="pagination" style="display:none"></div>
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+
+        <!-- Most Read -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">Most Recent</div>
+          <div id="sidebar-recent">
+            <div style="font-family:var(--f-mono);font-size:10px;color:var(--faint);padding:12px 0">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Topics -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">Browse Topics</div>
+          <div class="topics-list">
+            <span class="topic-tag" onclick="filterCat('Market Intelligence', null)">Market Intelligence</span>
+            <span class="topic-tag" onclick="filterCat('DIFC & Regulation', null)">DIFC &amp; Regulation</span>
+            <span class="topic-tag" onclick="filterCat('Saudi Vision 2030', null)">Saudi Vision 2030</span>
+            <span class="topic-tag" onclick="filterCat('Family Office', null)">Family Office</span>
+            <span class="topic-tag" onclick="filterCat('AI & Fintech', null)">AI &amp; Fintech</span>
+            <span class="topic-tag" onclick="filterCat('GCC Macro', null)">GCC Macro</span>
+            <span class="topic-tag" onclick="filterCat('Private Equity', null)">Private Equity</span>
+            <span class="topic-tag" onclick="filterCat('IPO & Capital Markets', null)">IPO &amp; Capital Markets</span>
+            <span class="topic-tag" onclick="filterCat('Legal & Compliance', null)">Legal &amp; Compliance</span>
+          </div>
+        </div>
+
+        <!-- Subscribe CTA -->
+        <div class="sidebar-card dk">
+          <div class="sidebar-title">Daily Briefing</div>
+          <p style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:18px">One deep analysis, every morning at 5AM. Trusted by investors, advisors, and founders across the Gulf.</p>
+          <input type="email" class="sidebar-sub-input" id="sub-email-side" placeholder="your@email.com" />
+          <button class="sidebar-sub-btn" onclick="subscribe('side')">Subscribe -  Free</button>
+          <div style="font-size:11px;color:rgba(255,255,255,0.78);margin-top:8px">No spam. Unsubscribe any time.</div>
+        </div>
+
+        <!-- About GCI -->
+        <div class="sidebar-card">
+          <div class="sidebar-title">About GCI</div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px">Gulf Capital Intelligence is a DIFC-registered AI platform (Reg. 11954) combining live market intelligence with VIDURA, an AI legal engine covering DIFC law and 34 global jurisdictions.</p>
+          <a href="/" style="font-size:13px;color:var(--gold);text-decoration:none;font-weight:500">Explore the platform &rarr;</a>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE DETAIL VIEW -->
+<div class="article-detail ctr" id="detail-view">
+  <button class="ad-back" onclick="showList()">&#8592; Back to Intelligence</button>
+  <div class="ad-wrap">
+    <div class="ad-cat-bar">
+      <span class="ad-cat" id="ad-cat"></span>
+      <span class="ad-date" id="ad-date"></span>
+      <span class="ad-read" id="ad-read"></span>
+    </div>
+    <h1 class="ad-title" id="ad-title"></h1>
+    <div class="ad-author-bar">
+      <div class="ad-author-icon" id="ad-icon">G</div>
+      <div>
+        <div class="ad-author-name" id="ad-author"></div>
+        <div class="ad-author-role">GCI Intelligence Desk · DIFC, Dubai</div>
+      </div>
+    </div>
+    <div class="ad-body" id="ad-body"></div>
+    <div class="ad-tags" id="ad-tags"></div>
+    <div class="ad-cta">
+      <div class="ad-cta-title">Access the Full Intelligence Platform</div>
+      <div class="ad-cta-sub">Real-time market data. VIDURA legal AI. Deal intelligence across 50+ GCC data sources.<br>Trusted by investors, advisors, and founders in DIFC.</div>
+      <a href="/" class="btn-gold">Explore Gulf Capital Intelligence &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="ctr">
+    <div class="footer-inner">
+      <a class="footer-logo" href="/">Gulf Capital Intelligence</a>
+      <div class="footer-links">
+        <a href="/">Platform</a>
+        <a href="/news">Intelligence</a>
+        <a href="/deal-health-score">Deal Health Score</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/disclaimer">Disclaimer</a>
+      </div>
+      <div class="footer-copy">DIFC Reg. 11954 &middot; Dubai, UAE &middot; &copy; 2026 GCI</div>
+    </div>
+  </div>
+</footer>
+
+<!-- SCHEMA.ORG LD+JSON (injected dynamically for articles) -->
+<script id="schema-ld" type="application/ld+json"></script>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+var _articles = [];
+var _allArticles = [];
+var _page = 1;
+var _limit = 10;
+var _totalPages = 1;
+var _currentCat = '';
+var _currentSlug = null;
+
+// ── NAV SCROLL ─────────────────────────────────────────────────────────────
+window.addEventListener('scroll', function(){
+  document.getElementById('nav').classList.toggle('sc', window.scrollY > 40);
+});
+
+// ── MOB MENU ───────────────────────────────────────────────────────────────
+function toggleMob(){
+  document.getElementById('mobBtn').classList.toggle('open');
+  document.getElementById('mobDrawer').classList.toggle('open');
+}
+
+// ── ROUTING ────────────────────────────────────────────────────────────────
+function getSlugFromUrl(){
+  var p = window.location.pathname;
+  var m = p.match(/^\/news\/(.+)/);
+  return m ? m[1] : null;
+}
+
+window.addEventListener('popstate', function(){
+  var s = getSlugFromUrl();
+  if(s) loadArticle(s);
+  else showList();
+});
+
+// ── FETCH HELPERS ──────────────────────────────────────────────────────────
+async function fetchArticles(page, cat){
+  var url = '/api/news?page=' + page + '&limit=' + _limit;
+  if(cat) url += '&cat=' + encodeURIComponent(cat);
+  try{
+    var r = await fetch(url);
+    return await r.json();
+  }catch(e){ return null; }
+}
+
+async function fetchArticle(slug){
+  try{
+    var r = await fetch('/api/news?slug=' + encodeURIComponent(slug));
+    if(!r.ok) return null;
+    var j = await r.json();
+    return j.article || null;
+  }catch(e){ return null; }
+}
+
+// ── FORMAT DATE ────────────────────────────────────────────────────────────
+function fmtDate(iso){
+  try{
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+  }catch(e){ return iso; }
+}
+
+function fmtDateShort(iso){
+  try{
+    var d = new Date(iso);
+    return d.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+  }catch(e){ return iso; }
+}
+
+// ── RENDER CARD ─────────────────────────────────────────────────────────────
+function renderCard(a, featured){
+  var cls = featured ? 'art-card featured' : 'art-card';
+  var inner = featured ?
+    '<div>' +
+      '<div class="art-meta"><span class="art-cat">' + esc(a.category) + '</span><span class="art-date">' + fmtDate(a.publishedAt) + '</span><span class="art-read">' + esc(a.readTime) + '</span></div>' +
+      '<div class="art-title">' + esc(a.title) + '</div>' +
+      '<div class="art-excerpt">' + esc(a.excerpt) + '</div>' +
+      '<div class="art-footer"><span class="art-author">' + esc(a.author) + '</span><span class="art-arrow">&#8594;</span></div>' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;justify-content:flex-end">' +
+      '<div style="background:var(--bg);border-radius:10px;height:100%;min-height:180px;display:flex;align-items:center;justify-content:center;padding:28px">' +
+        '<div style="text-align:center"><div style="font-family:var(--f-serif);font-size:42px;color:var(--gold2);opacity:0.3;margin-bottom:8px">GCI</div><div style="font-family:var(--f-mono);font-size:9px;color:var(--faint);letter-spacing:.1em;text-transform:uppercase">Intelligence Briefing</div></div>' +
+      '</div>' +
+    '</div>' :
+    '<div class="art-meta"><span class="art-cat">' + esc(a.category) + '</span><span class="art-date">' + fmtDate(a.publishedAt) + '</span></div>' +
+    '<div class="art-title">' + esc(a.title) + '</div>' +
+    '<div class="art-excerpt">' + esc(a.excerpt) + '</div>' +
+    '<div class="art-footer"><span class="art-read">' + esc(a.readTime) + '</span><span class="art-arrow">&#8594;</span></div>';
+  return '<a class="' + cls + '" onclick="openArticle(\'' + esc(a.slug) + '\')" href="/news/' + esc(a.slug) + '" onclick="event.preventDefault();openArticle(\'' + esc(a.slug) + '\')">' + inner + '</a>';
+}
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── RENDER LIST ─────────────────────────────────────────────────────────────
+async function loadList(page, cat){
+  var grid = document.getElementById('article-grid');
+  grid.innerHTML = '<div class="articles-loading"><div class="loading-spinner"></div><div style="font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase">Loading briefings...</div></div>';
+  document.getElementById('pagination').style.display = 'none';
+
+  var data = await fetchArticles(page, cat);
+  if(!data || !data.articles){
+    grid.innerHTML = '<div class="articles-empty"><h3>No briefings yet</h3><p>The first daily briefing will be published at 5AM tomorrow.</p></div>';
+    return;
+  }
+
+  var arts = data.articles;
+  _articles = arts;
+  _page = data.page;
+  _totalPages = data.pages;
+
+  if(arts.length === 0){
+    grid.innerHTML = '<div class="articles-empty"><h3>No briefings found</h3><p>Try a different category or check back tomorrow morning.</p></div>';
+    return;
+  }
+
+  var html = '';
+  for(var i=0; i<arts.length; i++){
+    html += renderCard(arts[i], i===0 && page===1 && !cat);
+  }
+  grid.innerHTML = html;
+
+  // Prevent default on links
+  grid.querySelectorAll('a.art-card').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.preventDefault();
+      openArticle(el.getAttribute('href').replace('/news/',''));
+    });
+  });
+
+  // Pagination
+  renderPagination(data.page, data.pages);
+
+  // Sidebar recent
+  if(page===1 && !cat) renderSidebarRecent(arts.slice(0,5));
+}
+
+function renderPagination(page, pages){
+  var el = document.getElementById('pagination');
+  if(pages <= 1){ el.style.display='none'; return; }
+  el.style.display = 'flex';
+  var html = '<button class="pg-btn" onclick="goPage(' + (page-1) + ')" ' + (page<=1?'disabled':'') + '>&larr; Prev</button>';
+  var start = Math.max(1, page-2), end = Math.min(pages, page+2);
+  for(var p=start;p<=end;p++){
+    html += '<button class="pg-btn' + (p===page?' active':'') + '" onclick="goPage(' + p + ')">' + p + '</button>';
+  }
+  html += '<button class="pg-btn" onclick="goPage(' + (page+1) + ')" ' + (page>=pages?'disabled':'') + '>Next &rarr;</button>';
+  html += '<span class="pg-info">Page ' + page + ' of ' + pages + '</span>';
+  el.innerHTML = html;
+}
+
+function goPage(p){
+  if(p<1 || p>_totalPages) return;
+  window.scrollTo({top:0,behavior:'smooth'});
+  loadList(p, _currentCat);
+}
+
+function renderSidebarRecent(arts){
+  var el = document.getElementById('sidebar-recent');
+  if(!el || !arts.length){ return; }
+  var html = '';
+  arts.forEach(function(a,i){
+    html += '<div class="hot-topic" onclick="openArticle(\'' + esc(a.slug) + '\')">' +
+      '<div class="ht-num">0' + (i+1) + '</div>' +
+      '<div class="ht-info"><div class="ht-cat">' + esc(a.category) + '</div><div class="ht-title">' + esc(a.title) + '</div><div class="ht-date">' + fmtDateShort(a.publishedAt) + '</div></div>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── FILTER ──────────────────────────────────────────────────────────────────
+function filterCat(cat, btn){
+  _currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  _page = 1;
+  loadList(1, cat);
+}
+
+// ── SHOW LIST / DETAIL ───────────────────────────────────────────────────────
+function showList(){
+  document.getElementById('list-view').style.display = '';
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('news-header').style.display = '';
+  document.getElementById('sub-strip').style.display = '';
+  _currentSlug = null;
+  document.title = 'GCI Intelligence Briefings | Gulf Capital Markets Analysis | DIFC Dubai';
+  history.pushState({}, '', '/news');
+  window.scrollTo({top:0,behavior:'smooth'});
+  resetSchema();
+}
+
+async function openArticle(slug){
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('news-header').style.display = 'none';
+  document.getElementById('sub-strip').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // Optimistic from cache
+  var cached = _articles.find(function(a){ return a.slug === slug; });
+  if(cached){
+    document.getElementById('ad-title').textContent = cached.title;
+    document.getElementById('ad-body').innerHTML = '<div class="articles-loading"><div class="loading-spinner"></div></div>';
+  }
+
+  var article = await fetchArticle(slug);
+  if(!article){
+    document.getElementById('ad-body').innerHTML = '<p>Article not found. <button onclick="showList()" style="color:var(--gold);background:none;border:none;cursor:pointer;font-size:16px">Go back</button></p>';
+    return;
+  }
+
+  _currentSlug = slug;
+  history.pushState({slug:slug}, '', '/news/' + slug);
+
+  // Populate detail
+  document.getElementById('ad-cat').textContent = article.category;
+  document.getElementById('ad-date').textContent = fmtDate(article.publishedAt);
+  document.getElementById('ad-read').textContent = article.readTime;
+  document.getElementById('ad-title').textContent = article.title;
+  document.getElementById('ad-author').textContent = article.author;
+  document.getElementById('ad-icon').textContent = (article.author||'G')[0].toUpperCase();
+  document.getElementById('ad-body').innerHTML = article.body;
+
+  var tagsEl = document.getElementById('ad-tags');
+  var tags = article.tags || [];
+  tagsEl.innerHTML = tags.map(function(t){ return '<span class="ad-tag">' + esc(t) + '</span>'; }).join('');
+
+  // SEO
+  document.title = (article.metaTitle || article.title) + ' | GCI Intelligence | DIFC Dubai';
+  document.getElementById('page-desc').setAttribute('content', article.metaDescription || article.excerpt || '');
+  document.getElementById('og-title').setAttribute('content', article.title);
+  document.getElementById('og-desc').setAttribute('content', article.excerpt || '');
+  document.getElementById('og-url').setAttribute('content', 'https://gulfcapitalintelligence.com/news/' + slug);
+  document.getElementById('canonical').setAttribute('href', 'https://gulfcapitalintelligence.com/news/' + slug);
+
+  // Schema.org Article
+  injectSchema({
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": article.title,
+    "description": article.excerpt || '',
+    "datePublished": article.publishedAt,
+    "dateModified": article.publishedAt,
+    "author": {"@type": "Organization", "name": article.author || "GCI Intelligence Desk"},
+    "publisher": {
+      "@type": "Organization",
+      "name": "Gulf Capital Intelligence",
+      "url": "https://gulfcapitalintelligence.com",
+      "logo": {"@type": "ImageObject", "url": "https://gulfcapitalintelligence.com/favicon.ico"}
+    },
+    "mainEntityOfPage": {"@type": "WebPage", "@id": "https://gulfcapitalintelligence.com/news/" + slug},
+    "keywords": (article.tags || []).join(', ')
+  });
+}
+
+function injectSchema(obj){
+  document.getElementById('schema-ld').textContent = JSON.stringify(obj);
+}
+function resetSchema(){
+  document.getElementById('schema-ld').textContent = '';
+}
+
+// ── SUBSCRIBE ────────────────────────────────────────────────────────────────
+async function subscribe(loc){
+  var input = document.getElementById('sub-email-' + (loc==='side'?'side':'top'));
+  var msg   = document.getElementById('sub-msg-top');
+  var email = input ? input.value.trim() : '';
+  if(!email || !email.includes('@')){ input && (input.style.borderColor='#e55'); return; }
+  try{
+    var r = await fetch('/api/news?action=subscribe', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email})
+    });
+    if(r.ok){
+      input.value = '';
+      input.placeholder = 'Subscribed!';
+      if(msg) { msg.style.display='flex'; }
+    }
+  }catch(e){}
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', function(){
+  var slug = getSlugFromUrl();
+  if(slug){
+    openArticle(slug);
+  } else {
+    loadList(1, '');
+  }
+});
+</script>
+</body>
+</html>
