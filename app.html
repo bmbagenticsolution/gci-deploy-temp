@@ -678,13 +678,146 @@ html[dir="rtl"] .tog-g{direction:rtl}
 </script>
 <!-- GCI-mobile-a11y-css -->
 <style>
-@media (max-width:768px){
- .ai-monitor, .agt-board, .desk-grid, [data-grid="3col"]{ grid-template-columns: 1fr !important; gap: 12px !important; }
- .modal{ width: 92vw !important; max-width: 92vw !important; }
- .cpanel{ width: 96vw !important; }
-}
 .eng-status, .engine-status, .ai-eng-row{ color: rgba(255,255,255,0.82) !important; }
 .agt-badge{ color:#f8fafc !important; background: rgba(255,255,255,0.18) !important; border-color: rgba(255,255,255,0.32) !important; }
+
+/* HAMBURGER BUTTON (hidden on desktop) */
+.mob-ham{display:none;width:34px;height:34px;border-radius:6px;border:1px solid var(--rule);background:var(--white);cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.mob-ham svg{width:18px;height:18px;color:var(--ink);stroke-width:2}
+/* SIDEBAR OVERLAY (mobile) */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(11,29,53,0.55);z-index:199;backdrop-filter:blur(3px)}
+
+/* ===== TABLET: 768px and below ===== */
+@media (max-width:768px){
+ /* Show hamburger */
+ .mob-ham{display:flex}
+
+ /* Sidebar: off-canvas */
+ .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;z-index:200;transition:left .25s ease;box-shadow:none}
+ .sidebar.mob-open{left:0;box-shadow:4px 0 24px rgba(11,29,53,0.3)}
+ .sb-overlay.mob-open{display:block}
+
+ /* Body: remove flex row, allow scroll */
+ body{flex-direction:column;overflow:auto}
+ html,body{height:auto;overflow-y:auto}
+
+ /* Main takes full width */
+ .main{width:100%;overflow:visible}
+ .content{padding:16px 14px;overflow:visible}
+
+ /* Topbar */
+ .topbar{padding:0 12px;gap:8px;flex-wrap:nowrap;height:auto;min-height:48px;padding-top:8px;padding-bottom:8px}
+ .tb-sub{display:none}
+ .tb-div{display:none}
+ .tb-ctx{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+ .tb-right{gap:6px}
+ .tb-btn{font-size:11px;padding:5px 10px}
+ .so-btn{font-size:10px;padding:3px 8px}
+ .user-pill{max-width:90px;font-size:8px;padding:2px 8px}
+ .lang-toggle{font-size:10px;padding:4px 8px}
+
+ /* Stat row: 2 cols */
+ .stat-row{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+ .sv{font-size:15px}
+
+ /* Agent grid: 1 col */
+ .agent-top,.agent-qc{grid-template-columns:1fr;gap:10px}
+ .ai-monitor,.agt-board,.desk-grid,[data-grid="3col"]{grid-template-columns:1fr!important;gap:12px!important}
+
+ /* Monitor grid: 1 col */
+ .monitor-grid{grid-template-columns:1fr;gap:10px}
+
+ /* Persona grid: 2 cols */
+ .persona-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+
+ /* Report layout: stack */
+ .rpt-layout{grid-template-columns:1fr;height:auto}
+ .rpt-sb{max-height:none}
+ .rpt-scroll{padding:16px 14px}
+
+ /* Signal row: stack */
+ .signal-row{grid-template-columns:1fr;gap:8px}
+
+ /* Payment plans: stack */
+ .pay-plans{grid-template-columns:1fr;gap:10px;padding:16px}
+ .pay-box{max-width:96vw;max-height:94vh}
+ .pay-head{padding:14px 16px}
+ .pay-foot{padding:0 16px 16px}
+
+ /* Modals */
+ .modal{width:94vw!important;max-width:94vw!important}
+ .mh{padding:16px 18px}
+ .mb{padding:16px 18px}
+ .mfoo{padding:12px 18px}
+
+ /* Chat panel: full width */
+ .cpanel{width:100vw!important}
+
+ /* Auth overlay */
+ .auth-card{width:92vw!important;max-width:92vw!important}
+
+ /* Strategy report modal */
+ .srm-box{max-width:96vw}
+ .srm-body{padding:20px 16px}
+ .srm-head{padding:12px 16px}
+ .srm-actions{gap:4px}
+ .srm-btn{padding:5px 10px;font-size:11px}
+
+ /* Page header */
+ .ph-t{font-size:19px}
+ .ph-s{font-size:12px}
+
+ /* God stats (admin) */
+ .god-stats{grid-template-columns:repeat(2,1fr)}
+ .god-viewer-body{padding:16px 14px;font-size:11.5px}
+
+ /* Strategy cards */
+ #sc-strategy .strat-card{min-width:140px}
+ #sc-strategy>div>div:first-child{grid-template-columns:repeat(2,1fr)!important}
+}
+
+/* ===== PHONE: 480px and below ===== */
+@media (max-width:480px){
+ /* Stat row: still 2 cols but tighter */
+ .stat-row{gap:6px}
+ .stat{padding:10px 12px}
+ .sv{font-size:13px}
+ .sl{font-size:10px}
+
+ /* Persona grid: 1 col */
+ .persona-grid{grid-template-columns:1fr}
+
+ /* Agent cards */
+ .ac{padding:8px 10px}
+ .an{font-size:11.5px}
+ .ar{font-size:8px}
+ .ai{width:26px;height:26px}
+ .ag{padding:12px}
+ .ag-l{font-size:8px}
+
+ /* Topbar even tighter */
+ .tb-ctx{max-width:100px;font-size:11px}
+ .tb-right{gap:4px}
+ .tb-btn{padding:4px 8px;font-size:10px}
+
+ /* Form fields in report sidebar */
+ .fg2{grid-template-columns:1fr}
+ .tog-g{grid-template-columns:1fr 1fr}
+
+ /* Modal form */
+ .mg2{grid-template-columns:1fr}
+
+ /* Doc styles */
+ .doc-title{font-size:20px}
+ .verdict-label{font-size:18px}
+ .doc-st{font-size:15px}
+
+ /* Risk table: horizontal scroll */
+ .risk-table{display:block;overflow-x:auto;white-space:nowrap}
+
+ /* Hub cards */
+ .hub-row,.premium-hub{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
@@ -748,9 +881,13 @@ html[dir="rtl"] .tog-g{direction:rtl}
  </div>
 </div>
 
+<!-- SIDEBAR MOBILE OVERLAY -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeMobSidebar()"></div>
+
 <!-- MAIN -->
 <div class="main">
  <div class="topbar">
+  <button class="mob-ham" id="mobHam" onclick="openMobSidebar()" type="button" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <span class="tb-ctx" id="tb-ctx">Intelligence Agents</span>
   <div class="tb-div"></div>
   <span class="tb-sub">Gulf Capital Intelligence &nbsp;|&nbsp; GCC Investment Screening Intelligence</span>
@@ -2247,6 +2384,20 @@ AUDIT TRAINING (v2 upgrade):
 };
 
 let ca=null,ch=[],loading=false;
+
+/* Mobile sidebar toggle */
+function openMobSidebar(){
+ document.querySelector('.sidebar').classList.add('mob-open');
+ document.getElementById('sbOverlay').classList.add('mob-open');
+}
+function closeMobSidebar(){
+ document.querySelector('.sidebar').classList.remove('mob-open');
+ document.getElementById('sbOverlay').classList.remove('mob-open');
+}
+/* Close sidebar when a nav item is tapped on mobile */
+document.querySelectorAll('.ni').forEach(function(n){
+ n.addEventListener('click',function(){if(window.innerWidth<=768)closeMobSidebar();});
+});
 
 function go(sc,el){
  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('act'));
