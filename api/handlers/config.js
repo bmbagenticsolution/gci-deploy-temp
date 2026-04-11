@@ -22,7 +22,9 @@ module.exports = async function handler(req, res) {
       azureTtsDeployment: process.env.AZURE_OPENAI_TTS_DEPLOYMENT || '',
       openai: !!process.env.OPENAI_API_KEY,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
-      hubspot: !!process.env.HUBSPOT_PRIVATE_APP_TOKEN
+      hubspot: !!process.env.HUBSPOT_PRIVATE_APP_TOKEN,
+      azureSpeech: !!process.env.AZURE_SPEECH_KEY,
+      azureSpeechRegion: process.env.AZURE_SPEECH_REGION || ''
     }
   });
 }

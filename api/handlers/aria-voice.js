@@ -201,5 +201,12 @@ module.exports = async function handler(req, res) {
   }
 
   // No audio available, return text-only (front-end will use browser TTS)
-  return res.status(200).json({ text: replyText, audio: null, lang });
+  return res.status(200).json({
+    text: replyText, audio: null, lang,
+    ttsDebug: {
+      speechKeySet: !!AZURE_SPEECH_KEY,
+      speechRegion: AZURE_SPEECH_REGION,
+      speechKeyLength: AZURE_SPEECH_KEY ? AZURE_SPEECH_KEY.length : 0
+    }
+  });
 }
