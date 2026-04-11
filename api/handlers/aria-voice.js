@@ -57,6 +57,7 @@ module.exports = async function handler(req, res) {
 
   // 1) Get text reply from GPT-4o (primary) with Claude as fallback
   let replyText;
+  let debugErrors = [];
 
   if (OPENAI_KEY) {
     // Primary: GPT-4o via OpenAI for fastest voice response
@@ -81,6 +82,7 @@ module.exports = async function handler(req, res) {
       if (!r.ok) {
         const errText = await r.text();
         console.error('[aria-voice] GPT-4o error', r.status, errText);
+        debugErrors.push({ provider: 'openai', status: r.status, detail: errText.substring(0, 200) });
         // Fall through to Claude fallback
       } else {
         const data = await r.json();
@@ -88,12 +90,14 @@ module.exports = async function handler(req, res) {
       }
     } catch (e) {
       console.error('[aria-voice] GPT-4o fetch failed', e.message);
+      debugErrors.push({ provider: 'openai', error: e.message });
     }
   }
 
   // Fallback: Claude if GPT-4o unavailable or failed
   if (!replyText && ANTHROPIC_KEY) {
     try {
+      const claudeModel = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
       const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -102,7 +106,7 @@ module.exports = async function handler(req, res) {
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
+          model: claudeModel,
           max_tokens: 250,
           system: systemPrompt,
           messages: messages.slice(-12)
@@ -111,17 +115,19 @@ module.exports = async function handler(req, res) {
       if (!r.ok) {
         const errText = await r.text();
         console.error('[aria-voice] Claude error', r.status, errText);
-        return res.status(502).json({ error: 'Reasoning service error' });
+        debugErrors.push({ provider: 'anthropic', model: claudeModel, status: r.status, detail: errText.substring(0, 200) });
+        return res.status(502).json({ error: 'Reasoning service error', debug: debugErrors });
       }
       const data = await r.json();
       replyText = (data.content && data.content[0] && data.content[0].text) || '';
     } catch (e) {
       console.error('[aria-voice] Claude fetch failed', e.message);
-      return res.status(502).json({ error: 'Reasoning service unreachable' });
+      debugErrors.push({ provider: 'anthropic', error: e.message });
+      return res.status(502).json({ error: 'Reasoning service unreachable', debug: debugErrors });
     }
   }
 
-  if (!replyText) return res.status(502).json({ error: 'Empty reply from reasoning service' });
+  if (!replyText) return res.status(502).json({ error: 'Empty reply from reasoning service', debug: debugErrors });
 
   // 2) Convert to speech via OpenAI TTS
   //    Use "coral" voice for Arabic (strong multilingual support), "nova" for English
