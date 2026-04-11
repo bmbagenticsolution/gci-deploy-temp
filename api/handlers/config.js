@@ -14,6 +14,11 @@ module.exports = async function handler(req, res) {
       google: { clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '' },
       microsoft: { clientId: process.env.MICROSOFT_OAUTH_CLIENT_ID || '' },
       linkedin: { clientId: process.env.LINKEDIN_OAUTH_CLIENT_ID || '' }
+    },
+    keys: {
+      openai: !!process.env.OPENAI_API_KEY,
+      anthropic: !!process.env.ANTHROPIC_API_KEY,
+      hubspot: !!process.env.HUBSPOT_PRIVATE_APP_TOKEN
     }
   });
 }
