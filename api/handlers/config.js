@@ -16,6 +16,10 @@ module.exports = async function handler(req, res) {
       linkedin: { clientId: process.env.LINKEDIN_OAUTH_CLIENT_ID || '' }
     },
     keys: {
+      azureOpenai: !!process.env.AZURE_OPENAI_KEY,
+      azureEndpoint: process.env.AZURE_OPENAI_ENDPOINT ? process.env.AZURE_OPENAI_ENDPOINT.replace(/\/+$/, '') : '',
+      azureChatDeployment: process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || '',
+      azureTtsDeployment: process.env.AZURE_OPENAI_TTS_DEPLOYMENT || '',
       openai: !!process.env.OPENAI_API_KEY,
       anthropic: !!process.env.ANTHROPIC_API_KEY,
       hubspot: !!process.env.HUBSPOT_PRIVATE_APP_TOKEN

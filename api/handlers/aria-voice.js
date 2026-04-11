@@ -1,4 +1,6 @@
-// api/aria-voice.js  GPT-4o reasoning + GPT-4o-mini TTS (bilingual EN/AR)
+// api/aria-voice.js  Azure OpenAI reasoning + Azure/OpenAI TTS (bilingual EN/AR)
+// Priority: Azure OpenAI > Direct OpenAI > Anthropic Claude
+// TTS: Azure OpenAI TTS > Direct OpenAI TTS > text-only fallback
 // Front-end calls POST with {transcript, history, sessionLanguage, pageContext}
 // Returns audio/mpeg blob with X-ARIA-Text header (base64 encoded reply text)
 
@@ -14,9 +16,22 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const OPENAI_KEY = process.env.OPENAI_API_KEY;
-  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-  if (!OPENAI_KEY && !ANTHROPIC_KEY) return res.status(500).json({ error: 'ARIA unavailable: missing API key' });
+  // Azure OpenAI config (preferred - no geo restrictions)
+  const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || ''; // e.g. https://aoai-gci-prod.openai.azure.com
+  const AZURE_KEY = process.env.AZURE_OPENAI_KEY || '';
+  const AZURE_CHAT_DEPLOYMENT = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || 'gpt-4o'; // deployment name
+  const AZURE_TTS_DEPLOYMENT = process.env.AZURE_OPENAI_TTS_DEPLOYMENT || 'tts'; // TTS deployment name
+  const AZURE_API_VERSION = process.env.AZURE_OPENAI_API_VERSION || '2024-12-01-preview';
+
+  // Direct OpenAI (fallback - may be geo-blocked)
+  const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+
+  // Anthropic Claude (last resort fallback)
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
+
+  if (!AZURE_KEY && !OPENAI_KEY && !ANTHROPIC_KEY) {
+    return res.status(500).json({ error: 'ARIA unavailable: no API keys configured' });
+  }
 
   const { transcript, history, sessionLanguage, pageContext } = req.body || {};
   if (!transcript || typeof transcript !== 'string') {
@@ -55,46 +70,57 @@ module.exports = async function handler(req, res) {
     systemPrompt += `\nCurrent page: ${pageContext.title} (${pageContext.page || ''})`;
   }
 
-  // 1) Get text reply from GPT-4o (primary) with Claude as fallback
+  // ========== 1) GET TEXT REPLY ==========
   let replyText;
   let debugErrors = [];
+  const gptMessages = [{ role: 'system', content: systemPrompt }, ...messages.slice(-12)];
 
-  if (OPENAI_KEY) {
-    // Primary: GPT-4o via OpenAI for fastest voice response
+  // --- Try 1: Azure OpenAI (no geo restrictions) ---
+  if (!replyText && AZURE_ENDPOINT && AZURE_KEY) {
     try {
-      const gptMessages = [
-        { role: 'system', content: systemPrompt },
-        ...messages.slice(-12)
-      ];
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      const url = `${AZURE_ENDPOINT.replace(/\/+$/, '')}/openai/deployments/${AZURE_CHAT_DEPLOYMENT}/chat/completions?api-version=${AZURE_API_VERSION}`;
+      const r = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          max_tokens: 250,
-          temperature: 0.7,
-          messages: gptMessages
-        })
+        headers: { 'Content-Type': 'application/json', 'api-key': AZURE_KEY },
+        body: JSON.stringify({ max_tokens: 250, temperature: 0.7, messages: gptMessages })
       });
       if (!r.ok) {
         const errText = await r.text();
-        console.error('[aria-voice] GPT-4o error', r.status, errText);
-        debugErrors.push({ provider: 'openai', status: r.status, detail: errText.substring(0, 200) });
-        // Fall through to Claude fallback
+        console.error('[aria-voice] Azure OpenAI error', r.status, errText);
+        debugErrors.push({ provider: 'azure-openai', deployment: AZURE_CHAT_DEPLOYMENT, status: r.status, detail: errText.substring(0, 200) });
       } else {
         const data = await r.json();
         replyText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
       }
     } catch (e) {
-      console.error('[aria-voice] GPT-4o fetch failed', e.message);
-      debugErrors.push({ provider: 'openai', error: e.message });
+      console.error('[aria-voice] Azure OpenAI fetch failed', e.message);
+      debugErrors.push({ provider: 'azure-openai', error: e.message });
     }
   }
 
-  // Fallback: Claude if GPT-4o unavailable or failed
+  // --- Try 2: Direct OpenAI API (may be geo-blocked from some Azure regions) ---
+  if (!replyText && OPENAI_KEY) {
+    try {
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({ model: 'gpt-4o', max_tokens: 250, temperature: 0.7, messages: gptMessages })
+      });
+      if (!r.ok) {
+        const errText = await r.text();
+        console.error('[aria-voice] Direct OpenAI error', r.status, errText);
+        debugErrors.push({ provider: 'openai-direct', status: r.status, detail: errText.substring(0, 200) });
+      } else {
+        const data = await r.json();
+        replyText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      }
+    } catch (e) {
+      console.error('[aria-voice] Direct OpenAI fetch failed', e.message);
+      debugErrors.push({ provider: 'openai-direct', error: e.message });
+    }
+  }
+
+  // --- Try 3: Anthropic Claude (last resort) ---
   if (!replyText && ANTHROPIC_KEY) {
     try {
       const claudeModel = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
@@ -105,75 +131,99 @@ module.exports = async function handler(req, res) {
           'x-api-key': ANTHROPIC_KEY,
           'anthropic-version': '2023-06-01'
         },
-        body: JSON.stringify({
-          model: claudeModel,
-          max_tokens: 250,
-          system: systemPrompt,
-          messages: messages.slice(-12)
-        })
+        body: JSON.stringify({ model: claudeModel, max_tokens: 250, system: systemPrompt, messages: messages.slice(-12) })
       });
       if (!r.ok) {
         const errText = await r.text();
         console.error('[aria-voice] Claude error', r.status, errText);
         debugErrors.push({ provider: 'anthropic', model: claudeModel, status: r.status, detail: errText.substring(0, 200) });
-        return res.status(502).json({ error: 'Reasoning service error', debug: debugErrors });
+      } else {
+        const data = await r.json();
+        replyText = (data.content && data.content[0] && data.content[0].text) || '';
       }
-      const data = await r.json();
-      replyText = (data.content && data.content[0] && data.content[0].text) || '';
     } catch (e) {
       console.error('[aria-voice] Claude fetch failed', e.message);
       debugErrors.push({ provider: 'anthropic', error: e.message });
-      return res.status(502).json({ error: 'Reasoning service unreachable', debug: debugErrors });
     }
   }
 
-  if (!replyText) return res.status(502).json({ error: 'Empty reply from reasoning service', debug: debugErrors });
-
-  // 2) Convert to speech via OpenAI TTS
-  //    Use "coral" voice for Arabic (strong multilingual support), "nova" for English
-  //    gpt-4o-mini-tts for best speed/quality balance
-  res.setHeader('X-ARIA-Lang', lang);
-
-  if (!OPENAI_KEY) {
-    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
-    return res.status(200).json({ text: replyText, audio: null, lang });
+  if (!replyText) {
+    return res.status(502).json({ error: 'All reasoning providers failed', debug: debugErrors });
   }
+
+  // ========== 2) CONVERT TO SPEECH (TTS) ==========
+  res.setHeader('X-ARIA-Lang', lang);
 
   const ttsVoice = isArabic ? 'coral' : 'nova';
   const ttsInstructions = isArabic
     ? 'Speak in clear Modern Standard Arabic with a professional, calm tone. Pace should be moderate and articulate.'
     : 'Speak in a confident, professional tone like a senior financial analyst. Be warm but concise.';
 
-  try {
-    const ttsR = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini-tts',
-        voice: ttsVoice,
-        input: replyText,
-        instructions: ttsInstructions,
-        response_format: 'mp3',
-        speed: 1.0
-      })
-    });
-    if (!ttsR.ok) {
-      const errText = await ttsR.text();
-      console.error('[aria-voice] OpenAI TTS error', ttsR.status, errText);
-      res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
-      return res.status(200).json({ text: replyText, audio: null, lang });
+  let audioBuf = null;
+
+  // --- TTS Try 1: Azure OpenAI TTS ---
+  if (!audioBuf && AZURE_ENDPOINT && AZURE_KEY && AZURE_TTS_DEPLOYMENT) {
+    try {
+      const ttsUrl = `${AZURE_ENDPOINT.replace(/\/+$/, '')}/openai/deployments/${AZURE_TTS_DEPLOYMENT}/audio/speech?api-version=${AZURE_API_VERSION}`;
+      const ttsR = await fetch(ttsUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'api-key': AZURE_KEY },
+        body: JSON.stringify({
+          model: AZURE_TTS_DEPLOYMENT,
+          voice: ttsVoice,
+          input: replyText,
+          instructions: ttsInstructions,
+          response_format: 'mp3',
+          speed: 1.0
+        })
+      });
+      if (ttsR.ok) {
+        const arrayBuf = await ttsR.arrayBuffer();
+        audioBuf = Buffer.from(arrayBuf);
+      } else {
+        const errText = await ttsR.text();
+        console.error('[aria-voice] Azure TTS error', ttsR.status, errText);
+      }
+    } catch (e) {
+      console.error('[aria-voice] Azure TTS fetch failed', e.message);
     }
-    const arrayBuf = await ttsR.arrayBuffer();
-    const audioBuf = Buffer.from(arrayBuf);
-    res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
-    return res.status(200).send(audioBuf);
-  } catch (e) {
-    console.error('[aria-voice] TTS fetch failed', e.message);
-    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
-    return res.status(200).json({ text: replyText, audio: null, lang });
   }
+
+  // --- TTS Try 2: Direct OpenAI TTS ---
+  if (!audioBuf && OPENAI_KEY) {
+    try {
+      const ttsR = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini-tts',
+          voice: ttsVoice,
+          input: replyText,
+          instructions: ttsInstructions,
+          response_format: 'mp3',
+          speed: 1.0
+        })
+      });
+      if (ttsR.ok) {
+        const arrayBuf = await ttsR.arrayBuffer();
+        audioBuf = Buffer.from(arrayBuf);
+      } else {
+        const errText = await ttsR.text();
+        console.error('[aria-voice] Direct OpenAI TTS error', ttsR.status, errText);
+      }
+    } catch (e) {
+      console.error('[aria-voice] Direct OpenAI TTS fetch failed', e.message);
+    }
+  }
+
+  // --- Return audio or text-only fallback ---
+  res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
+
+  if (audioBuf && audioBuf.length > 0) {
+    res.setHeader('Content-Type', 'audio/mpeg');
+    return res.status(200).send(audioBuf);
+  }
+
+  // No audio available, return text-only (front-end will use browser TTS)
+  return res.status(200).json({ text: replyText, audio: null, lang });
 }
