@@ -154,65 +154,41 @@ module.exports = async function handler(req, res) {
   // ========== 2) CONVERT TO SPEECH (TTS) ==========
   res.setHeader('X-ARIA-Lang', lang);
 
-  const ttsVoice = isArabic ? 'coral' : 'nova';
-  const ttsInstructions = isArabic
-    ? 'Speak in clear Modern Standard Arabic with a professional, calm tone. Pace should be moderate and articulate.'
-    : 'Speak in a confident, professional tone like a senior financial analyst. Be warm but concise.';
+  // Azure Speech Service config
+  const AZURE_SPEECH_KEY = process.env.AZURE_SPEECH_KEY || '';
+  const AZURE_SPEECH_REGION = process.env.AZURE_SPEECH_REGION || 'swedencentral';
+
+  // Azure Speech voices: high-quality neural voices
+  // English: en-US-JennyMultilingualNeural (warm, professional female)
+  // Arabic: ar-SA-ZariyahNeural (clear MSA female)
+  const azureSpeechVoice = isArabic ? 'ar-SA-ZariyahNeural' : 'en-US-JennyMultilingualNeural';
+  const ssmlLang = isArabic ? 'ar-SA' : 'en-US';
 
   let audioBuf = null;
 
-  // --- TTS Try 1: Azure OpenAI TTS ---
-  if (!audioBuf && AZURE_ENDPOINT && AZURE_KEY && AZURE_TTS_DEPLOYMENT) {
+  // --- TTS: Azure Speech Service (primary) ---
+  if (!audioBuf && AZURE_SPEECH_KEY) {
     try {
-      const ttsUrl = `${AZURE_ENDPOINT.replace(/\/+$/, '')}/openai/deployments/${AZURE_TTS_DEPLOYMENT}/audio/speech?api-version=${AZURE_API_VERSION}`;
+      const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${ssmlLang}"><voice name="${azureSpeechVoice}">${replyText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</voice></speak>`;
+      const ttsUrl = `https://${AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
       const ttsR = await fetch(ttsUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': AZURE_KEY },
-        body: JSON.stringify({
-          model: AZURE_TTS_DEPLOYMENT,
-          voice: ttsVoice,
-          input: replyText,
-          instructions: ttsInstructions,
-          response_format: 'mp3',
-          speed: 1.0
-        })
+        headers: {
+          'Ocp-Apim-Subscription-Key': AZURE_SPEECH_KEY,
+          'Content-Type': 'application/ssml+xml',
+          'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3'
+        },
+        body: ssml
       });
       if (ttsR.ok) {
         const arrayBuf = await ttsR.arrayBuffer();
         audioBuf = Buffer.from(arrayBuf);
       } else {
         const errText = await ttsR.text();
-        console.error('[aria-voice] Azure TTS error', ttsR.status, errText);
+        console.error('[aria-voice] Azure Speech TTS error', ttsR.status, errText);
       }
     } catch (e) {
-      console.error('[aria-voice] Azure TTS fetch failed', e.message);
-    }
-  }
-
-  // --- TTS Try 2: Direct OpenAI TTS ---
-  if (!audioBuf && OPENAI_KEY) {
-    try {
-      const ttsR = await fetch('https://api.openai.com/v1/audio/speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini-tts',
-          voice: ttsVoice,
-          input: replyText,
-          instructions: ttsInstructions,
-          response_format: 'mp3',
-          speed: 1.0
-        })
-      });
-      if (ttsR.ok) {
-        const arrayBuf = await ttsR.arrayBuffer();
-        audioBuf = Buffer.from(arrayBuf);
-      } else {
-        const errText = await ttsR.text();
-        console.error('[aria-voice] Direct OpenAI TTS error', ttsR.status, errText);
-      }
-    } catch (e) {
-      console.error('[aria-voice] Direct OpenAI TTS fetch failed', e.message);
+      console.error('[aria-voice] Azure Speech TTS fetch failed', e.message);
     }
   }
 
