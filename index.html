@@ -1671,7 +1671,16 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
       if(!window.speechSynthesis){res();return;}
       const u=new SpeechSynthesisUtterance(text);
       u.lang=lang==='ar'?'ar-SA':'en-US';
-      u.rate=1.0;
+      u.rate=1.0;u.pitch=1.05;
+      var voices=window.speechSynthesis.getVoices();
+      if(voices.length){
+        var target=lang==='ar'?'ar':'en';
+        var fem=voices.filter(function(v){return v.lang.indexOf(target)===0&&(/female|zira|samantha|karen|moira|tessa|fiona|victoria|allison|ava|susan|jenny/i.test(v.name));});
+        if(fem.length){u.voice=fem[0];}else{
+          var any=voices.filter(function(v){return v.lang.indexOf(target)===0;});
+          if(any.length)u.voice=any[0];
+        }
+      }
       u.onend=()=>res();
       u.onerror=()=>res();
       window.speechSynthesis.speak(u);
