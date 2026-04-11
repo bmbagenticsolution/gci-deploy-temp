@@ -1437,6 +1437,14 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
 #aria-bar-title{color:#d4af37;font-size:13px;font-weight:700;letter-spacing:.5px;line-height:1.2}
 #aria-bar-sub{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.3px}
 #aria-bar-cta{background:#d4af37;color:#001f3f;font-size:12px;font-weight:700;border:none;border-radius:20px;padding:7px 16px;cursor:pointer;white-space:nowrap;margin-left:8px}
+#aria-lang-toggle{background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.4);color:#d4af37;font-size:11px;font-weight:600;border-radius:14px;padding:4px 10px;cursor:pointer;white-space:nowrap;margin-left:4px;font-family:'Segoe UI',sans-serif}
+#aria-lang-toggle:hover{background:rgba(212,175,55,.3)}
+#aria-overlay.rtl{direction:rtl;text-align:right}
+#aria-overlay.rtl #aria-dot{margin-right:0;margin-left:8px}
+#aria-overlay.rtl #aria-st,#aria-overlay.rtl #aria-title,#aria-overlay.rtl #aria-pw{text-align:center}
+#aria-bar.rtl{direction:rtl}
+#aria-bar.rtl #aria-bar-cta{margin-left:0;margin-right:8px}
+#aria-bar.rtl #aria-lang-toggle{margin-left:0;margin-right:4px}
 
 /* Call card */
 #aria-overlay{display:none;position:fixed;bottom:65px;right:0;left:auto;transform:none;z-index:999999;width:240px;background:#1a1f2e;border-radius:14px 14px 0 0;padding:14px 14px 11px;box-shadow:-4px -4px 24px rgba(0,0,0,.5);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media(max-width:480px){#aria-overlay{width:100%;right:0;left:0;border-radius:14px 14px 0 0}}
@@ -1480,6 +1488,7 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     <div id="aria-bar-sub">Your GCC Investment Intelligence Analyst</div>
   </div>
   <button id="aria-bar-cta">Speak Now</button>
+  <button id="aria-lang-toggle" title="Switch to Arabic">AR | عربي</button>
 </div>
 
 <!-- Call card -->
@@ -1526,11 +1535,37 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
   const micBtn=document.getElementById('ac-mic');
   const endBtn=document.getElementById('ac-end');
   const xBtn=document.getElementById('aria-x');
+  const langToggle=document.getElementById('aria-lang-toggle');
+  const barTitle=document.getElementById('aria-bar-title');
+  const barSub=document.getElementById('aria-bar-sub');
+  const barCta=document.getElementById('aria-bar-cta');
+  const ariaTitle=document.getElementById('aria-title');
+  const ariaPw=document.getElementById('aria-pw');
   let open=false,listening=false,processing=false,speaking=false,muted=false;
   let lang=sessionStorage.getItem('aria-lang')||'en',
     history=JSON.parse(sessionStorage.getItem('aria-history')||'[]'),
     recognition=null,currentAudio=null,audioUnlocked=false,inactivityTimer=null;
+
+  const labels={
+    en:{barTitle:'Talk to ARIA, GCI Intelligence Analyst',barSub:'Your GCC Investment Intelligence Analyst',cta:'Speak Now',toggle:'AR | \u0639\u0631\u0628\u064A',title:'ARIA',listening:'Listening...',speaking:'Speaking...',thinking:'ARIA is thinking...',connecting:'ARIA is connecting...',tapMic:'Tap the mic to speak',micError:'Mic error. Try again.',noResponse:'No response for 30s...',errorRetry:'Error. Retrying...',powered:'Powered by Gulf Capital Intelligence'},
+    ar:{barTitle:'\u062A\u062D\u062F\u062B \u0645\u0639 \u0622\u0631\u064A\u0627\u060C \u0645\u062D\u0644\u0644\u0629 \u0627\u0644\u0627\u0633\u062A\u062E\u0628\u0627\u0631\u0627\u062A',barSub:'\u0645\u062D\u0644\u0644\u0629 \u0627\u0644\u0627\u0633\u062A\u062E\u0628\u0627\u0631\u0627\u062A \u0627\u0644\u0627\u0633\u062A\u062B\u0645\u0627\u0631\u064A\u0629 \u0644\u062F\u0648\u0644 \u0627\u0644\u062E\u0644\u064A\u062C',cta:'\u062A\u062D\u062F\u062B \u0627\u0644\u0622\u0646',toggle:'EN | English',title:'\u0622\u0631\u064A\u0627',listening:'\u062C\u0627\u0631\u064D \u0627\u0644\u0627\u0633\u062A\u0645\u0627\u0639...',speaking:'\u062C\u0627\u0631\u064D \u0627\u0644\u062A\u062D\u062F\u062B...',thinking:'\u0622\u0631\u064A\u0627 \u062A\u0641\u0643\u0631...',connecting:'\u062C\u0627\u0631\u064D \u0627\u0644\u0627\u062A\u0635\u0627\u0644...',tapMic:'\u0627\u0636\u063A\u0637 \u0639\u0644\u0649 \u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646 \u0644\u0644\u062A\u062D\u062F\u062B',micError:'\u062E\u0637\u0623 \u0641\u064A \u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u0627.',noResponse:'\u0644\u0627 \u0627\u0633\u062A\u062C\u0627\u0628\u0629 \u0644\u0645\u062F\u0629 30 \u062B\u0627\u0646\u064A\u0629...',errorRetry:'\u062E\u0637\u0623. \u062C\u0627\u0631\u064D \u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629...',powered:'\u0628\u062F\u0639\u0645 \u0645\u0646 Gulf Capital Intelligence'}
+  };
+  function L(key){return labels[lang][key]||labels.en[key]||key;}
+  function applyLang(){
+    const isAr=lang==='ar';
+    bar.classList.toggle('rtl',isAr);
+    overlay.classList.toggle('rtl',isAr);
+    barTitle.textContent=L('barTitle');
+    barSub.textContent=L('barSub');
+    barCta.textContent=L('cta');
+    langToggle.textContent=L('toggle');
+    ariaTitle.textContent=L('title');
+    ariaPw.textContent=L('powered');
+    if(recognition){recognition.lang=isAr?'ar-SA':'en-US';}
+  }
   function saveState(){sessionStorage.setItem('aria-history',JSON.stringify(history));sessionStorage.setItem('aria-lang',lang);}
+  langToggle.addEventListener('click',function(e){e.stopPropagation();lang=lang==='en'?'ar':'en';saveState();applyLang();});
+  applyLang();
 
   function unlockAudio(){
     if(audioUnlocked)return; audioUnlocked=true;
@@ -1551,7 +1586,7 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     open=true;
     sessionStorage.setItem('aria-open','1');
     if(history.length>0){
-      setState('listening','Listening...');
+      setState('listening',L('listening'));
       resetInactivityTimer();
       setTimeout(startListening,350);
     } else {
@@ -1568,7 +1603,8 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     overlay.classList.remove('open');
     bar.style.display='flex';
     open=false;listening=false;processing=false;speaking=false;
-    setState('','Tap the mic to speak');
+    lang='en';applyLang();
+    setState('',L('tapMic'));
     history=[];sessionStorage.removeItem('aria-history');sessionStorage.removeItem('aria-lang');sessionStorage.removeItem('aria-open');
   }
   xBtn.addEventListener('click',endCall);
@@ -1593,7 +1629,7 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     clearInactivityTimer();
     inactivityTimer=setTimeout(()=>{
       if(open){
-        setState('','No response for 30s...');
+        setState('',L('noResponse'));
         try{if(recognition)recognition.abort()}catch(e){}
         stopAudio();
         setTimeout(endCall,1800);
@@ -1614,15 +1650,16 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     recognition=new SR();
     recognition.continuous=false;
     recognition.interimResults=false;
-    recognition.onstart=()=>{listening=true;setState('listening','Listening...')};
+    recognition.lang=lang==='ar'?'ar-SA':'en-US';
+    recognition.onstart=()=>{listening=true;setState('listening',L('listening'))};
     recognition.onresult=e=>{
       let txt='';
       for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)txt+=e.results[i][0].transcript;
-      if(txt.trim()){clearInactivityTimer();sendToARIA(txt.trim());}
+      if(txt.trim()){const ar=/[\u0600-\u06FF]/;if(ar.test(txt.trim())&&lang!=='ar'){lang='ar';saveState();applyLang();}else if(!ar.test(txt.trim())&&lang!=='en'){lang='en';saveState();applyLang();}clearInactivityTimer();sendToARIA(txt.trim());}
     };
     recognition.onerror=e=>{
       listening=false;
-      if(e.error!=='no-speech'&&e.error!=='aborted')setState('','Mic error. Try again.');
+      if(e.error!=='no-speech'&&e.error!=='aborted')setState('',L('micError'));
       if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,800);
     };
     recognition.onend=()=>{listening=false;if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,400)};
@@ -1632,7 +1669,7 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
     attempt=attempt||1;
     if(processing&&attempt===1)return;
     processing=true;
-    setState('speaking',attempt===1?'ARIA is connecting...':'Connecting...');
+    setState('speaking',attempt===1?L('connecting'):L('connecting'));
     try{
       const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({transcript:'__greet__',history:[],sessionLanguage:lang,pageContext:getPageCtx()})});
@@ -1641,20 +1678,19 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
       if(enc){history.push({role:'assistant',content:atob(enc)});saveState();}
       const blob=await r.blob();
       processing=false;speaking=true;
-      setState('speaking','Speaking...');
+      setState('speaking',L('speaking'));
       await playAudio(blob);
       speaking=false;
-      setState('listening','Listening...');
+      setState('listening',L('listening'));
       resetInactivityTimer();
       setTimeout(startListening,350);
     }catch(e){
       processing=false;
       if(attempt<2){
-        // Retry once after 1.5s before giving up
-        setState('speaking','Connecting...');
+        setState('speaking',L('connecting'));
         setTimeout(()=>playGreeting(2),1500);
       } else {
-        setState('listening','Listening...');
+        setState('listening',L('listening'));
         setTimeout(startListening,500);
       }
     }
@@ -1667,9 +1703,7 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
 
   async function sendToARIA(txt){
     listening=false;processing=true;
-    setState('','ARIA is thinking...');
-    const ar=/[؀-ۿ]/;
-    lang=ar.test(txt)?'ar':'en';
+    setState('',L('thinking'));
     history.push({role:'user',content:txt});saveState();
     try{
       const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -1677,16 +1711,18 @@ window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
       if(!r.ok)throw new Error(r.status);
       const enc=r.headers.get('X-ARIA-Text');
       if(enc)history.push({role:'assistant',content:atob(enc)});
+      const rLang=r.headers.get('X-ARIA-Lang');
+      if(rLang&&rLang!==lang){lang=rLang;saveState();applyLang();}
       const blob=await r.blob();
       processing=false;speaking=true;
-      setState('speaking','Speaking...');
+      setState('speaking',L('speaking'));
       await playAudio(blob);
       speaking=false;
-      setState('listening','Listening...');
+      setState('listening',L('listening'));
       setTimeout(startListening,350);
     }catch(e){
       processing=false;
-      setState('','Error. Retrying...');
+      setState('',L('errorRetry'));
       setTimeout(()=>{if(open&&!muted)startListening()},2500);
     }
   }

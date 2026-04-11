@@ -390,5 +390,109 @@ function closeMobMenu(){
 }
 window.addEventListener('scroll',function(){closeMobMenu();},{passive:true});
 </script>
+
+<style>
+#aria-bar{position:fixed;bottom:0;left:0;right:0;z-index:999997;background:linear-gradient(90deg,#001f3f,#003d7a);border-top:1px solid rgba(212,175,55,.4);padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:background .2s}
+#aria-bar:hover{background:linear-gradient(90deg,#002a52,#004a9a)}
+#aria-bar-pulse{width:10px;height:10px;border-radius:50%;background:#4caf50;flex-shrink:0;animation:aria-live 1.8s infinite}
+@keyframes aria-live{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+#aria-bar-mic{width:36px;height:36px;border-radius:50%;background:rgba(212,175,55,.15);border:1.5px solid #d4af37;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#aria-bar-mic svg{width:18px;height:18px;fill:#d4af37}
+#aria-bar-text{display:flex;flex-direction:column}
+#aria-bar-title{color:#d4af37;font-size:13px;font-weight:700;letter-spacing:.5px;line-height:1.2}
+#aria-bar-sub{color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.3px}
+#aria-bar-cta{background:#d4af37;color:#001f3f;font-size:12px;font-weight:700;border:none;border-radius:20px;padding:7px 16px;cursor:pointer;white-space:nowrap;margin-left:8px}
+#aria-lang-toggle{background:rgba(212,175,55,.15);border:1px solid rgba(212,175,55,.4);color:#d4af37;font-size:11px;font-weight:600;border-radius:14px;padding:4px 10px;cursor:pointer;white-space:nowrap;margin-left:4px;font-family:'Segoe UI',sans-serif}
+#aria-lang-toggle:hover{background:rgba(212,175,55,.3)}
+#aria-overlay{display:none;position:fixed;bottom:65px;right:0;left:auto;transform:none;z-index:999999;width:240px;background:#1a1f2e;border-radius:14px 14px 0 0;padding:14px 14px 11px;box-shadow:-4px -4px 24px rgba(0,0,0,.5);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media(max-width:480px){#aria-overlay{width:100%;right:0;left:0;border-radius:14px 14px 0 0}}
+#aria-overlay.open{display:block}
+#aria-overlay.rtl{direction:rtl;text-align:right}
+#aria-overlay.rtl #aria-dot{margin-right:0;margin-left:8px}
+#aria-overlay.rtl #aria-st,#aria-overlay.rtl #aria-title,#aria-overlay.rtl #aria-pw{text-align:center}
+#aria-bar.rtl{direction:rtl}
+#aria-bar.rtl #aria-bar-cta{margin-left:0;margin-right:8px}
+#aria-bar.rtl #aria-lang-toggle{margin-left:0;margin-right:4px}
+#aria-ov-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+#aria-dot{width:9px;height:9px;border-radius:50%;background:#4caf50;margin-right:8px;flex-shrink:0;transition:background .3s}
+#aria-ov-name{color:#fff;font-size:12px;font-weight:700;letter-spacing:.3px}
+#aria-x{background:none;border:none;color:#555;cursor:pointer;font-size:20px;line-height:1;padding:0 2px}#aria-min{background:none;border:none;color:#555;cursor:pointer;font-size:16px;line-height:1;padding:0 4px;margin-right:2px}#aria-min:hover,#aria-x:hover{color:#aaa}#aria-overlay.minimized #aria-body{display:none}#aria-overlay.minimized{padding:8px 14px;border-radius:14px 14px 0 0}
+#aria-x:hover{color:#aaa}
+#aria-ring{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#1a6b8a,#0d9488);margin:0 auto 11px;display:flex;align-items:center;justify-content:center;position:relative}
+@keyframes aria-ripple{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.3);opacity:0}}
+#aria-ring.speaking::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid #0d9488;animation:aria-ripple 1.4s infinite}
+#aria-bars{display:flex;align-items:center;gap:3px;height:30px}
+.ab{width:3px;border-radius:2px;background:rgba(255,255,255,.85);height:5px}
+@keyframes ab-anim{0%{height:4px}100%{height:var(--h,24px)}}
+#aria-ring.speaking .ab,#aria-ring.listening .ab{animation:ab-anim var(--d,.4s) ease-in-out infinite alternate}
+#aria-ring.listening .ab{background:rgba(255,210,80,.9)}
+#aria-title{color:#fff;font-size:16px;font-weight:700;text-align:center;margin-bottom:4px}
+#aria-st{color:#6b7280;font-size:11px;text-align:center;margin-bottom:12px;min-height:14px}
+#aria-btns{display:flex;justify-content:center;gap:18px;margin-bottom:14px}
+.ac{width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.ac:hover{transform:scale(1.08)}
+#ac-wa{background:#25d366}
+#ac-wa svg{width:18px;height:18px;fill:white}
+#ac-mic{background:#374151}
+#ac-mic.muted{background:#6b7280}
+#ac-mic svg{width:15px;height:15px;fill:white}
+#ac-end{background:#ef4444}
+#ac-end svg{width:16px;height:16px;fill:white}
+#aria-pw{color:#374151;font-size:10px;text-align:center;letter-spacing:.3px}
+</style>
+<div id="aria-bar">
+  <div id="aria-bar-pulse"></div>
+  <div id="aria-bar-mic"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div>
+  <div id="aria-bar-text"><div id="aria-bar-title">Talk to ARIA, GCI Intelligence Analyst</div><div id="aria-bar-sub">Your GCC Investment Intelligence Analyst</div></div>
+  <button id="aria-bar-cta">Speak Now</button>
+  <button id="aria-lang-toggle" title="Switch to Arabic">AR | عربي</button>
+</div>
+<div id="aria-overlay">
+  <div id="aria-ov-head"><div style="display:flex;align-items:center"><div id="aria-dot"></div><div id="aria-ov-name">ARIA</div></div><button id="aria-min" title="Minimise">&#8722;</button><button id="aria-x">&times;</button></div>
+  <div id="aria-body"><div id="aria-ring"><div id="aria-bars"><div class="ab" style="--d:.38s;--h:16px"></div><div class="ab" style="--d:.26s;--h:28px"></div><div class="ab" style="--d:.44s;--h:20px"></div><div class="ab" style="--d:.32s;--h:34px"></div><div class="ab" style="--d:.50s;--h:18px"></div><div class="ab" style="--d:.22s;--h:26px"></div><div class="ab" style="--d:.42s;--h:14px"></div><div class="ab" style="--d:.30s;--h:22px"></div></div></div>
+  <div id="aria-title">ARIA</div>
+  <div id="aria-st">Tap the mic to speak</div>
+  <div id="aria-btns">
+    <button class="ac" id="ac-wa" onclick="window.open('https://wa.me/971554024667','_blank')"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>
+    <button class="ac" id="ac-mic"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></button>
+    <button class="ac" id="ac-end"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg></button>
+  </div>
+  </div><div id="aria-pw">Powered by Gulf Capital Intelligence</div>
+</div>
+<script>
+(function(){
+  const bar=document.getElementById('aria-bar'),overlay=document.getElementById('aria-overlay'),ring=document.getElementById('aria-ring'),dot=document.getElementById('aria-dot'),st=document.getElementById('aria-st'),micBtn=document.getElementById('ac-mic'),endBtn=document.getElementById('ac-end'),xBtn=document.getElementById('aria-x'),langToggle=document.getElementById('aria-lang-toggle'),barTitle=document.getElementById('aria-bar-title'),barSub=document.getElementById('aria-bar-sub'),barCta=document.getElementById('aria-bar-cta'),ariaTitle=document.getElementById('aria-title'),ariaPw=document.getElementById('aria-pw');
+  let open=false,listening=false,processing=false,speaking=false,muted=false;
+  let lang=sessionStorage.getItem('aria-lang')||'en',history=JSON.parse(sessionStorage.getItem('aria-history')||'[]'),recognition=null,currentAudio=null,audioUnlocked=false,inactivityTimer=null;
+  const labels={
+    en:{barTitle:'Talk to ARIA, GCI Intelligence Analyst',barSub:'Your GCC Investment Intelligence Analyst',cta:'Speak Now',toggle:'AR | \u0639\u0631\u0628\u064A',title:'ARIA',listening:'Listening...',speaking:'Speaking...',thinking:'ARIA is thinking...',connecting:'ARIA is connecting...',tapMic:'Tap the mic to speak',micError:'Mic error. Try again.',noResponse:'No response for 30s...',errorRetry:'Error. Retrying...',powered:'Powered by Gulf Capital Intelligence'},
+    ar:{barTitle:'\u062A\u062D\u062F\u062B \u0645\u0639 \u0622\u0631\u064A\u0627\u060C \u0645\u062D\u0644\u0644\u0629 \u0627\u0644\u0627\u0633\u062A\u062E\u0628\u0627\u0631\u0627\u062A',barSub:'\u0645\u062D\u0644\u0644\u0629 \u0627\u0644\u0627\u0633\u062A\u062E\u0628\u0627\u0631\u0627\u062A \u0627\u0644\u0627\u0633\u062A\u062B\u0645\u0627\u0631\u064A\u0629 \u0644\u062F\u0648\u0644 \u0627\u0644\u062E\u0644\u064A\u062C',cta:'\u062A\u062D\u062F\u062B \u0627\u0644\u0622\u0646',toggle:'EN | English',title:'\u0622\u0631\u064A\u0627',listening:'\u062C\u0627\u0631\u064D \u0627\u0644\u0627\u0633\u062A\u0645\u0627\u0639...',speaking:'\u062C\u0627\u0631\u064D \u0627\u0644\u062A\u062D\u062F\u062B...',thinking:'\u0622\u0631\u064A\u0627 \u062A\u0641\u0643\u0631...',connecting:'\u062C\u0627\u0631\u064D \u0627\u0644\u0627\u062A\u0635\u0627\u0644...',tapMic:'\u0627\u0636\u063A\u0637 \u0639\u0644\u0649 \u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646 \u0644\u0644\u062A\u062D\u062F\u062B',micError:'\u062E\u0637\u0623 \u0641\u064A \u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646. \u062D\u0627\u0648\u0644 \u0645\u062C\u062F\u062F\u0627.',noResponse:'\u0644\u0627 \u0627\u0633\u062A\u062C\u0627\u0628\u0629 \u0644\u0645\u062F\u0629 30 \u062B\u0627\u0646\u064A\u0629...',errorRetry:'\u062E\u0637\u0623. \u062C\u0627\u0631\u064D \u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629...',powered:'\u0628\u062F\u0639\u0645 \u0645\u0646 Gulf Capital Intelligence'}
+  };
+  function L(key){return labels[lang][key]||labels.en[key]||key;}
+  function applyLang(){var isAr=lang==='ar';bar.classList.toggle('rtl',isAr);overlay.classList.toggle('rtl',isAr);barTitle.textContent=L('barTitle');barSub.textContent=L('barSub');barCta.textContent=L('cta');langToggle.textContent=L('toggle');ariaTitle.textContent=L('title');ariaPw.textContent=L('powered');if(recognition){recognition.lang=isAr?'ar-SA':'en-US';}}
+  function saveState(){sessionStorage.setItem('aria-history',JSON.stringify(history));sessionStorage.setItem('aria-lang',lang);}
+  langToggle.addEventListener('click',function(e){e.stopPropagation();lang=lang==='en'?'ar':'en';saveState();applyLang();});
+  applyLang();
+  function unlockAudio(){if(audioUnlocked)return;audioUnlocked=true;try{var c=new(window.AudioContext||window.webkitAudioContext)();var b=c.createBuffer(1,1,22050);var s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume().then(function(){c.close()})}catch(e){}try{var a=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');a.volume=0.001;a.play().catch(function(){})}catch(e){}}
+  function setState(state,label){ring.className=state||'';dot.style.background=state==='speaking'?'#4caf50':state==='listening'?'#f59e0b':'#6b7280';st.textContent=label||'';}
+  function openCard(){unlockAudio();overlay.classList.add('open');bar.style.display='none';open=true;sessionStorage.setItem('aria-open','1');if(history.length>0){setState('listening',L('listening'));resetInactivityTimer();setTimeout(startListening,350);}else{playGreeting();}}
+  bar.addEventListener('click',openCard);
+  function endCall(){clearInactivityTimer();stopAudio();try{if(recognition)recognition.abort()}catch(e){}overlay.classList.remove('open');bar.style.display='flex';open=false;listening=false;processing=false;speaking=false;lang='en';applyLang();setState('',L('tapMic'));history=[];sessionStorage.removeItem('aria-history');sessionStorage.removeItem('aria-lang');sessionStorage.removeItem('aria-open');}
+  xBtn.addEventListener('click',endCall);endBtn.addEventListener('click',endCall);
+  var minBtn=document.getElementById('aria-min');var minimized=false;
+  minBtn.addEventListener('click',function(e){e.stopPropagation();minimized=!minimized;overlay.classList.toggle('minimized',minimized);minBtn.innerHTML=minimized?'&#43;':'&#8722;';});
+  function getPageCtx(){return{page:window.location.pathname,title:document.title.replace(' | Gulf Capital Intelligence','').trim()};}
+  function resetInactivityTimer(){clearInactivityTimer();inactivityTimer=setTimeout(function(){if(open){setState('',L('noResponse'));try{if(recognition)recognition.abort()}catch(e){}stopAudio();setTimeout(endCall,1800);}},30000);}
+  function clearInactivityTimer(){if(inactivityTimer){clearTimeout(inactivityTimer);inactivityTimer=null;}}
+  micBtn.addEventListener('click',function(){muted=!muted;micBtn.classList.toggle('muted',muted);if(muted){try{if(recognition)recognition.abort()}catch(e){}}else if(open&&!processing&&!speaking)startListening();});
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){recognition=new SR();recognition.continuous=false;recognition.interimResults=false;recognition.lang=lang==='ar'?'ar-SA':'en-US';recognition.onstart=function(){listening=true;setState('listening',L('listening'))};recognition.onresult=function(e){var txt='';for(var i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)txt+=e.results[i][0].transcript;if(txt.trim()){var ar=/[\u0600-\u06FF]/;if(ar.test(txt.trim())&&lang!=='ar'){lang='ar';saveState();applyLang();}else if(!ar.test(txt.trim())&&lang!=='en'){lang='en';saveState();applyLang();}clearInactivityTimer();sendToARIA(txt.trim());}};recognition.onerror=function(e){listening=false;if(e.error!=='no-speech'&&e.error!=='aborted')setState('',L('micError'));if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,800);};recognition.onend=function(){listening=false;if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,400)};}
+  function playGreeting(attempt){attempt=attempt||1;if(processing&&attempt===1)return;processing=true;setState('speaking',L('connecting'));fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({transcript:'__greet__',history:[],sessionLanguage:lang,pageContext:getPageCtx()})}).then(function(r){if(!r.ok)throw new Error(r.status);var enc=r.headers.get('X-ARIA-Text');if(enc){history.push({role:'assistant',content:atob(enc)});saveState();}return r.blob();}).then(function(blob){processing=false;speaking=true;setState('speaking',L('speaking'));return playAudio(blob);}).then(function(){speaking=false;setState('listening',L('listening'));resetInactivityTimer();setTimeout(startListening,350);}).catch(function(){processing=false;if(attempt<2){setState('speaking',L('connecting'));setTimeout(function(){playGreeting(2)},1500);}else{setState('listening',L('listening'));setTimeout(startListening,500);}});}
+  function startListening(){if(!recognition||muted||processing||speaking||listening)return;try{recognition.start()}catch(e){}}
+  function sendToARIA(txt){listening=false;processing=true;setState('',L('thinking'));history.push({role:'user',content:txt});saveState();fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({transcript:txt,history:history,sessionLanguage:lang,pageContext:getPageCtx()})}).then(function(r){if(!r.ok)throw new Error(r.status);var enc=r.headers.get('X-ARIA-Text');if(enc)history.push({role:'assistant',content:atob(enc)});var rLang=r.headers.get('X-ARIA-Lang');if(rLang&&rLang!==lang){lang=rLang;saveState();applyLang();}return r.blob();}).then(function(blob){processing=false;speaking=true;setState('speaking',L('speaking'));return playAudio(blob);}).then(function(){speaking=false;setState('listening',L('listening'));setTimeout(startListening,350);}).catch(function(){processing=false;setState('',L('errorRetry'));setTimeout(function(){if(open&&!muted)startListening()},2500);});}
+  function playAudio(blob){return new Promise(function(res,rej){stopAudio();var url=URL.createObjectURL(blob);var a=new Audio(url);currentAudio=a;a.onended=function(){URL.revokeObjectURL(url);currentAudio=null;res()};a.onerror=function(){URL.revokeObjectURL(url);currentAudio=null;rej()};a.play().catch(function(e){URL.revokeObjectURL(url);currentAudio=null;rej(e)});});}
+  function stopAudio(){if(currentAudio){currentAudio.pause();currentAudio=null}}
+  if(sessionStorage.getItem('aria-open')==='1'){setTimeout(openCard,600);}
+})();
+</script>
 </body>
 </html>

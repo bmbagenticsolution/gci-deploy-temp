@@ -480,6 +480,12 @@ body{font-family:var(--f-sans);background:var(--bg);color:var(--body);font-size:
 .ali:focus{border-color:var(--ink)}
 .auth-submit{width:100%;padding:12px;border-radius:8px;background:var(--navy);border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--f-sans);margin-top:2px}
 .auth-submit:hover{background:var(--navy2)}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:14px 0 10px;color:#8A9BB0;font-size:12px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#DDE2EE}
+.auth-social{display:flex;gap:8px;margin-bottom:10px}
+.auth-social-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 6px;border-radius:8px;border:1px solid #DDE2EE;background:#fff;cursor:pointer;font-family:var(--f-sans);font-size:12px;font-weight:600;color:#333;transition:background .15s,border-color .15s}
+.auth-social-btn:hover{background:#F4F6FA;border-color:#B8C4D4}
+.auth-social-btn svg{flex-shrink:0}
 .auth-fnote{font-size:11px;color:var(--faint);text-align:center;line-height:1.5}
 .auth-err{font-size:12px;color:var(--red);background:rgba(125,26,26,0.06);border:1px solid rgba(125,26,26,0.2);border-radius:6px;padding:7px 11px;display:none}
 .auth-err.show{display:block}
@@ -4371,13 +4377,16 @@ function exportPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(200,168,75);
   doc.text('GULF CAPITAL INTELLIGENCE',mg,6.5);
   doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-  var lbl=title;if(lbl.length>52)lbl=lbl.slice(0,49)+'...';
-  doc.text(lbl,pw-mg,6.5,{align:'right'});
+  var lbl=title;if(lbl.length>45)lbl=lbl.slice(0,42)+'...';
+  doc.text(lbl,pw/2,6.5,{align:'center'});
+  doc.setTextColor(140,140,140);doc.setFontSize(6);
+  doc.text(reportId,pw-mg,6.5,{align:'right'});
+  // Footer
   doc.setFillColor(200,168,75);doc.rect(mg,ph-BOT+3,maxW,0.3,'F');
   doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(150,150,150);
-  doc.text('DIFC, Dubai | GCI Conviction Engine output - not regulated investment advice',mg,ph-7);
-  doc.setFont('helvetica','bold');doc.setTextColor(11,29,53);
-  doc.text(String(pageNum),pw-mg,ph-7,{align:'right'});
+  doc.text('Gulf Capital Intelligence | DIFC, Dubai | Confidential',mg,ph-7);
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(11,29,53);
+  doc.text('Page '+String(pageNum),pw-mg,ph-7,{align:'right'});
  }
 
  function resetFont(){doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(55,65,81);}
@@ -4433,63 +4442,88 @@ function exportPDF(){
 
  function drawSection(num,label,content){
   if(!content)return;
-  checkPg(28);
-  y+=4;
-  // Section number box
-  doc.setFillColor(11,29,53);doc.rect(mg,y-5,14,10,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(200,168,75);
-  doc.text(num,mg+7,y+1.5,{align:'center'});
-  // Section title
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(11,29,53);
-  doc.text(label,mg+18,y+1);
-  y+=10;
-  // Thin rule
-  doc.setDrawColor(221,226,238);doc.setLineWidth(0.2);doc.line(mg,y,pw-mg,y);
-  y+=5;
+  checkPg(32);
+  y+=6;
+  // Large gold section number
+  doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(200,168,75);
+  doc.text(num,mg,y+5);
+  // Section title next to number
+  var numW=doc.getTextWidth(num)+4;
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(11,29,53);
+  doc.text(label,mg+numW+2,y+4);
+  y+=12;
+  // Thin gold accent + gray rule
+  doc.setFillColor(200,168,75);doc.rect(mg,y,20,0.6,'F');
+  doc.setDrawColor(221,226,238);doc.setLineWidth(0.15);doc.line(mg+20,y+0.3,pw-mg,y+0.3);
+  y+=6;
   resetFont();
   writeParagraphs(content);
-  y+=3;
+  y+=4;
  }
+
+ // Generate report ID
+ var reportId='GCI-'+Date.now().toString(36).toUpperCase().slice(-6);
+ var reportDate=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+ var sectorTag=ex(raw,'SECTOR')||sub||'Investment Analysis';
+ var geoTag=ex(raw,'GEOGRAPHY')||'GCC Region';
 
  // ===== COVER PAGE =====
  doc.setFillColor(11,29,53);doc.rect(0,0,pw,ph,'F');
- doc.setFillColor(200,168,75);doc.rect(0,0,pw,1.5,'F');
- doc.setFillColor(200,168,75);doc.rect(0,ph-18,pw,18,'F');
+ // Top gold accent line
+ doc.setFillColor(200,168,75);doc.rect(0,0,pw,2,'F');
 
- // Title
- doc.setTextColor(200,168,75);doc.setFont('helvetica','bold');doc.setFontSize(30);
- doc.text('Gulf Capital',pw/2,78,{align:'center'});
- doc.text('Intelligence',pw/2,95,{align:'center'});
+ // GCI Logo mark (gold circle with text)
+ doc.setFillColor(200,168,75);doc.circle(pw/2,52,14,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(11,29,53);
+ doc.text('GCI',pw/2,56,{align:'center'});
+
+ // Brand name
+ doc.setTextColor(200,168,75);doc.setFont('helvetica','bold');doc.setFontSize(28);
+ doc.text('Gulf Capital',pw/2,88,{align:'center'});
+ doc.text('Intelligence',pw/2,103,{align:'center'});
  // Gold rule
- doc.setFillColor(200,168,75);doc.rect(pw/2-28,102,56,0.4,'F');
+ doc.setFillColor(200,168,75);doc.rect(pw/2-30,110,60,0.5,'F');
+
  // Report title
- doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(14);
- var titleLines=doc.splitTextToSize(title,140);
- var titleY=115;
+ doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(15);
+ var titleLines=doc.splitTextToSize(title,150);
+ var titleY=125;
  for(var ti=0;ti<titleLines.length;ti++){
   doc.text(titleLines[ti],pw/2,titleY,{align:'center'});titleY+=8;
  }
  // Subtitle
  if(sub){
-  doc.setFontSize(10);doc.setTextColor(200,200,200);
-  var subLines=doc.splitTextToSize(sub,140);
+  doc.setFontSize(10);doc.setTextColor(180,180,180);
+  var subLines=doc.splitTextToSize(sub,150);
   for(var si=0;si<subLines.length;si++){
    doc.text(subLines[si],pw/2,titleY+4,{align:'center'});titleY+=6;
   }
  }
- // Verdict on cover
+ // Verdict badge on cover
  var vColor=verdict.includes('AVOID')?[125,26,26]:verdict.includes('CONDITION')?[122,64,8]:[10,92,62];
+ var verdictW=Math.max(doc.getTextWidth(verdict||'VERDICT')*1.2+20,65);
  doc.setFillColor(vColor[0],vColor[1],vColor[2]);
- doc.roundedRect(pw/2-30,titleY+12,60,14,3,3,'F');
- doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(255,255,255);
- doc.text(verdict||'VERDICT',pw/2,titleY+21,{align:'center'});
+ doc.roundedRect(pw/2-verdictW/2,titleY+14,verdictW,16,3,3,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(255,255,255);
+ doc.text(verdict||'VERDICT',pw/2,titleY+24,{align:'center'});
 
- // Date
- doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(200,168,75);
- doc.text(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),pw/2,titleY+38,{align:'center'});
- // Footer
- doc.setTextColor(11,29,53);doc.setFontSize(8);
- doc.text('DIFC, Dubai | GCI Conviction Engine output - not regulated investment advice',pw/2,ph-6,{align:'center'});
+ // Metadata footer area on cover
+ doc.setFillColor(200,168,75);doc.rect(0,ph-44,pw,0.5,'F');
+ // Metadata row: Date | Report ID | Sector | Geography
+ doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);
+ var metaY=ph-34;
+ doc.text('DATE',mg+2,metaY);doc.text('REPORT ID',mg+50,metaY);doc.text('SECTOR',mg+100,metaY);doc.text('GEOGRAPHY',mg+148,metaY);
+ doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(200,168,75);
+ doc.text(reportDate,mg+2,metaY+7);doc.text(reportId,mg+50,metaY+7);
+ var secTxt=sectorTag.length>22?sectorTag.slice(0,20)+'..':sectorTag;
+ var geoTxt=geoTag.length>22?geoTag.slice(0,20)+'..':geoTag;
+ doc.text(secTxt,mg+100,metaY+7);doc.text(geoTxt,mg+148,metaY+7);
+ // Bottom gold bar
+ doc.setFillColor(200,168,75);doc.rect(0,ph-16,pw,16,'F');
+ doc.setTextColor(11,29,53);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+ doc.text('Gulf Capital Intelligence | DIFC, Dubai | gulfcapitalintelligence.com',pw/2,ph-8,{align:'center'});
+ doc.setFontSize(6.5);
+ doc.text('GCI Conviction Engine output. Not regulated investment advice.',pw/2,ph-3,{align:'center'});
 
  // ===== CONTENT PAGES =====
  doc.addPage();pageNum=2;drawChrome();
@@ -4532,14 +4566,14 @@ function exportPDF(){
 
  // Risk Matrix table
  if(risks){
-  checkPg(28);y+=4;
-  doc.setFillColor(11,29,53);doc.rect(mg,y-5,14,10,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(200,168,75);
-  doc.text('05',mg+7,y+1.5,{align:'center'});
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(11,29,53);
-  doc.text('Risk Matrix',mg+18,y+1);
-  y+=10;
-  doc.setDrawColor(221,226,238);doc.setLineWidth(0.2);doc.line(mg,y,pw-mg,y);y+=5;
+  checkPg(32);y+=6;
+  doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(200,168,75);
+  doc.text('05',mg,y+5);
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(11,29,53);
+  doc.text('Risk Matrix',mg+22,y+4);
+  y+=12;
+  doc.setFillColor(200,168,75);doc.rect(mg,y,20,0.6,'F');
+  doc.setDrawColor(221,226,238);doc.setLineWidth(0.15);doc.line(mg+20,y+0.3,pw-mg,y+0.3);y+=6;
 
   var riskLines=risks.split('\n').filter(function(l){return l.trim()&&l.includes('|');});
   if(riskLines.length>0&&typeof doc.autoTable==='function'){
@@ -4580,15 +4614,15 @@ function exportPDF(){
 
  // Conditions
  if(cond){
-  checkPg(28);y+=4;
+  checkPg(32);y+=6;
   var isCondVerdict=verdict.includes('CONDITION');
-  doc.setFillColor(11,29,53);doc.rect(mg,y-5,14,10,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(200,168,75);
-  doc.text('07',mg+7,y+1.5,{align:'center'});
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(11,29,53);
-  doc.text(isCondVerdict?'Conditions for Proceeding':'Investment Conditions',mg+18,y+1);
-  y+=10;
-  doc.setDrawColor(221,226,238);doc.setLineWidth(0.2);doc.line(mg,y,pw-mg,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(28);doc.setTextColor(200,168,75);
+  doc.text('07',mg,y+5);
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(11,29,53);
+  doc.text(isCondVerdict?'Conditions for Proceeding':'Investment Conditions',mg+22,y+4);
+  y+=12;
+  doc.setFillColor(200,168,75);doc.rect(mg,y,20,0.6,'F');
+  doc.setDrawColor(221,226,238);doc.setLineWidth(0.15);doc.line(mg+20,y+0.3,pw-mg,y+0.3);y+=6;
 
   if(isCondVerdict){
    var condLines=cond.split('\n').filter(function(l){return l.trim()&&l.trim().match(/^[0-9]|^[-*]/);});
@@ -4633,16 +4667,28 @@ function exportPDF(){
 
  // Final Verdict
  if(finalV){
-  checkPg(30);y+=6;
-  doc.setFillColor(11,29,53);doc.rect(mg,y-4,maxW,26,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(200,168,75);
-  doc.text('FINAL VERDICT',mg+8,y+3);
-  doc.setFont('helvetica','italic');doc.setFontSize(10.5);doc.setTextColor(255,255,255);
-  var fvLines=doc.splitTextToSize(cleanText(finalV),maxW-16);
-  for(var fi=0;fi<Math.min(fvLines.length,3);fi++){
-   doc.text(fvLines[fi],mg+8,y+10+fi*5.5);
+  var fvClean=cleanText(finalV);
+  var fvLines=doc.splitTextToSize(fvClean,maxW-20);
+  var fvH=Math.max(30,fvLines.length*5.5+22);
+  checkPg(fvH+8);y+=8;
+  // Navy box with gold left accent
+  doc.setFillColor(11,29,53);doc.rect(mg,y-4,maxW,fvH,'F');
+  doc.setFillColor(200,168,75);doc.rect(mg,y-4,3,fvH,'F');
+  // Label
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(200,168,75);
+  doc.text('FINAL VERDICT',mg+10,y+4);
+  // Verdict badge
+  var badgeW=Math.max(doc.getTextWidth(verdict)+14,45);
+  doc.setFillColor(vColor[0],vColor[1],vColor[2]);
+  doc.roundedRect(pw-mg-badgeW-6,y-1,badgeW,10,2,2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text(verdict,pw-mg-badgeW/2-6,y+6,{align:'center'});
+  // Body text
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(220,220,220);
+  for(var fi=0;fi<fvLines.length;fi++){
+   doc.text(fvLines[fi],mg+10,y+14+fi*5.5);
   }
-  y+=32;
+  y+=fvH+6;
  }
 
  // Footer disclaimer
@@ -5158,7 +5204,7 @@ function clearUpload(){
 // Injecting via JS guarantees elements exist regardless of HTML truncation
 // ============================================================
 (function() {
- var AUTH_HTML = '<div class="auth-overlay hidden" id="aov"><div class="auth-box"><div class="auth-head"><div class="auth-logo-row"><div class="auth-mark">GCI</div><div class="auth-nm">Gulf Capital Intelligence</div></div><div class="auth-htitle" id="ah-title">Create Your Account</div><div class="auth-hsub" id="ah-sub">See the full platform. Pay only when you generate a report.</div></div><div class="auth-body"><div class="auth-tabs"><button class="auth-tab act" id="tab-su" onclick="switchTab(\'signup\')" type="button">Sign Up</button><button class="auth-tab" id="tab-si" onclick="switchTab(\'signin\')" type="button">Sign In</button></div><div class="auth-err" id="aerr"></div><div class="alf" id="name-field"><label class="all">Full Name</label><input class="ali" id="aname" placeholder="Your full name" type="text" name="aname"></div><div class="alf" id="company-field"><label class="all">Company / Fund Name</label><input class="ali" id="acompany" placeholder="Your company or fund" type="text" name="acompany"></div><div class="alf" id="mobile-field"><label class="all">Mobile Number</label><input class="ali" id="amobile" placeholder="+971 50 000 0000" type="tel" name="amobile"></div><div class="alf"><label class="all">Email Address</label><input class="ali" id="aemail" placeholder="your@email.com" type="email" name="aemail"></div><div class="alf"><label class="all">Password</label><input class="ali" id="apass" placeholder="Minimum 8 characters" type="password" name="apass" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" value=""></div><div id="fpw-link" style="display:none;text-align:right;margin-top:-4px"><button type="button" onclick="showForgotPw()" style="background:none;border:none;color:#C8A84B;font-size:11px;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline">Forgot password?</button></div><div id="fpw-panel" style="display:none;flex-direction:column;gap:11px"><div class="alf"><label class="all">Email Address</label><input class="ali" id="fpw-email" placeholder="your@email.com" type="email" name="fpw-email"></div><button class="auth-submit" onclick="sendResetEmail()" type="button">Send Reset Link</button><button type="button" onclick="switchTab(\'signin\')" style="background:none;border:none;color:#8A9BB0;font-size:12px;cursor:pointer;font-family:inherit;padding:4px 0;text-align:center;width:100%">Back to Sign In</button></div><button class="auth-submit" id="asub" onclick="handleAuth()" type="button">Create Account</button><div class="auth-fnote" id="anote">By creating an account you agree to our Terms of Use and Privacy Policy. Gulf Capital Intelligence , DIFC, Dubai. GCI Conviction Engine output - not regulated investment advice.</div></div></div></div>';
+ var AUTH_HTML = '<div class="auth-overlay hidden" id="aov"><div class="auth-box"><div class="auth-head"><div class="auth-logo-row"><div class="auth-mark">GCI</div><div class="auth-nm">Gulf Capital Intelligence</div></div><div class="auth-htitle" id="ah-title">Create Your Account</div><div class="auth-hsub" id="ah-sub">See the full platform. Pay only when you generate a report.</div></div><div class="auth-body"><div class="auth-tabs"><button class="auth-tab act" id="tab-su" onclick="switchTab(\'signup\')" type="button">Sign Up</button><button class="auth-tab" id="tab-si" onclick="switchTab(\'signin\')" type="button">Sign In</button></div><div class="auth-err" id="aerr"></div><div class="alf" id="name-field"><label class="all">Full Name</label><input class="ali" id="aname" placeholder="Your full name" type="text" name="aname"></div><div class="alf" id="company-field"><label class="all">Company / Fund Name</label><input class="ali" id="acompany" placeholder="Your company or fund" type="text" name="acompany"></div><div class="alf" id="mobile-field"><label class="all">Mobile Number</label><input class="ali" id="amobile" placeholder="+971 50 000 0000" type="tel" name="amobile"></div><div class="alf"><label class="all">Email Address</label><input class="ali" id="aemail" placeholder="your@email.com" type="email" name="aemail"></div><div class="alf"><label class="all">Password</label><input class="ali" id="apass" placeholder="Minimum 8 characters" type="password" name="apass" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" value=""></div><div id="fpw-link" style="display:none;text-align:right;margin-top:-4px"><button type="button" onclick="showForgotPw()" style="background:none;border:none;color:#C8A84B;font-size:11px;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline">Forgot password?</button></div><div id="fpw-panel" style="display:none;flex-direction:column;gap:11px"><div class="alf"><label class="all">Email Address</label><input class="ali" id="fpw-email" placeholder="your@email.com" type="email" name="fpw-email"></div><button class="auth-submit" onclick="sendResetEmail()" type="button">Send Reset Link</button><button type="button" onclick="switchTab(\'signin\')" style="background:none;border:none;color:#8A9BB0;font-size:12px;cursor:pointer;font-family:inherit;padding:4px 0;text-align:center;width:100%">Back to Sign In</button></div><button class="auth-submit" id="asub" onclick="handleAuth()" type="button">Create Account</button><div class="auth-divider" id="adivider"><span>or continue with</span></div><div class="auth-social" id="asocial"><button class="auth-social-btn auth-social-google" onclick="socialLogin(\'google\')" type="button"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58z"/></svg><span>Google</span></button><button class="auth-social-btn auth-social-microsoft" onclick="socialLogin(\'microsoft\')" type="button"><svg width="18" height="18" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg><span>Microsoft</span></button><button class="auth-social-btn auth-social-linkedin" onclick="socialLogin(\'linkedin\')" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg><span>LinkedIn</span></button></div><div class="auth-fnote" id="anote">By creating an account you agree to our Terms of Use and Privacy Policy. Gulf Capital Intelligence , DIFC, Dubai. GCI Conviction Engine output - not regulated investment advice.</div></div></div></div>';
  var PAY_HTML = '<div class="pay-wall hidden" id="pwall"><div class="pay-box"><div class="pay-head"><div><div class="pay-htitle">Unlock Conviction Reports</div><div class="pay-hsub">Choose a plan. All plans include document upload and PDF export.</div></div><button class="pay-x" onclick="closePay()" type="button">&times;</button></div><div class="pay-plans"><div class="pay-plan" id="pp-cs" onclick="selPlan(\'conviction-screen\')"><div class="pp-nm">Conviction Screen</div><div class="pp-pr">$499</div><div class="pp-pe">one-time</div><div class="pp-it">1 conviction report</div><div class="pp-it">Full 10-section output</div><div class="pp-it">Document upload</div><div class="pp-it">PDF and Word export</div></div><div class="pay-plan" id="pp-dd" onclick="selPlan(\'due-diligence\')"><div class="pp-nm">Due Diligence</div><div class="pp-pr">$999</div><div class="pp-pe">per month</div><div class="pp-it">5 reports per month</div><div class="pp-it">All 6 agents</div><div class="pp-it">Market Monitor access</div><div class="pp-it">Priority support</div></div><div class="pay-plan sel" id="pp-ir" onclick="selPlan(\'intelligence-retainer\')"><div class="pp-nm">Intelligence Retainer</div><div class="pp-pr">$2,499</div><div class="pp-pe">per month</div><div class="pp-it">Unlimited reports</div><div class="pp-it">All 6 agents, full capacity</div><div class="pp-it">3 team seats included</div><div class="pp-it">Priority processing</div></div></div><div class="pay-foot"><div class="pay-billing-toggle" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px"><button id="pbill-mo" class="pay-bill-btn act" onclick="setBilling(\'monthly\')" type="button">Monthly</button><button id="pbill-yr" class="pay-bill-btn" onclick="setBilling(\'annual\')" type="button">Annual <span style="font-size:10px;background:#0A5C3E;color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px">2 months free</span></button></div><button class="pay-btn" id="pbtn" onclick="doPay()" type="button">Pay $2,499/mo - Secure Checkout</button><div class="pay-sec">Payments processed by Stripe. SSL secured.</div></div><div class="pay-note">Enterprise from $5,000/month - <a href="mailto:difc@gulfcapitalintelligence.com">request a proposal.</a></div></div></div>';
  document.body.insertAdjacentHTML('afterbegin', AUTH_HTML + PAY_HTML);
  // Strategy Report Modal
@@ -5179,6 +5225,20 @@ var selBilling='monthly';
 
 function initGCI(){
  var params=new URLSearchParams(window.location.search);
+
+ // Handle OAuth social login callback
+ var oauthToken=params.get('token');var oauthAuth=params.get('auth');
+ if(oauthToken&&oauthAuth==='social'){
+  localStorage.setItem('gci_token',oauthToken);
+  window.history.replaceState({},'',window.location.pathname);
+  fetch('/api/auth-me',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:oauthToken})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+   if(d.user){gciU=d.user;localStorage.setItem('gci_user',JSON.stringify(gciU));gciP=d.user.plan||null;ensureAdminPlan();renderUB();if(!gciP)showLockedRpt();showToast('Signed in successfully.','#0A5C3E');}
+   else{showAuth('signup');}
+  }).catch(function(){showAuth('signup');});
+  return;
+ }
 
  // Handle magic link login (token from /api/verify-magic-link redirect)
  var magicToken=params.get('token');var authType=params.get('auth');
@@ -5378,6 +5438,26 @@ async function handleAuth(){
  }catch(e){showAErr('Connection error. Please try again.');if(btn){btn.textContent=su?'Create Account':'Sign In';btn.disabled=false;}}
 }
 function showAErr(m){var e=document.getElementById('aerr');if(e){e.textContent=m;e.classList.add('show');}}
+
+// Social / OAuth Login
+function socialLogin(provider){
+ var baseUrl=window.location.origin;
+ var redirectUri=baseUrl+'/api/auth-oauth-callback';
+ var state=btoa(JSON.stringify({provider:provider,ts:Date.now(),redirect:baseUrl+'/app.html'}));
+ sessionStorage.setItem('gci_oauth_state',state);
+ var url='';
+ if(provider==='google'){
+  var clientId=window.GCI_GOOGLE_CLIENT_ID||'';
+  url='https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
+ } else if(provider==='microsoft'){
+  var clientId=window.GCI_MICROSOFT_CLIENT_ID||'';
+  url='https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile User.Read')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
+ } else if(provider==='linkedin'){
+  var clientId=window.GCI_LINKEDIN_CLIENT_ID||'';
+  url='https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid profile email')+'&state='+encodeURIComponent(state);
+ }
+ if(url)window.location.href=url;
+}
 function showForgotPw(){
  var ht=document.getElementById('ah-title');if(ht)ht.textContent='Reset Password';
  var hs=document.getElementById('ah-sub');if(hs)hs.textContent='Enter your email and we will send a reset link.';
@@ -5911,31 +5991,50 @@ function downloadStratPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(200,168,75);
   doc.text('GULF CAPITAL INTELLIGENCE',mg,6.5);
   doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-  var lbl=(_srmAgentLabel||'Strategy Report');if(lbl.length>52)lbl=lbl.slice(0,49)+'...';
-  doc.text(lbl,pw-mg,6.5,{align:'right'});
+  var lbl=(_srmAgentLabel||'Strategy Report');if(lbl.length>45)lbl=lbl.slice(0,42)+'...';
+  doc.text(lbl,pw/2,6.5,{align:'center'});
+  doc.setTextColor(140,140,140);doc.setFontSize(6);
+  doc.text(stratReportId,pw-mg,6.5,{align:'right'});
   doc.setFillColor(200,168,75);doc.rect(mg,ph-BOT+3,maxW,0.3,'F');
   doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(150,150,150);
-  doc.text('DIFC, Dubai | GCI Conviction Engine output - not regulated investment advice',mg,ph-7);
-  doc.setFont('helvetica','bold');doc.setTextColor(11,29,53);
-  doc.text(String(pageNum),pw-mg,ph-7,{align:'right'});
+  doc.text('Gulf Capital Intelligence | DIFC, Dubai | Confidential',mg,ph-7);
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(11,29,53);
+  doc.text('Page '+String(pageNum),pw-mg,ph-7,{align:'right'});
  }
+ var stratDate=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
  // Cover page
  doc.setFillColor(11,29,53);doc.rect(0,0,pw,ph,'F');
- doc.setFillColor(200,168,75);doc.rect(0,ph-18,pw,18,'F');
- // Subtle gold accent line at top of cover
- doc.setFillColor(200,168,75);doc.rect(0,0,pw,1.5,'F');
- doc.setTextColor(200,168,75);doc.setFont('helvetica','bold');doc.setFontSize(30);
+ // Top gold accent
+ doc.setFillColor(200,168,75);doc.rect(0,0,pw,2,'F');
+ // GCI Logo mark
+ doc.setFillColor(200,168,75);doc.circle(pw/2,52,14,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(11,29,53);
+ doc.text('GCI',pw/2,56,{align:'center'});
+ // Brand name
+ doc.setTextColor(200,168,75);doc.setFont('helvetica','bold');doc.setFontSize(28);
  doc.text('Gulf Capital',pw/2,88,{align:'center'});
- doc.text('Intelligence',pw/2,105,{align:'center'});
- // Thin gold rule under title
- doc.setFillColor(200,168,75);doc.setLineWidth(0.3);doc.rect(pw/2-28,112,56,0.4,'F');
- doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(14);
+ doc.text('Intelligence',pw/2,103,{align:'center'});
+ // Gold rule
+ doc.setFillColor(200,168,75);doc.rect(pw/2-30,110,60,0.5,'F');
+ // Report title
+ doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(15);
  doc.text(_srmAgentLabel||'Strategy Report',pw/2,125,{align:'center'});
+ // Date
  doc.setFontSize(10);doc.setTextColor(200,168,75);
- doc.text(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),pw/2,138,{align:'center'});
- doc.setTextColor(255,255,255);doc.setFontSize(8);
- doc.text('DIFC, Dubai | GCI Conviction Engine output - not regulated investment advice',pw/2,ph-6,{align:'center'});
+ doc.text(stratDate,pw/2,138,{align:'center'});
+ // Metadata footer
+ doc.setFillColor(200,168,75);doc.rect(0,ph-44,pw,0.5,'F');
+ doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140,140,140);
+ doc.text('DATE',mg+2,ph-34);doc.text('REPORT ID',mg+70,ph-34);doc.text('TYPE',mg+130,ph-34);
+ doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(200,168,75);
+ doc.text(stratDate,mg+2,ph-27);doc.text(stratReportId,mg+70,ph-27);doc.text('Strategic Intelligence',mg+130,ph-27);
+ // Bottom gold bar
+ doc.setFillColor(200,168,75);doc.rect(0,ph-16,pw,16,'F');
+ doc.setTextColor(11,29,53);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+ doc.text('Gulf Capital Intelligence | DIFC, Dubai | gulfcapitalintelligence.com',pw/2,ph-8,{align:'center'});
+ doc.setFontSize(6.5);
+ doc.text('GCI Conviction Engine output. Not regulated investment advice.',pw/2,ph-3,{align:'center'});
 
  // Content start
  doc.addPage();pageNum=2;drawChrome();
