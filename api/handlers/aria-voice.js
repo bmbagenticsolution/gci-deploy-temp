@@ -23,8 +23,11 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'transcript required' });
   }
 
+  // Check if this is a greeting request (widget just opened, no user speech yet)
+  const isGreeting = transcript === '__greet__';
+
   // Detect Arabic from transcript or session setting
-  const hasArabic = /[\u0600-\u06FF]/.test(transcript);
+  const hasArabic = !isGreeting && /[\u0600-\u06FF]/.test(transcript);
   const isArabic = sessionLanguage === 'ar' || hasArabic;
   const lang = isArabic ? 'ar' : 'en';
 
@@ -37,7 +40,15 @@ module.exports = async function handler(req, res) {
       }
     }
   }
-  messages.push({ role: 'user', content: transcript });
+
+  // For greeting requests, use a special user message that prompts a natural introduction
+  if (isGreeting) {
+    messages.push({ role: 'user', content: isArabic
+      ? 'Please introduce yourself briefly in Arabic. The visitor just opened the voice widget.'
+      : 'Please introduce yourself briefly. The visitor just opened the voice widget on the GCI website.' });
+  } else {
+    messages.push({ role: 'user', content: transcript });
+  }
 
   let systemPrompt = isArabic ? ARIA_SYSTEM_AR : ARIA_SYSTEM_EN;
   if (pageContext && pageContext.title) {

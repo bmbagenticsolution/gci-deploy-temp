@@ -17,7 +17,7 @@ const functions = [
   'admin-dashboard', 'admin-hubspot-backfill', 'admin-hubspot-bootstrap',
   'admin-hubspot-lists', 'admin-integrations-backfill', 'admin-otp',
   'admin-reports', 'ai-checker', 'apollo', 'aria-voice', 'auth-me',
-  'auth-oauth-callback', 'auth-signin', 'auth-signup', 'capture-lead', 'careers-applications',
+  'auth-oauth-callback', 'auth-signin', 'auth-signup', 'capture-lead', 'careers-applications', 'config',
   'careers-apply', 'careers-interest', 'careers-send-otp', 'careers-unsubscribe',
   'careers-verify-otp', 'careers-weekly', 'chat', 'create-checkout-session',
   'dashboard-data', 'gemini-agent', 'hubspot-webhook', 'job', 'keys-status',

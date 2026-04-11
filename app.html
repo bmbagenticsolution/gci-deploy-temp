@@ -5440,23 +5440,47 @@ async function handleAuth(){
 function showAErr(m){var e=document.getElementById('aerr');if(e){e.textContent=m;e.classList.add('show');}}
 
 // Social / OAuth Login
+// Load OAuth client IDs from /api/config on page load
+var _oauthConfig=null;
+function loadOAuthConfig(){
+ if(_oauthConfig)return Promise.resolve(_oauthConfig);
+ return fetch('/api/config').then(function(r){return r.json()}).then(function(d){
+  _oauthConfig=d.oauth||{};
+  window.GCI_GOOGLE_CLIENT_ID=(_oauthConfig.google&&_oauthConfig.google.clientId)||'';
+  window.GCI_MICROSOFT_CLIENT_ID=(_oauthConfig.microsoft&&_oauthConfig.microsoft.clientId)||'';
+  window.GCI_LINKEDIN_CLIENT_ID=(_oauthConfig.linkedin&&_oauthConfig.linkedin.clientId)||'';
+  return _oauthConfig;
+ }).catch(function(){return {};});
+}
+// Pre-load config
+loadOAuthConfig();
+
 function socialLogin(provider){
- var baseUrl=window.location.origin;
- var redirectUri=baseUrl+'/api/auth-oauth-callback';
- var state=btoa(JSON.stringify({provider:provider,ts:Date.now(),redirect:baseUrl+'/app.html'}));
- sessionStorage.setItem('gci_oauth_state',state);
- var url='';
- if(provider==='google'){
-  var clientId=window.GCI_GOOGLE_CLIENT_ID||'';
-  url='https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
- } else if(provider==='microsoft'){
-  var clientId=window.GCI_MICROSOFT_CLIENT_ID||'';
-  url='https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile User.Read')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
- } else if(provider==='linkedin'){
-  var clientId=window.GCI_LINKEDIN_CLIENT_ID||'';
-  url='https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid profile email')+'&state='+encodeURIComponent(state);
- }
- if(url)window.location.href=url;
+ loadOAuthConfig().then(function(){
+  var clientId='';
+  if(provider==='google')clientId=window.GCI_GOOGLE_CLIENT_ID||'';
+  else if(provider==='microsoft')clientId=window.GCI_MICROSOFT_CLIENT_ID||'';
+  else if(provider==='linkedin')clientId=window.GCI_LINKEDIN_CLIENT_ID||'';
+
+  if(!clientId){
+   showAErr(provider.charAt(0).toUpperCase()+provider.slice(1)+' login is not configured yet. Please use email signup.');
+   return;
+  }
+
+  var baseUrl=window.location.origin;
+  var redirectUri=baseUrl+'/api/auth-oauth-callback';
+  var state=btoa(JSON.stringify({provider:provider,ts:Date.now(),redirect:baseUrl+'/app.html'}));
+  sessionStorage.setItem('gci_oauth_state',state);
+  var url='';
+  if(provider==='google'){
+   url='https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
+  } else if(provider==='microsoft'){
+   url='https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid email profile User.Read')+'&state='+encodeURIComponent(state)+'&prompt=select_account';
+  } else if(provider==='linkedin'){
+   url='https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id='+encodeURIComponent(clientId)+'&redirect_uri='+encodeURIComponent(redirectUri)+'&scope='+encodeURIComponent('openid profile email')+'&state='+encodeURIComponent(state);
+  }
+  if(url)window.location.href=url;
+ });
 }
 function showForgotPw(){
  var ht=document.getElementById('ah-title');if(ht)ht.textContent='Reset Password';
@@ -6480,6 +6504,35 @@ function skipFeedback(){var panel=document.getElementById('strat-feedback-panel'
   },200);
  }
 
+ // Browser TTS fallback when server audio unavailable
+ function speakFallback(text){
+  return new Promise((res)=>{
+   if(!window.speechSynthesis){res();return;}
+   const u=new SpeechSynthesisUtterance(text);
+   u.lang=lang==='ar'?'ar-SA':'en-US';
+   u.rate=1.0;
+   u.onend=()=>res();
+   u.onerror=()=>res();
+   window.speechSynthesis.speak(u);
+  });
+ }
+
+ // Parse response: returns {text, blob} where blob may be null if response is JSON
+ async function parseAriaResponse(r){
+  const enc=r.headers.get('X-ARIA-Text');
+  const ct=r.headers.get('Content-Type')||'';
+  let text='';
+  if(enc){try{text=atob(enc)}catch(e){}}
+  if(ct.indexOf('audio')>-1){
+   const blob=await r.blob();
+   return {text,blob};
+  }
+  if(!text){
+   try{const d=await r.json();text=d.text||'';}catch(e){}
+  }
+  return {text,blob:null};
+ }
+
  async function playGreeting(attempt){
   attempt=attempt||1;
   if(processing&&attempt===1)return;
@@ -6489,12 +6542,11 @@ function skipFeedback(){var panel=document.getElementById('strat-feedback-panel'
    const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({transcript:'__greet__',history:[],sessionLanguage:lang,pageContext:getPageCtx()})});
    if(!r.ok)throw new Error(r.status);
-   const enc=r.headers.get('X-ARIA-Text');
-   if(enc){history.push({role:'assistant',content:atob(enc)});saveState();}
-   const blob=await r.blob();
+   const {text,blob}=await parseAriaResponse(r);
+   if(text){history.push({role:'assistant',content:text});saveState();}
    processing=false;speaking=true;
    setState('speaking','Speaking...');
-   await playAudio(blob);
+   if(blob){await playAudio(blob);}else if(text){await speakFallback(text);}
    speaking=false;
    setState('listening','Listening...');
    resetInactivityTimer();
@@ -6502,7 +6554,6 @@ function skipFeedback(){var panel=document.getElementById('strat-feedback-panel'
   }catch(e){
    processing=false;
    if(attempt<2){
-    // Retry once after 1.5s before giving up
     setState('speaking','Connecting...');
     setTimeout(()=>playGreeting(2),1500);
    } else {
@@ -6527,14 +6578,17 @@ function skipFeedback(){var panel=document.getElementById('strat-feedback-panel'
    const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({transcript:txt,history,sessionLanguage:lang,pageContext:getPageCtx()})});
    if(!r.ok)throw new Error(r.status);
-   const enc=r.headers.get('X-ARIA-Text');
-   if(enc)history.push({role:'assistant',content:atob(enc)});
-   const blob=await r.blob();
+   const rLang=r.headers.get('X-ARIA-Lang');
+   if(rLang&&rLang!==lang){lang=rLang;saveState();}
+   const {text,blob}=await parseAriaResponse(r);
+   if(text)history.push({role:'assistant',content:text});
+   saveState();
    processing=false;speaking=true;
    setState('speaking','Speaking...');
-   await playAudio(blob);
+   if(blob){await playAudio(blob);}else if(text){await speakFallback(text);}
    speaking=false;
    setState('listening','Listening...');
+   resetInactivityTimer();
    setTimeout(startListening,350);
   }catch(e){
    processing=false;

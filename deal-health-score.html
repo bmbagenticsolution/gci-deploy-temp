@@ -827,6 +827,34 @@ document.getElementById('screen-hero').style.display='flex';
     recognition.onend=()=>{listening=false;if(open&&!muted&&!processing&&!speaking)setTimeout(startListening,400)};
   }
 
+  // Browser TTS fallback when server audio unavailable
+  function speakFallback(text){
+    return new Promise((res)=>{
+      if(!window.speechSynthesis){res();return;}
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang=lang==='ar'?'ar-SA':'en-US';
+      u.rate=1.0;
+      u.onend=()=>res();
+      u.onerror=()=>res();
+      window.speechSynthesis.speak(u);
+    });
+  }
+
+  async function parseAriaResponse(r){
+    const enc=r.headers.get('X-ARIA-Text');
+    const ct=r.headers.get('Content-Type')||'';
+    let text='';
+    if(enc){try{text=atob(enc)}catch(e){}}
+    if(ct.indexOf('audio')>-1){
+      const blob=await r.blob();
+      return {text,blob};
+    }
+    if(!text){
+      try{const d=await r.json();text=d.text||'';}catch(e){}
+    }
+    return {text,blob:null};
+  }
+
   async function playGreeting(attempt){
     attempt=attempt||1;
     if(processing&&attempt===1)return;
@@ -836,12 +864,11 @@ document.getElementById('screen-hero').style.display='flex';
       const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({transcript:'__greet__',history:[],sessionLanguage:lang,pageContext:getPageCtx()})});
       if(!r.ok)throw new Error(r.status);
-      const enc=r.headers.get('X-ARIA-Text');
-      if(enc){history.push({role:'assistant',content:atob(enc)});saveState();}
-      const blob=await r.blob();
+      const {text,blob}=await parseAriaResponse(r);
+      if(text){history.push({role:'assistant',content:text});saveState();}
       processing=false;speaking=true;
       setState('speaking','Speaking...');
-      await playAudio(blob);
+      if(blob){await playAudio(blob);}else if(text){await speakFallback(text);}
       speaking=false;
       setState('listening','Listening...');
       resetInactivityTimer();
@@ -849,7 +876,6 @@ document.getElementById('screen-hero').style.display='flex';
     }catch(e){
       processing=false;
       if(attempt<2){
-        // Retry once after 1.5s before giving up
         setState('speaking','Connecting...');
         setTimeout(()=>playGreeting(2),1500);
       } else {
@@ -874,14 +900,17 @@ document.getElementById('screen-hero').style.display='flex';
       const r=await fetch('/api/aria-voice',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({transcript:txt,history,sessionLanguage:lang,pageContext:getPageCtx()})});
       if(!r.ok)throw new Error(r.status);
-      const enc=r.headers.get('X-ARIA-Text');
-      if(enc)history.push({role:'assistant',content:atob(enc)});
-      const blob=await r.blob();
+      const rLang=r.headers.get('X-ARIA-Lang');
+      if(rLang&&rLang!==lang){lang=rLang;saveState();}
+      const {text,blob}=await parseAriaResponse(r);
+      if(text)history.push({role:'assistant',content:text});
+      saveState();
       processing=false;speaking=true;
       setState('speaking','Speaking...');
-      await playAudio(blob);
+      if(blob){await playAudio(blob);}else if(text){await speakFallback(text);}
       speaking=false;
       setState('listening','Listening...');
+      resetInactivityTimer();
       setTimeout(startListening,350);
     }catch(e){
       processing=false;

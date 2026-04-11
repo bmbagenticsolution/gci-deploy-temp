@@ -1,0 +1,19 @@
+// api/config.js - Public configuration endpoint
+// Returns non-secret client-side config values (OAuth client IDs, feature flags)
+// Never exposes secrets (client secrets, API keys, tokens)
+
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Cache-Control', 'public, max-age=300'); // cache 5 min
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  return res.status(200).json({
+    oauth: {
+      google: { clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '' },
+      microsoft: { clientId: process.env.MICROSOFT_OAUTH_CLIENT_ID || '' },
+      linkedin: { clientId: process.env.LINKEDIN_OAUTH_CLIENT_ID || '' }
+    }
+  });
+}
