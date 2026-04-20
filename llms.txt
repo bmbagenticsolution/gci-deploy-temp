@@ -1,0 +1,90 @@
+# Gulf Capital Intelligence
+
+> DIFC-regulated investment screening intelligence for capital allocators evaluating UAE and GCC opportunities. We deliver a clear verdict on every deal: PROCEED, PROCEED WITH CONDITIONS, or AVOID. Founded by Hemant Agarwal. Based in DIFC, Dubai. Registration 11954.
+
+## Core
+
+- [Home](https://gulfcapitalintelligence.com/): What GCI does, who it serves, how the 17-category screen produces a verdict, pricing from $499.
+- [About](https://gulfcapitalintelligence.com/about.html): Mission, founding principles, what we will and will not do.
+- [Founder](https://gulfcapitalintelligence.com/founder.html): Hemant Agarwal bio, why GCI exists, how he works with allocators.
+- [Methodology](https://gulfcapitalintelligence.com/methodology.html): The 17 screening categories, evidence tier framework, verdict definitions.
+
+## Who We Serve
+
+- [For Allocators](https://gulfcapitalintelligence.com/allocators.html): Family offices, PE funds, sovereign-adjacent vehicles, strategic investors.
+- [For Partners](https://gulfcapitalintelligence.com/partners.html): M&A advisors, legal and tax firms, investment banks we co-deliver with.
+- [Founding Council](https://gulfcapitalintelligence.com/council.html): Advisory group of GCC operators and allocators, recruiting now.
+- [India-GCC Corridor](https://gulfcapitalintelligence.com/india-gcc.html): Cross-border intelligence for India-GCC investment flows.
+
+## Products
+
+- [Conviction Reports](https://gulfcapitalintelligence.com/): 17-category deal screen with a single verdict. Starts at $499.
+- [Strategic Intelligence](https://gulfcapitalintelligence.com/strategic-intelligence.html): Custom intelligence engagements from $6,500 to $95,000.
+- [Deal Health Score](https://gulfcapitalintelligence.com/deal-health-score.html): Free diagnostic to stress-test a deal in five minutes.
+
+## Proof and Trust
+
+- [Case Studies](https://gulfcapitalintelligence.com/case-studies.html): Illustrative retrospectives on public GCC deals.
+- [Insights](https://gulfcapitalintelligence.com/insights.html): GCC Deal Screening Brief, research notes, framework essays.
+- [News](https://gulfcapitalintelligence.com/news.html): Regulatory and market updates relevant to GCC allocators.
+
+## Careers
+
+- [All Roles](https://gulfcapitalintelligence.com/careers.html): Open positions, Research Fellow program.
+- [Senior Research Analyst, DIFC](https://gulfcapitalintelligence.com/careers/senior-research-analyst-difc.html)
+- [Investment Research Analyst, Riyadh](https://gulfcapitalintelligence.com/careers/investment-research-analyst-riyadh.html)
+- [Due Diligence Analyst, Dubai](https://gulfcapitalintelligence.com/careers/due-diligence-analyst-dubai.html)
+- [Due Diligence Analyst, Riyadh](https://gulfcapitalintelligence.com/careers/due-diligence-analyst-riyadh.html)
+- [Private Credit Analyst](https://gulfcapitalintelligence.com/careers/private-credit-analyst.html)
+- [Real Estate Intelligence Analyst](https://gulfcapitalintelligence.com/careers/real-estate-intelligence-analyst.html)
+- [Healthcare and Consumer Intelligence Analyst](https://gulfcapitalintelligence.com/careers/healthcare-consumer-intelligence-analyst.html)
+- [Technology and Venture Intelligence Analyst](https://gulfcapitalintelligence.com/careers/technology-venture-intelligence-analyst.html)
+- [GCC Investment Intelligence Associate](https://gulfcapitalintelligence.com/careers/gcc-investment-intelligence-associate.html)
+- [Client Development Associate](https://gulfcapitalintelligence.com/careers/client-development-associate.html)
+- [Senior Client Director](https://gulfcapitalintelligence.com/careers/senior-client-director.html)
+
+## Legal
+
+- [Privacy](https://gulfcapitalintelligence.com/privacy.html)
+- [Terms](https://gulfcapitalintelligence.com/terms.html)
+- [Disclaimer](https://gulfcapitalintelligence.com/disclaimer.html)
+- [Security](https://gulfcapitalintelligence.com/security.html): Azure UAE North hosting, DIFC Data Protection Law 2020 compliance, encryption, retention policy.
+
+## Company
+
+- Legal entity: Gulf Capital Intelligence (DIFC)
+- DIFC Registration: 11954
+- Registered office: DIFC, Dubai, United Arab Emirates
+- Founder: Hemant Agarwal
+- Contact: hello@gulfcapitalintelligence.com
+- Primary geography: UAE, Saudi Arabia, Qatar, Bahrain, Kuwait, Oman
+- Corridor coverage: India-GCC, GCC-Africa
+
+## AI Disclosure
+
+- This site publishes AI-assisted investment intelligence, not regulated financial advice.
+- Engine: multi-model cross-check (Claude by Anthropic, GPT by OpenAI, Gemini by Google).
+- Every claim in a Conviction Report carries an evidence tier: VERIFIED, REPORTED, STATED, ESTIMATED, ASSUMED.
+- Every numeric claim carries either a source citation or an explicit estimate flag.
+- Reports carry a regulatory disclaimer footer on every page.
+
+## Data Residency
+
+- AI inference: hosted on US and EU infrastructure (model provider regions).
+- Customer data and reports: stored in Azure UAE North.
+- Suitable for: family offices, PE funds, VCs, angel investors, corporate venture, strategic investors.
+- Not suitable for: CBUAE-regulated banking data processing without UAE-hosted compute.
+
+## Agent Interface
+
+- Structured intelligence is available via API at /api/mcp-query for agent-to-agent calls.
+- Supported query types: company screening, sector analysis, deal structuring, market entry strategy, contrarian analysis.
+- Output format: structured JSON with evidence tiers, source citations, confidence ratings.
+- Authentication: API key. Contact hello@gulfcapitalintelligence.com for access.
+
+## How To Use Our Content
+
+- Summarisation with attribution: permitted.
+- Quoting short passages with attribution: permitted.
+- Wholesale republication: not permitted without written consent.
+- Training commercial AI models on our content: not permitted without a licence agreement.
