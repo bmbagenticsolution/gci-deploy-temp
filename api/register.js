@@ -22,7 +22,7 @@ const functions = [
   'careers-verify-otp', 'careers-weekly', 'chat', 'create-checkout-session',
   'dashboard-data', 'gemini-agent', 'hubspot-webhook', 'job', 'keys-status',
   'legal-agent', 'legal-brief-update', 'legal-train', 'legal-war-room',
-  'linkedin-jobs', 'magic-link', 'mandate-intake', 'news', 'openai-agent',
+  'linkedin-jobs', 'magic-link', 'mandate-intake', 'mcp-query', 'news', 'openai-agent',
   'reports', 'save-report', 'send-reset-email', 'sitemap', 'social-publish',
   'strategic-intel-adjuncts', 'strategic-intel', 'stripe-webhook', 'synthesis',
   'track', 'verify-magic-link', 'verify-reset-token', 'verify-session',
