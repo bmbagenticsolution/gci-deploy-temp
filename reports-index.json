@@ -1,0 +1,98 @@
+{
+  "version": "2026-04-20",
+  "count": 6,
+  "reports": [
+    {
+      "id": "GCI-2026-04-R001",
+      "legacy_id": "GCI-2026-03-6WRECQ",
+      "deal_name": "Boutique Hotel Acquisition, Dubai",
+      "sector": "Hospitality",
+      "location": "Dubai, UAE",
+      "deal_type": "Acquisition",
+      "verdict": "PROCEED WITH CONDITIONS",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r001-boutique-hotel-acquisition-dubai.pdf",
+      "sha256": "eb2032b07cd188bbf04fd73b297713788cddbf0ecf2d2bc725f35fd9884b743f",
+      "size_bytes": 20803,
+      "download_url": "/reports/gci-2026-04-r001-boutique-hotel-acquisition-dubai.pdf"
+    },
+    {
+      "id": "GCI-2026-04-R002",
+      "legacy_id": "GCI-2026-03-ACOMWE",
+      "deal_name": "Greenfield Aesthetic Clinic, Abu Dhabi",
+      "sector": "Healthcare",
+      "location": "Abu Dhabi, UAE",
+      "deal_type": "Greenfield",
+      "verdict": "PROCEED WITH CONDITIONS",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r002-greenfield-aesthetic-clinic-abu-dhabi.pdf",
+      "sha256": "632f83efb5435c2bf6377246eb55048ec0ce37b134b8d643bfcea461fe9dd7f5",
+      "size_bytes": 21614,
+      "download_url": "/reports/gci-2026-04-r002-greenfield-aesthetic-clinic-abu-dhabi.pdf"
+    },
+    {
+      "id": "GCI-2026-04-R003",
+      "legacy_id": "GCI-2026-03-WTIDR8",
+      "deal_name": "Joint Venture Logistics Hub, Saudi Arabia",
+      "sector": "Logistics",
+      "location": "Jeddah, Saudi Arabia",
+      "deal_type": "Joint Venture",
+      "verdict": "PROCEED WITH CONDITIONS",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r003-joint-venture-logistics-hub-saudi-arabia.pdf",
+      "sha256": "3ada1ce6bc84d681dc67ab232362faacd42da23b0215f39695c8de0f6bcfbcac",
+      "size_bytes": 18985,
+      "download_url": "/reports/gci-2026-04-r003-joint-venture-logistics-hub-saudi-arabia.pdf"
+    },
+    {
+      "id": "GCI-2026-04-R004",
+      "legacy_id": "GCI-2026-03-T9AV3K",
+      "deal_name": "Franchise Japanese F&B, UAE",
+      "sector": "Food & Beverage",
+      "location": "Multi-Emirate, UAE",
+      "deal_type": "Franchise",
+      "verdict": "PROCEED",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r004-franchise-japanese-fb-uae.pdf",
+      "sha256": "d199bf46d996d5ec2abe4f49f773c14b4673e855c64493f87a173c62cd1df835",
+      "size_bytes": 19353,
+      "download_url": "/reports/gci-2026-04-r004-franchise-japanese-fb-uae.pdf"
+    },
+    {
+      "id": "GCI-2026-04-R005",
+      "legacy_id": "GCI-2026-04-TD24GE",
+      "deal_name": "Space AI Satellite Constellation JV, Abu Dhabi",
+      "sector": "Technology",
+      "location": "Abu Dhabi, UAE",
+      "deal_type": "Joint Venture",
+      "verdict": "PROCEED WITH CONDITIONS",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r005-space-ai-satellite-constellation-jv-abu-dhabi.pdf",
+      "sha256": "082b1596c91fb8368d5fe51ba3fdad36f5eef8656adb5cda7bc0b43b87dcd035",
+      "size_bytes": 531547,
+      "download_url": "/reports/gci-2026-04-r005-space-ai-satellite-constellation-jv-abu-dhabi.pdf"
+    },
+    {
+      "id": "GCI-2026-04-R006",
+      "legacy_id": "GCI-2026-04-SI",
+      "deal_name": "Strategic Intelligence: GCC Commercial Space Economy",
+      "sector": "Strategic Intelligence",
+      "location": "GCC",
+      "deal_type": "Strategic Intelligence",
+      "verdict": "5 Options Ranked",
+      "date": "2026-04",
+      "filename": "gci-2026-04-r006-strategic-intelligence-space-economy-gcc.pdf",
+      "sha256": "53aac54aa7337f9a556e54b7ffdc7c7b414db4a45b5baed2b208e5afdf0e3b48",
+      "size_bytes": 60402,
+      "download_url": "/reports/gci-2026-04-r006-strategic-intelligence-space-economy-gcc.pdf"
+    }
+  ],
+  "redirects": [
+    { "from": "/reports/01%20-%20Boutique%20Hotel%20Acquisition%20Dubai%20-%20GCI-2026-03-6WRECQ.pdf", "to": "/reports/gci-2026-04-r001-boutique-hotel-acquisition-dubai.pdf" },
+    { "from": "/reports/02%20-%20Greenfield%20Aesthetic%20Clinic%20Abu%20Dhabi%20-%20GCI-2026-03-ACOMWE.pdf", "to": "/reports/gci-2026-04-r002-greenfield-aesthetic-clinic-abu-dhabi.pdf" },
+    { "from": "/reports/03%20-%20Joint%20Venture%20Logistics%20Hub%20Saudi%20Arabia%20-%20GCI-2026-03-WTIDR8.pdf", "to": "/reports/gci-2026-04-r003-joint-venture-logistics-hub-saudi-arabia.pdf" },
+    { "from": "/reports/06%20-%20Franchise%20Japanese%20F%26B%20UAE%20-%20GCI-2026-03-T9AV3K.pdf", "to": "/reports/gci-2026-04-r004-franchise-japanese-fb-uae.pdf" },
+    { "from": "/reports/07%20-%20Space%20AI%20Satellite%20Constellation%20JV%20Abu%20Dhabi%20-%20GCI-2026-04-TD24GE.pdf", "to": "/reports/gci-2026-04-r005-space-ai-satellite-constellation-jv-abu-dhabi.pdf" },
+    { "from": "/reports/08%20-%20Strategic%20Intelligence%20Space%20Economy%20GCC%20-%20GCI-2026-04-SI.pdf", "to": "/reports/gci-2026-04-r006-strategic-intelligence-space-economy-gcc.pdf" }
+  ]
+}
