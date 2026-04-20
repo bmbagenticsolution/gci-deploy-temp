@@ -2,6 +2,7 @@
   "routes": [
     { "route": "/app", "rewrite": "/app.html" },
     { "route": "/admin", "rewrite": "/admin.html" },
+    { "route": "/admin-paywall", "rewrite": "/admin-paywall.html" },
     { "route": "/disclaimer", "rewrite": "/disclaimer.html" },
     { "route": "/terms", "rewrite": "/terms.html" },
     { "route": "/privacy", "rewrite": "/privacy.html" },
@@ -11,6 +12,8 @@
     { "route": "/news", "rewrite": "/news.html" },
     { "route": "/news/*", "rewrite": "/news.html" },
     { "route": "/sitemap.xml", "rewrite": "/api/sitemap" },
+    { "route": "/llms.txt", "headers": { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } },
+    { "route": "/robots.txt", "headers": { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } },
     { "route": "/careers/client-development-associate", "rewrite": "/careers/client-development-associate.html" },
     { "route": "/careers/due-diligence-analyst-dubai", "rewrite": "/careers/due-diligence-analyst-dubai.html" },
     { "route": "/careers/due-diligence-analyst-riyadh", "rewrite": "/careers/due-diligence-analyst-riyadh.html" },
@@ -23,29 +26,26 @@
     { "route": "/careers/senior-client-director", "rewrite": "/careers/senior-client-director.html" },
     { "route": "/careers/senior-research-analyst-difc", "rewrite": "/careers/senior-research-analyst-difc.html" },
     { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" },
-    { "route": "/allocators", "rewrite": "/allocators.html" },
-    { "route": "/deal-teams", "rewrite": "/deal-teams.html" },
-    { "route": "/partners", "rewrite": "/partners.html" },
-    { "route": "/india-gcc", "rewrite": "/india-gcc.html" },
-    { "route": "/council", "rewrite": "/council.html" },
-    { "route": "/case-studies", "rewrite": "/case-studies.html" },
-    { "route": "/methodology", "rewrite": "/methodology.html" },
-    { "route": "/insights", "rewrite": "/insights.html" },
-    { "route": "/strategic-intelligence", "rewrite": "/strategic-intelligence.html" },
-    { "route": "/founder", "rewrite": "/founder.html" },
-    { "route": "/about", "rewrite": "/about.html" },
-    { "route": "/reports", "rewrite": "/reports.html" }
+    { "route": "/reports/01 - Boutique Hotel Acquisition Dubai - GCI-2026-03-6WRECQ.pdf", "redirect": "/reports/gci-2026-04-r001-boutique-hotel-acquisition-dubai.pdf", "statusCode": 301 },
+    { "route": "/reports/02 - Greenfield Aesthetic Clinic Abu Dhabi - GCI-2026-03-ACOMWE.pdf", "redirect": "/reports/gci-2026-04-r002-greenfield-aesthetic-clinic-abu-dhabi.pdf", "statusCode": 301 },
+    { "route": "/reports/03 - Joint Venture Logistics Hub Saudi Arabia - GCI-2026-03-WTIDR8.pdf", "redirect": "/reports/gci-2026-04-r003-joint-venture-logistics-hub-saudi-arabia.pdf", "statusCode": 301 },
+    { "route": "/reports/06 - Franchise Japanese F&B UAE - GCI-2026-03-T9AV3K.pdf", "redirect": "/reports/gci-2026-04-r004-franchise-japanese-fb-uae.pdf", "statusCode": 301 },
+    { "route": "/reports/07 - Space AI Satellite Constellation JV Abu Dhabi - GCI-2026-04-TD24GE.pdf", "redirect": "/reports/gci-2026-04-r005-space-ai-satellite-constellation-jv-abu-dhabi.pdf", "statusCode": 301 },
+    { "route": "/reports/08 - Strategic Intelligence Space Economy GCC - GCI-2026-04-SI.pdf", "redirect": "/reports/gci-2026-04-r006-strategic-intelligence-space-economy-gcc.pdf", "statusCode": 301 }
   ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*", "/reports/*", "/llms.txt", "/robots.txt", "*.{css,js,svg,ico,png,jpg,jpeg,webp,pdf,txt,xml}"]
+  },
   "mimeTypes": {
     ".pdf": "application/pdf",
-    ".xml": "application/xml"
+    ".xml": "application/xml",
+    ".txt": "text/plain"
   },
   "responseOverrides": {
-    "404": {
-      "statusCode": 404
-    }
+    "404": { "rewrite": "/404.html", "statusCode": 404 }
   },
   "platform": {
-    "apiRuntime": "node:20"
+    "apiRuntime": "node:22"
   }
 }
