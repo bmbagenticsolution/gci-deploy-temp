@@ -16,7 +16,7 @@ const ALL_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
 const functions = [
   'admin-dashboard', 'admin-hubspot-backfill', 'admin-hubspot-bootstrap',
   'admin-hubspot-lists', 'admin-integrations-backfill', 'admin-otp',
-  'admin-reports', 'ai-checker', 'apollo', 'aria-voice', 'auth-me',
+  'admin-reports', 'ai-checker', 'debug-env', 'apollo', 'aria-voice', 'auth-me',
   'auth-oauth-callback', 'auth-signin', 'auth-signup', 'capture-lead', 'careers-applications', 'config',
   'careers-apply', 'careers-interest', 'careers-send-otp', 'careers-unsubscribe',
   'careers-verify-otp', 'careers-weekly', 'chat', 'create-checkout-session',
