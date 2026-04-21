@@ -147,7 +147,7 @@ module.exports = async function handler(req, res) {
         messages
       };
 
-      const response = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
+      const response = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
         method: 'POST',
         headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
         body: JSON.stringify(payload)
@@ -185,7 +185,7 @@ module.exports = async function handler(req, res) {
     if (typeof body.system === 'string' && body.system.length > 0) normalizedBody.system = body.system;
     if (typeof body.temperature === 'number') normalizedBody.temperature = body.temperature;
 
-    const response = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
+    const response = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
       method: 'POST',
       headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
       body: JSON.stringify(normalizedBody)

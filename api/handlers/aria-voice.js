@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
   // 1) Get text reply from Claude
   let replyText;
   try {
-    const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
+    const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

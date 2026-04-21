@@ -155,7 +155,7 @@ module.exports = async function handler(req, res) {
 
   try {
     // Extract knowledge using Claude
-    const extractResp = await fetch('https://api.anthropic.com/v1/messages', {
+    const extractResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,

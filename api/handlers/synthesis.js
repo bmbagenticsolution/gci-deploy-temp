@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
     if (viduraOpinion) userPrompt += 'LEGAL OPINION (Vidura):\n' + viduraOpinion + '\n\n====================\n';
     userPrompt += '\nProduce the synthesized conviction report now.';
 
-    const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
+    const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
       method: 'POST',
       headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
       body: JSON.stringify({

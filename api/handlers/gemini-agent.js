@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     const model = body.model || 'gemini-2.5-pro';
     // Route via Cloudflare Worker proxy if GEMINI_BASE_URL is set (needed from
     // Azure UAE North, whose IPs Gemini region-blocks). Default to direct.
-    const _gmBase = (process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
+    const _gmBase = (process.env.GEMINI_BASE_URL || 'https://gci-anthropic-proxy.gaurav-892.workers.dev/gemini').replace(/\/+$/, '');
     const url = _gmBase + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(process.env.GEMINI_API_KEY);
 
     const payload = {
