@@ -292,7 +292,7 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
     const MAX_TOOLS = 6;
 
     while (toolIterations < MAX_TOOLS) {
-      const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
+      const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-vercel-proxy.vercel.app')+'/v1/messages', {
         method: 'POST',
         headers: {
           'x-api-key': ANTHROPIC_API_KEY,
@@ -333,7 +333,7 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
     send({ type: 'status', message: `Research complete. ${sourcesConsulted.length} sources consulted. Generating War Room strategy...` });
 
     // Stream final war room analysis
-    const finalResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
+    const finalResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-vercel-proxy.vercel.app')+'/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,

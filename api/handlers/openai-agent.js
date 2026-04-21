@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
 
     // Route via Cloudflare Worker proxy if OPENAI_BASE_URL is set (needed from
     // Azure UAE North, whose IPs OpenAI region-blocks). Default to direct.
-    const _oaBase = (process.env.OPENAI_BASE_URL || 'https://gci-anthropic-proxy.gaurav-892.workers.dev/openai').replace(/\/+$/, '');
+    const _oaBase = (process.env.OPENAI_BASE_URL || 'https://gci-vercel-proxy.vercel.app/openai').replace(/\/+$/, '');
     const _oaHeaders = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY
