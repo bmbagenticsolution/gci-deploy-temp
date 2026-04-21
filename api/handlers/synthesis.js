@@ -50,8 +50,8 @@ module.exports = async function handler(req, res) {
       method: 'POST',
       headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 6000,
         system: SYNTHESIS_SYSTEM,
         messages: [{ role: 'user', content: userPrompt }]
       })
