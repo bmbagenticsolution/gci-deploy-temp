@@ -81,7 +81,7 @@ async function callClaude(system, userPrompt, maxTokens, model) {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
     body: JSON.stringify({
-      model: model || 'claude-opus-4-6',
+      model: model || 'claude-sonnet-4-6',
       max_tokens: maxTokens || 12000,
       system: system,
       messages: [{ role: 'user', content: userPrompt }]
@@ -166,10 +166,10 @@ module.exports = async function handler(req, res) {
     // /api/strategic-intel-adjuncts call from the client so we can return the
     // main report as soon as it is ready and stop holding the gateway open.
     const engineStart = Date.now();
-    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 6000);
+    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 4000);
     stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
 
-    const enginesUsed = ['claude-opus-4-6'];
+    const enginesUsed = ['claude-sonnet-4-6'];
 
     // Strip em/en dashes per house style
     function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
