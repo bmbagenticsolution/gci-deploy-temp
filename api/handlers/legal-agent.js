@@ -567,7 +567,7 @@ module.exports = async function handler(req, res) {
 
       let researchResp;
       try {
-        researchResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-vercel-proxy.vercel.app')+'/v1/messages', {
+        researchResp = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
           method: 'POST',
           headers: {
             'x-api-key': ANTHROPIC_API_KEY,
@@ -644,7 +644,7 @@ module.exports = async function handler(req, res) {
 
     let finalResp;
     try {
-      finalResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-vercel-proxy.vercel.app')+'/v1/messages', {
+      finalResp = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
         method: 'POST',
         headers: {
           'x-api-key': ANTHROPIC_API_KEY,

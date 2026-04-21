@@ -283,7 +283,7 @@ module.exports = async function handler(req, res) {
 
     // 3. Call Claude to synthesise
     console.log('[LegalBrief] Calling Claude for synthesis...');
-    const claudeResp = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-vercel-proxy.vercel.app')+'/v1/messages', {
+    const claudeResp = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': ANTHROPIC_API_KEY,
