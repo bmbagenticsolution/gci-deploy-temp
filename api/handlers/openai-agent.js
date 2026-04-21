@@ -29,12 +29,17 @@ module.exports = async function handler(req, res) {
       if (content) oaMessages.push({ role: m.role || 'user', content: content });
     }
 
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Route via Cloudflare Worker proxy if OPENAI_BASE_URL is set (needed from
+    // Azure UAE North, whose IPs OpenAI region-blocks). Default to direct.
+    const _oaBase = (process.env.OPENAI_BASE_URL || 'https://api.openai.com').replace(/\/+$/, '');
+    const _oaHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY
+    };
+    if (process.env.PROXY_SHARED_SECRET) _oaHeaders['x-proxy-secret'] = process.env.PROXY_SHARED_SECRET;
+    const r = await fetch(_oaBase + '/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY
-      },
+      headers: _oaHeaders,
       body: JSON.stringify({
         model: body.model || 'gpt-4.1',
         messages: oaMessages,

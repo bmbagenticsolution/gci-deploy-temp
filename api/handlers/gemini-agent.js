@@ -28,7 +28,10 @@ module.exports = async function handler(req, res) {
     }
 
     const model = body.model || 'gemini-2.5-pro';
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(process.env.GEMINI_API_KEY);
+    // Route via Cloudflare Worker proxy if GEMINI_BASE_URL is set (needed from
+    // Azure UAE North, whose IPs Gemini region-blocks). Default to direct.
+    const _gmBase = (process.env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com').replace(/\/+$/, '');
+    const url = _gmBase + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(process.env.GEMINI_API_KEY);
 
     const payload = {
       contents: contents,
@@ -39,9 +42,11 @@ module.exports = async function handler(req, res) {
     };
     if (system) payload.systemInstruction = { parts: [{ text: system }] };
 
+    const _gmHeaders = { 'Content-Type': 'application/json' };
+    if (process.env.PROXY_SHARED_SECRET) _gmHeaders['x-proxy-secret'] = process.env.PROXY_SHARED_SECRET;
     const r = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: _gmHeaders,
       body: JSON.stringify(payload)
     });
 
