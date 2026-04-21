@@ -12,7 +12,7 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
 async function callClaudeSonnet(system, userPrompt, maxTokens) {
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
+  const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

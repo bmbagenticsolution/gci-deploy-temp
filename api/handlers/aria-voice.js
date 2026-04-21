@@ -1,50 +1,25 @@
-// api/aria-voice.js  Azure OpenAI reasoning + Azure/OpenAI TTS (bilingual EN/AR)
-// Priority: Azure OpenAI > Direct OpenAI > Anthropic Claude
-// TTS: Azure OpenAI TTS > Direct OpenAI TTS > text-only fallback
+// api/aria-voice.js — ARIA voice assistant: Claude reasoning + OpenAI TTS audio
 // Front-end calls POST with {transcript, history, sessionLanguage, pageContext}
 // Returns audio/mpeg blob with X-ARIA-Text header (base64 encoded reply text)
 
-const ARIA_SYSTEM_EN = `You are ARIA, the voice concierge for Gulf Capital Intelligence (GCI), a DIFC-registered investment intelligence platform serving GCC capital allocators. You speak briefly, like a senior analyst on a phone call: 1 to 3 short sentences, no lists, no markdown, no emojis. You answer questions about GCI plans, the GCC investment landscape, and how to use the platform. If asked something off-topic, gently bring it back to investment intelligence.`;
-
-const ARIA_SYSTEM_AR = `You are ARIA (pronounced ah-ree-ah), the voice concierge for Gulf Capital Intelligence (GCI), a DIFC-registered investment intelligence platform. You MUST reply ONLY in Modern Standard Arabic (MSA). Speak briefly like a senior analyst on a phone call: 1 to 3 short sentences, no lists, no markdown, no emojis. You answer questions about GCI plans, the GCC investment landscape, and how to use the platform. If asked something off-topic, gently redirect to investment intelligence. Always reply in Arabic regardless of input language when the session language is Arabic.`;
+const ARIA_SYSTEM = `You are ARIA, the voice concierge for Gulf Capital Intelligence (GCI), a DIFC-registered investment intelligence platform serving GCC capital allocators. You speak briefly, like a senior analyst on a phone call: 1 to 3 short sentences, no lists, no markdown, no emojis. You answer questions about GCI plans, the GCC investment landscape, and how to use the platform. If asked something off-topic, gently bring it back to investment intelligence. If asked in Arabic, reply in Arabic.`;
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Expose-Headers', 'X-ARIA-Text, X-ARIA-Lang');
+  res.setHeader('Access-Control-Expose-Headers', 'X-ARIA-Text');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Azure OpenAI config (preferred - no geo restrictions)
-  const AZURE_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT || ''; // e.g. https://aoai-gci-prod.openai.azure.com
-  const AZURE_KEY = process.env.AZURE_OPENAI_KEY || '';
-  const AZURE_CHAT_DEPLOYMENT = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || 'gpt-4o'; // deployment name
-  const AZURE_TTS_DEPLOYMENT = process.env.AZURE_OPENAI_TTS_DEPLOYMENT || 'tts'; // TTS deployment name
-  const AZURE_API_VERSION = process.env.AZURE_OPENAI_API_VERSION || '2024-12-01-preview';
-
-  // Direct OpenAI (fallback - may be geo-blocked)
-  const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
-
-  // Anthropic Claude (last resort fallback)
-  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || '';
-
-  if (!AZURE_KEY && !OPENAI_KEY && !ANTHROPIC_KEY) {
-    return res.status(500).json({ error: 'ARIA unavailable: no API keys configured' });
-  }
+  const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+  const OPENAI_KEY = process.env.OPENAI_API_KEY;
+  if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ARIA unavailable: missing reasoning key' });
 
   const { transcript, history, sessionLanguage, pageContext } = req.body || {};
   if (!transcript || typeof transcript !== 'string') {
     return res.status(400).json({ error: 'transcript required' });
   }
-
-  // Check if this is a greeting request (widget just opened, no user speech yet)
-  const isGreeting = transcript === '__greet__';
-
-  // Detect Arabic from transcript or session setting
-  const hasArabic = !isGreeting && /[\u0600-\u06FF]/.test(transcript);
-  const isArabic = sessionLanguage === 'ar' || hasArabic;
-  const lang = isArabic ? 'ar' : 'en';
 
   // Build messages array from history + current transcript
   const messages = [];
@@ -55,158 +30,81 @@ module.exports = async function handler(req, res) {
       }
     }
   }
+  messages.push({ role: 'user', content: transcript });
 
-  // For greeting requests, use a special user message that prompts a natural introduction
-  if (isGreeting) {
-    messages.push({ role: 'user', content: isArabic
-      ? 'Please introduce yourself briefly in Arabic. The visitor just opened the voice widget.'
-      : 'Please introduce yourself briefly. The visitor just opened the voice widget on the GCI website.' });
-  } else {
-    messages.push({ role: 'user', content: transcript });
-  }
-
-  let systemPrompt = isArabic ? ARIA_SYSTEM_AR : ARIA_SYSTEM_EN;
+  let systemPrompt = ARIA_SYSTEM;
   if (pageContext && pageContext.title) {
     systemPrompt += `\nCurrent page: ${pageContext.title} (${pageContext.page || ''})`;
   }
+  if (sessionLanguage === 'ar') {
+    systemPrompt += '\nReply in Arabic, brief and natural.';
+  }
 
-  // ========== 1) GET TEXT REPLY ==========
+  // 1) Get text reply from Claude
   let replyText;
-  let debugErrors = [];
-  const gptMessages = [{ role: 'system', content: systemPrompt }, ...messages.slice(-12)];
-
-  // --- Try 1: Azure OpenAI (no geo restrictions) ---
-  if (!replyText && AZURE_ENDPOINT && AZURE_KEY) {
-    try {
-      const url = `${AZURE_ENDPOINT.replace(/\/+$/, '')}/openai/deployments/${AZURE_CHAT_DEPLOYMENT}/chat/completions?api-version=${AZURE_API_VERSION}`;
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': AZURE_KEY },
-        body: JSON.stringify({ max_tokens: 250, temperature: 0.7, messages: gptMessages })
-      });
-      if (!r.ok) {
-        const errText = await r.text();
-        console.error('[aria-voice] Azure OpenAI error', r.status, errText);
-        debugErrors.push({ provider: 'azure-openai', deployment: AZURE_CHAT_DEPLOYMENT, status: r.status, detail: errText.substring(0, 200) });
-      } else {
-        const data = await r.json();
-        replyText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-      }
-    } catch (e) {
-      console.error('[aria-voice] Azure OpenAI fetch failed', e.message);
-      debugErrors.push({ provider: 'azure-openai', error: e.message });
+  try {
+    const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://api.anthropic.com')+'/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 250,
+        system: systemPrompt,
+        messages: messages.slice(-12)
+      })
+    });
+    if (!r.ok) {
+      const errText = await r.text();
+      console.error('[aria-voice] Claude error', r.status, errText);
+      return res.status(502).json({ error: 'Reasoning service error' });
     }
+    const data = await r.json();
+    replyText = (data.content && data.content[0] && data.content[0].text) || '';
+    if (!replyText) return res.status(502).json({ error: 'Empty reply from reasoning service' });
+  } catch (e) {
+    console.error('[aria-voice] Claude fetch failed', e.message);
+    return res.status(502).json({ error: 'Reasoning service unreachable' });
   }
 
-  // --- Try 2: Direct OpenAI API (may be geo-blocked from some Azure regions) ---
-  if (!replyText && OPENAI_KEY) {
-    try {
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
-        body: JSON.stringify({ model: 'gpt-4o', max_tokens: 250, temperature: 0.7, messages: gptMessages })
-      });
-      if (!r.ok) {
-        const errText = await r.text();
-        console.error('[aria-voice] Direct OpenAI error', r.status, errText);
-        debugErrors.push({ provider: 'openai-direct', status: r.status, detail: errText.substring(0, 200) });
-      } else {
-        const data = await r.json();
-        replyText = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-      }
-    } catch (e) {
-      console.error('[aria-voice] Direct OpenAI fetch failed', e.message);
-      debugErrors.push({ provider: 'openai-direct', error: e.message });
+  // 2) Convert to speech via OpenAI TTS (if key available); otherwise return text-only response
+  if (!OPENAI_KEY) {
+    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
+    return res.status(200).json({ text: replyText, audio: null });
+  }
+
+  try {
+    const ttsR = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini-tts',
+        voice: 'nova',
+        input: replyText,
+        response_format: 'mp3'
+      })
+    });
+    if (!ttsR.ok) {
+      const errText = await ttsR.text();
+      console.error('[aria-voice] OpenAI TTS error', ttsR.status, errText);
+      // Fall back to text-only
+      res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
+      return res.status(200).json({ text: replyText, audio: null });
     }
-  }
-
-  // --- Try 3: Anthropic Claude (last resort) ---
-  if (!replyText && ANTHROPIC_KEY) {
-    try {
-      const claudeModel = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': ANTHROPIC_KEY,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({ model: claudeModel, max_tokens: 250, system: systemPrompt, messages: messages.slice(-12) })
-      });
-      if (!r.ok) {
-        const errText = await r.text();
-        console.error('[aria-voice] Claude error', r.status, errText);
-        debugErrors.push({ provider: 'anthropic', model: claudeModel, status: r.status, detail: errText.substring(0, 200) });
-      } else {
-        const data = await r.json();
-        replyText = (data.content && data.content[0] && data.content[0].text) || '';
-      }
-    } catch (e) {
-      console.error('[aria-voice] Claude fetch failed', e.message);
-      debugErrors.push({ provider: 'anthropic', error: e.message });
-    }
-  }
-
-  if (!replyText) {
-    return res.status(502).json({ error: 'All reasoning providers failed', debug: debugErrors });
-  }
-
-  // ========== 2) CONVERT TO SPEECH (TTS) ==========
-  res.setHeader('X-ARIA-Lang', lang);
-
-  // Azure Speech Service config
-  const AZURE_SPEECH_KEY = process.env.AZURE_SPEECH_KEY || '';
-  const AZURE_SPEECH_REGION = process.env.AZURE_SPEECH_REGION || 'swedencentral';
-
-  // Azure Speech voices: high-quality neural voices
-  // English: en-US-JennyMultilingualNeural (warm, professional female)
-  // Arabic: ar-SA-ZariyahNeural (clear MSA female)
-  const azureSpeechVoice = isArabic ? 'ar-SA-ZariyahNeural' : 'en-US-JennyMultilingualNeural';
-  const ssmlLang = isArabic ? 'ar-SA' : 'en-US';
-
-  let audioBuf = null;
-
-  // --- TTS: Azure Speech Service (primary) ---
-  if (!audioBuf && AZURE_SPEECH_KEY) {
-    try {
-      const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${ssmlLang}"><voice name="${azureSpeechVoice}">${replyText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</voice></speak>`;
-      const ttsUrl = `https://${AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-      const ttsR = await fetch(ttsUrl, {
-        method: 'POST',
-        headers: {
-          'Ocp-Apim-Subscription-Key': AZURE_SPEECH_KEY,
-          'Content-Type': 'application/ssml+xml',
-          'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3'
-        },
-        body: ssml
-      });
-      if (ttsR.ok) {
-        const arrayBuf = await ttsR.arrayBuffer();
-        audioBuf = Buffer.from(arrayBuf);
-      } else {
-        const errText = await ttsR.text();
-        console.error('[aria-voice] Azure Speech TTS error', ttsR.status, errText);
-      }
-    } catch (e) {
-      console.error('[aria-voice] Azure Speech TTS fetch failed', e.message);
-    }
-  }
-
-  // --- Return audio or text-only fallback ---
-  res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
-
-  if (audioBuf && audioBuf.length > 0) {
+    const arrayBuf = await ttsR.arrayBuffer();
+    const audioBuf = Buffer.from(arrayBuf);
     res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
     return res.status(200).send(audioBuf);
+  } catch (e) {
+    console.error('[aria-voice] TTS fetch failed', e.message);
+    res.setHeader('X-ARIA-Text', Buffer.from(replyText, 'utf-8').toString('base64'));
+    return res.status(200).json({ text: replyText, audio: null });
   }
-
-  // No audio available, return text-only (front-end will use browser TTS)
-  return res.status(200).json({
-    text: replyText, audio: null, lang,
-    ttsDebug: {
-      speechKeySet: !!AZURE_SPEECH_KEY,
-      speechRegion: AZURE_SPEECH_REGION,
-      speechKeyLength: AZURE_SPEECH_KEY ? AZURE_SPEECH_KEY.length : 0
-    }
-  });
 }
