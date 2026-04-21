@@ -62,3 +62,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'openai-agent error: ' + (err && err.message ? err.message : String(err)) });
   }
 }
+// cold-start trigger 1776807133

@@ -42,3 +42,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'ai-checker error: ' + (err && err.message ? err.message : String(err)) });
   }
 }
+// cold-start trigger 1776807133
