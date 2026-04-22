@@ -166,10 +166,13 @@ module.exports = async function handler(req, res) {
     // /api/strategic-intel-adjuncts call from the client so we can return the
     // main report as soon as it is ready and stop holding the gateway open.
     const engineStart = Date.now();
-    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 4000);
+    // Use Haiku 4.5 for strategic-intel: investment-grade structured reasoning,
+    // 3x faster than Sonnet 4.6, fits comfortably inside 230s SWA gateway timeout
+    // even for detailed multi-constraint briefs.
+    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 6000, 'claude-haiku-4-5-20251001');
     stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
 
-    const enginesUsed = ['claude-sonnet-4-6'];
+    const enginesUsed = ['claude-haiku-4-5'];
 
     // Strip em/en dashes per house style
     function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
