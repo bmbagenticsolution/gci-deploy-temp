@@ -92,6 +92,56 @@ async function callClaude(system, userPrompt, maxTokens, model) {
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
 
+// Streaming variant. Uses Anthropic server-sent events so the connection
+// starts flowing bytes within 1-3s and never idles, avoiding the SWA 230s
+// idle-gateway timeout even for long Sonnet 4.6 generations.
+async function callClaudeStream(system, userPrompt, maxTokens, model) {
+  const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+    method: 'POST',
+    headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY, 'Accept': 'text/event-stream' },
+    body: JSON.stringify({
+      model: model || 'claude-sonnet-4-6',
+      max_tokens: maxTokens || 12000,
+      system: system,
+      stream: true,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+  if (!r.ok) {
+    let errText = '';
+    try { errText = await r.text(); } catch(e) {}
+    throw new Error('Claude stream ' + r.status + ': ' + errText.slice(0, 300));
+  }
+  // Collect the streamed deltas into one final string. Node 18+ / undici exposes
+  // r.body as a web ReadableStream with an async iterator.
+  let acc = '';
+  const decoder = new TextDecoder();
+  let buf = '';
+  for await (const chunk of r.body) {
+    buf += decoder.decode(chunk, { stream: true });
+    const lines = buf.split('\n');
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.startsWith('data:')) continue;
+      const payload = line.slice(5).trim();
+      if (!payload || payload === '[DONE]') continue;
+      try {
+        const ev = JSON.parse(payload);
+        if (ev.type === 'content_block_delta' && ev.delta && typeof ev.delta.text === 'string') {
+          acc += ev.delta.text;
+        } else if (ev.type === 'message_stop') {
+          // done
+        } else if (ev.type === 'error') {
+          throw new Error('Claude stream error: ' + (ev.error && ev.error.message || 'unknown'));
+        }
+      } catch(e) {
+        // ignore malformed SSE payload
+      }
+    }
+  }
+  return acc;
+}
+
 async function callOpenAI(system, userPrompt) {
   if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
   const _oaBase = 'https://gci-vercel-proxy.vercel.app/openai'.replace(/\/+$/, '');
@@ -166,13 +216,12 @@ module.exports = async function handler(req, res) {
     // /api/strategic-intel-adjuncts call from the client so we can return the
     // main report as soon as it is ready and stop holding the gateway open.
     const engineStart = Date.now();
-    // Use Haiku 4.5 for strategic-intel: investment-grade structured reasoning,
-    // 3x faster than Sonnet 4.6, fits comfortably inside 230s SWA gateway timeout
-    // even for detailed multi-constraint briefs.
-    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 6000, 'claude-haiku-4-5-20251001');
+    // Sonnet 4.6 streamed. Streaming keeps the SWA gateway alive while Claude
+    // generates, so we can use the full-quality model without timing out.
+    const finalReport = await callClaudeStream(SI_DOCTRINE, userPrompt, 6000, 'claude-sonnet-4-6');
     stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
 
-    const enginesUsed = ['claude-haiku-4-5'];
+    const enginesUsed = ['claude-sonnet-4-6'];
 
     // Strip em/en dashes per house style
     function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
