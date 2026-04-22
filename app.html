@@ -5659,23 +5659,42 @@ async function runStrategicIntel(){
   if(constraints)payload.constraints=constraints;
   if(horizon)payload.horizon=horizon;
 
-  var response=await fetch('/api/strategic-intel',{
+  // Call the Vercel-hosted streaming strategic-intel endpoint.
+  // Bytes flow continuously so no buffering middleman can time out.
+  var response=await fetch('https://gci-vercel-proxy.vercel.app/strategic-intel',{
    method:'POST',
-   headers:gciHeaders(),
+   headers:{'Content-Type':'application/json'},
    body:JSON.stringify(payload)
   });
-
-  clearInterval(stageTimer);
-
-  var rawText=await response.text();
-  var data;
-  try{ data=JSON.parse(rawText); }catch(parseErr){
-   throw new Error('Server returned non-JSON response (status '+response.status+'). The analysis may have timed out. Please try again.');
-  }
-
   if(!response.ok){
-   throw new Error(data.error||'Strategic Intelligence pipeline failed ('+response.status+')');
+   var errTxt=await response.text();
+   throw new Error('Strategic Intelligence pipeline failed ('+response.status+'): '+errTxt.slice(0,200));
   }
+  // Parse Server-Sent Events stream; final event carries the structured result
+  var reader=response.body.getReader();
+  var decoder=new TextDecoder();
+  var sseBuf='';
+  var data=null;
+  while(true){
+   var chunk=await reader.read();
+   if(chunk.done)break;
+   sseBuf+=decoder.decode(chunk.value,{stream:true});
+   var parts=sseBuf.split(/\n\n/);
+   sseBuf=parts.pop();
+   for(var pi=0;pi<parts.length;pi++){
+    var block=parts[pi];
+    var evMatch=block.match(/^event:\s*(.+)$/m);
+    var dataMatch=block.match(/^data:\s*(.+)$/m);
+    if(!evMatch||!dataMatch)continue;
+    var evName=evMatch[1].trim();
+    var evData;
+    try{evData=JSON.parse(dataMatch[1]);}catch(e){continue;}
+    if(evName==='final'){data=evData;}
+    else if(evName==='error'){throw new Error('Strategic Intelligence error: '+(evData.message||'unknown'));}
+   }
+  }
+  clearInterval(stageTimer);
+  if(!data){throw new Error('Strategic Intelligence pipeline returned no final payload.');}
 
   _siRawData=data;
   renderStrategicIntelReport(data);
