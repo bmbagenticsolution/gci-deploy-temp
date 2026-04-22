@@ -26,7 +26,7 @@ const functions = [
   'reports', 'save-report', 'send-reset-email', 'sitemap', 'social-publish',
   'strategic-intel-adjuncts', 'strategic-intel', 'stripe-webhook', 'synthesis',
   'track', 'verify-magic-link', 'verify-reset-token', 'verify-session',
-  '_seed-vercel-key',
+  'seed-vercel-key',
 ];
 
 const cache = {};
