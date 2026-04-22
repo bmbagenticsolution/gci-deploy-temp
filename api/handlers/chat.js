@@ -170,6 +170,11 @@ module.exports = async function handler(req, res) {
     if (!normalizedModel || typeof normalizedModel !== 'string' || !KNOWN_MODELS.has(normalizedModel)) {
       normalizedModel = 'claude-sonnet-4-6';
     }
+    // Force sonnet 4.6 for generate-report so we fit in the 230s SWA gateway timeout.
+    // Opus is too slow for 20k-token report output.
+    if (mode === 'generate-report' || mode === 'chat') {
+      normalizedModel = 'claude-sonnet-4-6';
+    }
     let normalizedMessages = Array.isArray(body.messages) ? body.messages : [];
     normalizedMessages = normalizedMessages
       .filter(function(m){ return m && (typeof m.content === 'string' || Array.isArray(m.content)); })
@@ -177,9 +182,12 @@ module.exports = async function handler(req, res) {
     if (normalizedMessages.length === 0) {
       return res.status(400).json({ error: 'No messages provided' });
     }
+    // Cap max_tokens at 8000 for generate-report so we stay under the 230s gateway timeout.
+    let cappedMaxTokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? body.max_tokens : 4096;
+    if ((mode === 'generate-report' || mode === 'chat') && cappedMaxTokens > 8000) cappedMaxTokens = 8000;
     const normalizedBody = {
       model: normalizedModel,
-      max_tokens: typeof body.max_tokens === 'number' && body.max_tokens > 0 ? body.max_tokens : 4096,
+      max_tokens: cappedMaxTokens,
       messages: normalizedMessages
     };
     if (typeof body.system === 'string' && body.system.length > 0) normalizedBody.system = body.system;
