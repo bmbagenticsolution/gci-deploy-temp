@@ -2301,6 +2301,47 @@ function toggleLang(){
 /* ============================================================ */
 
 const API='/api/chat';
+// Vercel SSE endpoints - bypasses Azure SWA 230s buffer timeout.
+// Each endpoint streams tokens; final event carries full report text.
+const VERCEL_PROXY='https://gci-vercel-proxy.vercel.app';
+async function streamVercelSSE(path, body, onDelta){
+ const ctrl = new AbortController();
+ const timer = setTimeout(function(){ ctrl.abort(); }, 295000);
+ const resp = await fetch(VERCEL_PROXY + path, {
+  method:'POST',
+  headers:{'content-type':'application/json','accept':'text/event-stream'},
+  body: JSON.stringify(body||{}),
+  signal: ctrl.signal
+ });
+ if(!resp.ok){ clearTimeout(timer); const t = await resp.text().catch(function(){return '';}); throw new Error(path+' '+resp.status+': '+t.slice(0,200)); }
+ const reader = resp.body.getReader();
+ const dec = new TextDecoder();
+ let buf = '', fullText = '', finalPayload = null;
+ while(true){
+  const {value, done} = await reader.read();
+  if(done) break;
+  buf += dec.decode(value, {stream:true});
+  const lines = buf.split('\n');
+  buf = lines.pop();
+  let ev = '';
+  for(const L of lines){
+   if(L.startsWith('event:')){ ev = L.slice(6).trim(); continue; }
+   if(L.startsWith('data:')){
+    const p = L.slice(5).trim();
+    if(!p) continue;
+    try{
+     const d = JSON.parse(p);
+     if(ev==='delta' && d.text){ fullText += d.text; if(typeof onDelta==='function') onDelta(d.text); }
+     else if(ev==='final'){ finalPayload = d; if(d.content && d.content[0] && d.content[0].text) fullText = d.content[0].text; }
+     else if(ev==='error'){ clearTimeout(timer); throw new Error(path+' upstream: '+(d.message||'unknown')); }
+    }catch(e){ if(ev==='error') { clearTimeout(timer); throw e; } }
+   }
+  }
+ }
+ clearTimeout(timer);
+ return { content: [{type:'text', text: fullText}], model: finalPayload && finalPayload.model || '', meta: finalPayload && finalPayload.meta || {} };
+}
+
 const BASE=`You are Gulf Capital Intelligence - a senior investment analyst platform for capital allocators evaluating UAE and GCC opportunities. You think and write like a 25-year veteran principal at a global strategy and M&A advisory firm who has chaired investment committees and reviewed hundreds of GCC deals. Your analysis is investment-committee quality: commercially precise, operationally grounded, and honest about what the data does and does not support.
 
 You produce two things simultaneously: a rigorous screening assessment of market conditions, and an honest challenge of whether the investor's specific thesis holds up against operational reality. When the investor's horizon is too short for the deal type, you say so directly. When the financial case depends on estimates that cannot be validated, you say so. When a risk is a real killer and not just a checkbox, you name it exactly.
@@ -3418,26 +3459,14 @@ Data currency note: All figures reflect intelligence current as of April 2026. V
   
   // Fire all 3 engines + VIDURA in parallel
   const [claudeResult, openaiResult, geminiResult, viduraResult] = await Promise.allSettled([
-   // Engine 1: Claude Opus 4.6 (Lead Engine)
-   fetch(API, {
-    method: 'POST',
-    headers: gciHeaders(),
-    body: JSON.stringify({mode:'generate-report', model:'claude-opus-4-6', max_tokens:20000, system:sys, messages:[{role:'user',content:userPrompt}]})
-   }).then(function(r){ return r.ok ? r.json() : r.text().then(function(t){ throw new Error('Claude ' + r.status + ': ' + t); }); }),
+   // Engine 1: Claude Opus 4.7 (Lead Engine) - Vercel SSE, 300s budget
+   streamVercelSSE('/chat', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
 
-   // Engine 2: GPT-4.1 (Cross-check Engine)
-   fetch('/api/openai-agent', {
-    method: 'POST',
-    headers: gciHeaders(),
-    body: JSON.stringify({system:sys, max_tokens:16000, messages:[{role:'user',content:userPrompt}]})
-   }).then(function(r){ return r.ok ? r.json() : r.text().then(function(t){ throw new Error('OpenAI ' + r.status + ': ' + t); }); }),
+   // Engine 2: GPT-4.1 (Cross-check Engine) - Vercel SSE
+   streamVercelSSE('/openai-agent', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
 
-   // Engine 3: Gemini 2.5 Pro (Validator Engine)
-   fetch('/api/gemini-agent', {
-    method: 'POST',
-    headers: gciHeaders(),
-    body: JSON.stringify({system:sys, max_tokens:16000, messages:[{role:'user',content:userPrompt}]})
-   }).then(function(r){ return r.ok ? r.json() : r.text().then(function(t){ throw new Error('Gemini ' + r.status + ': ' + t); }); }),
+   // Engine 3: Gemini 2.5 Pro (Validator Engine) - Vercel SSE
+   streamVercelSSE('/gemini-agent', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
 
    // VIDURA Legal Agent
    fetch('/api/legal-agent', {
@@ -3482,26 +3511,18 @@ Data currency note: All figures reflect intelligence current as of April 2026. V
   }
   // If 2+ engines succeeded, run synthesis
   else {
-   const synthR = await fetch('/api/synthesis', {
-    method: 'POST',
-    headers: gciHeaders(),
-    body: JSON.stringify({
+   try {
+    const synthData = await streamVercelSSE('/synthesis', {
      claudeReport: claudeText || null,
      openaiReport: openaiText || null,
      geminiReport: geminiText || null,
      viduraOpinion: viduraText || null,
      originalSystem: sys,
      dealContext: dealCtx
-    })
-   });
-
-   if (synthR.ok) {
-    const synthData = await synthR.json();
+    });
     apiResult = synthData.content && synthData.content[0] ? synthData.content[0].text : claudeText;
-    
-   } else {
-    // Synthesis failed, fall back to Claude report
-    console.error('Synthesis failed, falling back to Claude report');
+   } catch(synthErr) {
+    console.error('Synthesis failed, falling back to Claude report:', synthErr);
     apiResult = claudeText || openaiText || geminiText;
    }
   }
