@@ -6064,6 +6064,7 @@ function downloadStratPDF(){
   doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(11,29,53);
   doc.text('Page '+String(pageNum),pw-mg,ph-7,{align:'right'});
  }
+ var stratReportId='GCI-'+Date.now().toString(36).toUpperCase().slice(-6);
  var stratDate=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
  // Cover page
