@@ -22,6 +22,10 @@
 - [Strategic Intelligence](https://gulfcapitalintelligence.com/strategic-intelligence.html): Custom intelligence engagements from $6,500 to $95,000.
 - [Deal Health Score](https://gulfcapitalintelligence.com/deal-health-score.html): Free diagnostic to stress-test a deal in five minutes.
 
+## Strategic Intelligence Reports
+
+- [Saudi Vision 2030, 14 Sectors, 14 Verdicts](https://gulfcapitalintelligence.com/vision2030): Free 13-page report, Issue 01. Covers the 14 economic sectors in Saudi Vision 2030 with a verdict for each: 2 STRONG PROCEED, 4 PROCEED, 5 PROCEED WITH CONDITIONS, 3 AVOID. Includes macro and fiscal context, a contrarian finding, target return bands, an early warning dashboard, and a deployment architecture. Report ID GCI-AE66KN. Published April 2026. Gated by a short form that asks role, organisation, and decision horizon.
+
 ## Proof and Trust
 
 - [Case Studies](https://gulfcapitalintelligence.com/case-studies.html): Illustrative retrospectives on public GCC deals.
