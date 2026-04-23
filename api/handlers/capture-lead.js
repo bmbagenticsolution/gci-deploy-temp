@@ -1,6 +1,8 @@
 // api/capture-lead.js
-// Captures Deal Health Score leads, stores in KV and emails Gaurav instantly
+// Captures Deal Health Score leads, stores in KV and emails Gaurav instantly.
+// Also branches to the Vision 2030 campaign flow when form_id === 'vision2030_apr2026'.
 const { hsUpsertContact, hsLogTimelineNote, HS_LIFECYCLE, HS_SOURCE } = require('../lib/hubspot.js');
+const { handleVision2030 } = require('./vision2030-signup.js');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,7 +11,13 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, score, answers, source, ts } = req.body || {};
+  // Branch: Vision 2030 AhAAN Moment campaign form
+  const body = req.body || {};
+  if (body.form_id === 'vision2030_apr2026' || body.campaign === 'vision2030_apr2026') {
+    return handleVision2030(req, res, body);
+  }
+
+  const { name, email, phone, score, answers, source, ts } = body;
   if (!email || !name) return res.status(400).json({ error: 'Name and email required' });
 
   const RESEND_KEY = process.env.RESEND_API_KEY;
