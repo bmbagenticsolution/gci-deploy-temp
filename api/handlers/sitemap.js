@@ -20,6 +20,7 @@ const STATIC_PAGES = [
   { loc: 'https://gulfcapitalintelligence.com/careers', priority: '0.9', changefreq: 'weekly' },
   { loc: 'https://gulfcapitalintelligence.com/news', priority: '0.7', changefreq: 'daily' },
   { loc: 'https://gulfcapitalintelligence.com/app', priority: '0.8', changefreq: 'monthly' },
+  { loc: 'https://gulfcapitalintelligence.com/vision2030', priority: '0.9', changefreq: 'weekly' },
 ];
 
 module.exports = async function handler(req, res) {
