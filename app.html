@@ -2549,6 +2549,9 @@ function addTyping(){
 function rmTyping(){const t=document.getElementById('tyrow');if(t)t.remove();}
 async function sendMsg(){
  if(loading)return;
+ if(!gciU){showAuth('signup');return;}
+ ensureAdminPlan();
+ if(!gciP){showPayWall();return;}
  const inp=document.getElementById('cinput');const txt=inp.value.trim();if(!txt)return;
  inp.value='';inp.style.height='auto';document.getElementById('starters').innerHTML='';
  addMsg('u',txt);ch.push({role:'user',content:txt});
@@ -5573,8 +5576,9 @@ async function doPay(){
  }catch(e){showToast('Unable to connect to payment server. Please try again.','#c0392b');if(btn){btn.disabled=false;btn.textContent='Try Again';}}
 }
 function checkPay(cb){
- if(!gciU){gciU={email:'visitor@gulfcapitalintelligence.com',name:'Visitor',company:'',created:Date.now()};}
+ if(!gciU){showAuth('signup');return;}
  ensureAdminPlan();
+ if(!gciP){showPayWall();return;}
  cb();
 }
 function showLockedRpt(){
@@ -5642,6 +5646,9 @@ function siStageProgress(stage,label){
 }
 
 async function runStrategicIntel(){
+ if(!gciU){showAuth('signup');return;}
+ ensureAdminPlan();
+ if(!gciP){showPayWall();return;}
  var question=document.getElementById('si-question').value.trim();
  if(question.length<30){gciToast('Please provide a more detailed strategic question (at least 30 characters).');return;}
 
@@ -5880,6 +5887,9 @@ function closeStratAgent(){
 
 function runStratAgent(){
  if(!currentStratAgent)return;
+ if(!gciU){showAuth('signup');return;}
+ ensureAdminPlan();
+ if(!gciP){showPayWall();return;}
  var cfg=stratAgentConfig[currentStratAgent];
  var fields={};
  cfg.fields.forEach(function(f){var el=document.getElementById(f.id);fields[f.id]=el?el.value.trim():'';});
