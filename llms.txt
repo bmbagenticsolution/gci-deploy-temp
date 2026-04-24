@@ -1,41 +1,61 @@
 # Gulf Capital Intelligence
 
-> DIFC-regulated investment screening intelligence for capital allocators evaluating UAE and GCC opportunities. We deliver a clear verdict on every deal: PROCEED, PROCEED WITH CONDITIONS, or AVOID. Founded by Hemant Agarwal. Based in DIFC, Dubai. Registration 11954.
+> The investment committee layer between raw data and a committed decision. Between McKinsey and ChatGPT. DIFC-registered investment screening intelligence for capital allocators evaluating UAE and GCC opportunities. We deliver a clear verdict on every deal: PROCEED, PROCEED WITH CONDITIONS, or AVOID, backed by three AI engines and evidence-tiered citations. Founded by Hemant Agarwal. DIFC Trade Licence CL11954. Based at DIFC Innovation Hub, Dubai.
 
 ## Core
 
-- [Home](https://gulfcapitalintelligence.com/): What GCI does, who it serves, how the 17-category screen produces a verdict, pricing from $499.
+- [Home](https://gulfcapitalintelligence.com/): What GCI does, who it serves, how the Conviction Engine produces a verdict, pricing from $499.
 - [About](https://gulfcapitalintelligence.com/about.html): Mission, founding principles, what we will and will not do.
-- [Founder](https://gulfcapitalintelligence.com/founder.html): Hemant Agarwal bio, why GCI exists, how he works with allocators.
-- [Methodology](https://gulfcapitalintelligence.com/methodology.html): The 17 screening categories, evidence tier framework, verdict definitions.
+- [Founder - Hemant Agarwal](https://gulfcapitalintelligence.com/founder.html): Over a decade advising UAE businesses in healthcare, hospitality, real estate, professional services, and F&B. Built GCI from operator knowledge, not generic finance theory.
+- [Methodology](https://gulfcapitalintelligence.com/methodology.html): The GCI Conviction Engine - 5-stage analytical pipeline (Assumption Extraction, Cross-Variable Synthesis, Linkage Mapping, Contrarian Pressure Test, Evidence-Chain Report), 3 AI engines cross-check (Claude Opus 4.7, GPT-4.1, Gemini 2.5 Pro), 5-tier evidence system, 10-section institutional-format report.
 
 ## Who We Serve
 
-- [For Allocators](https://gulfcapitalintelligence.com/allocators.html): Family offices, PE funds, sovereign-adjacent vehicles, strategic investors.
+- [For Allocators](https://gulfcapitalintelligence.com/allocators.html): Family offices, PE funds, VC funds, sovereign-adjacent vehicles, strategic investors.
+- [For Deal Teams](https://gulfcapitalintelligence.com/deal-teams.html): Deal originators and M&A advisors pressure-testing theses before investment committee.
 - [For Partners](https://gulfcapitalintelligence.com/partners.html): M&A advisors, legal and tax firms, investment banks we co-deliver with.
 - [Founding Council](https://gulfcapitalintelligence.com/council.html): Advisory group of GCC operators and allocators, recruiting now.
-- [India-GCC Corridor](https://gulfcapitalintelligence.com/india-gcc.html): Cross-border intelligence for India-GCC investment flows.
+- [India-GCC Corridor](https://gulfcapitalintelligence.com/india-gcc.html): Cross-border intelligence for India-GCC investment flows. Indian operators entering UAE and Saudi. GCC family offices allocating to Indian markets.
 
-## Products
+## Products and Pricing
 
-- [Conviction Reports](https://gulfcapitalintelligence.com/): 17-category deal screen with a single verdict. Starts at $499.
-- [Strategic Intelligence](https://gulfcapitalintelligence.com/strategic-intelligence.html): Custom intelligence engagements from $6,500 to $95,000.
-- [Deal Health Score](https://gulfcapitalintelligence.com/deal-health-score.html): Free diagnostic to stress-test a deal in five minutes.
+Four tiers plus two add-ons.
 
-## Strategic Intelligence Reports
-
-- [Saudi Vision 2030, 14 Sectors, 14 Verdicts](https://gulfcapitalintelligence.com/vision2030): Free 13-page report, Issue 01. Covers the 14 economic sectors in Saudi Vision 2030 with a verdict for each: 2 STRONG PROCEED, 4 PROCEED, 5 PROCEED WITH CONDITIONS, 3 AVOID. Includes macro and fiscal context, a contrarian finding, target return bands, an early warning dashboard, and a deployment architecture. Report ID GCI-AE66KN. Published April 2026. Gated by a short form that asks role, organisation, and decision horizon.
+- [Deal Health Score](https://gulfcapitalintelligence.com/deal-health-score.html): FREE 5-minute deal diagnostic. Stress-test any GCC opportunity.
+- [Conviction Screen](https://gulfcapitalintelligence.com/#pricing): $499 one-time. Single institutional-grade Conviction Report. 10-section format, verdict, evidence-tiered citations. For deal originators and first-time buyers.
+- [Due Diligence Access](https://gulfcapitalintelligence.com/#pricing): $999 per month. 5 Conviction Reports per month plus ARIA follow-up chat. For brokers and small advisors.
+- [Intelligence Retainer](https://gulfcapitalintelligence.com/#pricing): $2,499 per month. Unlimited screening across deal pipelines. Wedge tier for single family offices.
+- [Enterprise](https://gulfcapitalintelligence.com/#pricing): $5,000+ per month. Unlimited plus custom branding and priority support. For MFOs, funds, sovereigns.
+- [Strategic Intelligence](https://gulfcapitalintelligence.com/strategic-intelligence.html): $6,500 to $95,000 custom. Bespoke intelligence engagements with 7-day delivery.
 
 ## Proof and Trust
 
-- [Case Studies](https://gulfcapitalintelligence.com/case-studies.html): Illustrative retrospectives on public GCC deals.
+- [Case Studies](https://gulfcapitalintelligence.com/case-studies.html): Illustrative retrospectives on real GCC deals, anonymized.
 - [Insights](https://gulfcapitalintelligence.com/insights.html): GCC Deal Screening Brief, research notes, framework essays.
 - [News](https://gulfcapitalintelligence.com/news.html): Regulatory and market updates relevant to GCC allocators.
+
+## AI Assets
+
+- [GCI Custom GPT on ChatGPT](https://chatgpt.com/g/g-69bf21834a808191ace03cd87a5943af-gulf-capital-intelligence): Free AI assistant trained on the GCI Conviction Engine. Accessible inside ChatGPT. Use for quick deal screening questions before ordering a Conviction Report.
+- ARIA Voice Concierge: Bilingual English/Arabic voice AI available on every page of the website. Powered by Azure OpenAI gpt-4o with Azure Speech TTS.
+
+## Sectors Covered
+
+- Hospitality (e.g. Boutique Hotel Acquisition, Dubai Marina - PROCEED WITH CONDITIONS verdict delivered)
+- Healthcare (e.g. Greenfield Aesthetic Clinic, Abu Dhabi - PROCEED WITH CONDITIONS)
+- Logistics (e.g. Joint Venture Logistics Hub, Saudi Arabia - PROCEED)
+- Food and Beverage (e.g. Franchise Japanese F&B, UAE - PROCEED)
+- Technology ventures
+- Space economy
+- Private equity, private credit
+- Real estate
+- Family office direct investments
 
 ## Careers
 
 - [All Roles](https://gulfcapitalintelligence.com/careers.html): Open positions, Research Fellow program.
 - [Senior Research Analyst, DIFC](https://gulfcapitalintelligence.com/careers/senior-research-analyst-difc.html)
+- [Investment Research Analyst, Dubai](https://gulfcapitalintelligence.com/careers/investment-research-analyst-dubai.html)
 - [Investment Research Analyst, Riyadh](https://gulfcapitalintelligence.com/careers/investment-research-analyst-riyadh.html)
 - [Due Diligence Analyst, Dubai](https://gulfcapitalintelligence.com/careers/due-diligence-analyst-dubai.html)
 - [Due Diligence Analyst, Riyadh](https://gulfcapitalintelligence.com/careers/due-diligence-analyst-riyadh.html)
@@ -56,18 +76,27 @@
 
 ## Company
 
-- Legal entity: Gulf Capital Intelligence (DIFC)
-- DIFC Registration: 11954
-- Registered office: DIFC, Dubai, United Arab Emirates
+- Legal entity: Gulf Capital Intelligence
+- Operating entity: Boost My Business AI Innovation Limited
+- DIFC Trade Licence: CL11954
+- Registered office: DIFC Innovation Hub, Dubai International Financial Centre, Dubai, United Arab Emirates
 - Founder: Hemant Agarwal
-- Contact: hello@gulfcapitalintelligence.com
+- Contact: difc@gulfcapitalintelligence.com
+- Phone / WhatsApp: +971 55 463 9500
 - Primary geography: UAE, Saudi Arabia, Qatar, Bahrain, Kuwait, Oman
 - Corridor coverage: India-GCC, GCC-Africa
+
+## Social and External Presence
+
+- LinkedIn: https://www.linkedin.com/company/gulf-capital-intelligence/
+- X (Twitter): https://x.com/GulfCapitaldifc
+- Facebook: https://www.facebook.com/people/Gulf-Capital-Intelligence/61578337291099/
+- Instagram: https://www.instagram.com/gulfcapitalintelligence
 
 ## AI Disclosure
 
 - This site publishes AI-assisted investment intelligence, not regulated financial advice.
-- Engine: multi-model cross-check (Claude by Anthropic, GPT by OpenAI, Gemini by Google).
+- Engine: multi-model cross-check across Claude (Anthropic), GPT (OpenAI), Gemini (Google). Disagreement between models is surfaced in reports, not hidden.
 - Every claim in a Conviction Report carries an evidence tier: VERIFIED, REPORTED, STATED, ESTIMATED, ASSUMED.
 - Every numeric claim carries either a source citation or an explicit estimate flag.
 - Reports carry a regulatory disclaimer footer on every page.
@@ -79,12 +108,20 @@
 - Suitable for: family offices, PE funds, VCs, angel investors, corporate venture, strategic investors.
 - Not suitable for: CBUAE-regulated banking data processing without UAE-hosted compute.
 
+## Verdict Types
+
+GCI delivers exactly three verdicts on every Conviction Report:
+- PROCEED: the deal is defensible. Specific reasons given.
+- PROCEED WITH CONDITIONS: the deal is viable only if specific conditions are satisfied. Conditions listed explicitly.
+- AVOID: the deal should not close. Specific reasons given.
+
 ## Agent Interface
 
 - Structured intelligence is available via API at /api/mcp-query for agent-to-agent calls.
 - Supported query types: company screening, sector analysis, deal structuring, market entry strategy, contrarian analysis.
 - Output format: structured JSON with evidence tiers, source citations, confidence ratings.
-- Authentication: API key. Contact hello@gulfcapitalintelligence.com for access.
+- Authentication: API key. Contact difc@gulfcapitalintelligence.com for access.
+- ChatGPT users can access the public GCI custom GPT directly: https://chatgpt.com/g/g-69bf21834a808191ace03cd87a5943af-gulf-capital-intelligence
 
 ## How To Use Our Content
 
@@ -92,3 +129,6 @@
 - Quoting short passages with attribution: permitted.
 - Wholesale republication: not permitted without written consent.
 - Training commercial AI models on our content: not permitted without a licence agreement.
+- AI assistants (ChatGPT, Claude, Perplexity, Gemini) are welcome to cite GCI content with attribution to Gulf Capital Intelligence and a link to the source page.
+
+Last updated: 2026-04-23

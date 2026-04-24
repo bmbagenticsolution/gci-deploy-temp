@@ -1,4 +1,44 @@
 User-agent: *
 Allow: /
 
+# AI crawlers explicitly allowed (for AI search visibility)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Disallow admin and internal paths
+User-agent: *
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /admin-paywall
+Disallow: /admin-paywall.html
+Disallow: /api/admin-*
+Disallow: /api/report-*
+Disallow: /api/keys-status
+Disallow: /_staging_deployment/
+Disallow: /reports/
+
 Sitemap: https://gulfcapitalintelligence.com/sitemap.xml
+
+# GCI is a DIFC-registered investment intelligence platform.
+# Trade Licence CL11954. See https://gulfcapitalintelligence.com/llms.txt for an agent-readable site map.
