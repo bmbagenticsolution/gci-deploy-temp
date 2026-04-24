@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Core pages -->
+  <url>
+    <loc>https://gulfcapitalintelligence.com/</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gulfcapitalintelligence.com/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://gulfcapitalintelligence.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gulfcapitalintelligence.com/"/>
+  </url>
+  <url><loc>https://gulfcapitalintelligence.com/about.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.9</priority><xhtml:link rel="alternate" hreflang="en" href="https://gulfcapitalintelligence.com/about.html"/><xhtml:link rel="alternate" hreflang="ar" href="https://gulfcapitalintelligence.com/ar/about.html"/></url>
+  <url><loc>https://gulfcapitalintelligence.com/founder.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/methodology.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.95</priority><xhtml:link rel="alternate" hreflang="en" href="https://gulfcapitalintelligence.com/methodology.html"/><xhtml:link rel="alternate" hreflang="ar" href="https://gulfcapitalintelligence.com/ar/methodology.html"/></url>
+
+  <!-- Audience pages -->
+  <url><loc>https://gulfcapitalintelligence.com/allocators.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/deal-teams.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/partners.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/council.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/india-gcc.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority><xhtml:link rel="alternate" hreflang="en" href="https://gulfcapitalintelligence.com/india-gcc.html"/><xhtml:link rel="alternate" hreflang="ar" href="https://gulfcapitalintelligence.com/ar/india-gcc.html"/></url>
+  <url><loc>https://gulfcapitalintelligence.com/strategic-intelligence.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/deal-health-score.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.95</priority><xhtml:link rel="alternate" hreflang="en" href="https://gulfcapitalintelligence.com/deal-health-score.html"/><xhtml:link rel="alternate" hreflang="ar" href="https://gulfcapitalintelligence.com/ar/deal-health-score.html"/></url>
+
+  <!-- Case studies hub + 6 real cases -->
+  <url><loc>https://gulfcapitalintelligence.com/case-studies.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/boutique-hotel-acquisition-dubai-marina.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/greenfield-aesthetic-clinic-abu-dhabi.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/joint-venture-logistics-hub-saudi-arabia.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/japanese-fb-master-franchise-uae.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/space-ai-satellite-constellation-jv-abu-dhabi.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/case-studies/gcc-space-economy-strategic-intelligence.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+
+  <!-- Insights hub + 10 articles -->
+  <url><loc>https://gulfcapitalintelligence.com/insights.html</loc><lastmod>2026-04-24</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/india-to-uae-family-office-investment-guide.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/gcc-family-offices-allocating-to-india.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/cepa-india-uae-five-years-in.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/india-healthcare-gcc-expansion-playbook.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/india-gcc-dtaa-and-tax-residency.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dubai-hotel-investment-due-diligence-checklist-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/difc-vs-adgm-2026-decision-framework.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/saudi-vision-2030-what-changed-in-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/five-red-flags-gcc-deal-memos.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/gcc-private-credit-2026-what-works.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+
+  <!-- Content/app/news -->
+  <url><loc>https://gulfcapitalintelligence.com/news.html</loc><lastmod>2026-04-24</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/app.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+
+  <!-- Careers hub + 11 roles -->
+  <url><loc>https://gulfcapitalintelligence.com/careers.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/senior-research-analyst-difc.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/investment-research-analyst-dubai.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/investment-research-analyst-riyadh.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/gcc-investment-intelligence-associate.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/due-diligence-analyst-dubai.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/due-diligence-analyst-riyadh.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/private-credit-analyst.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/real-estate-intelligence-analyst.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/healthcare-consumer-intelligence-analyst.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/technology-venture-intelligence-analyst.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/client-development-associate.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/careers/senior-client-director.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- Arabic /ar/ -->
+  <url><loc>https://gulfcapitalintelligence.com/ar/</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/about.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/methodology.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/deal-health-score.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/india-gcc.html</loc><lastmod>2026-04-24</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Trust pages -->
+  <url><loc>https://gulfcapitalintelligence.com/security.html</loc><lastmod>2026-04-24</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/privacy.html</loc><lastmod>2026-04-24</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/terms.html</loc><lastmod>2026-04-24</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/disclaimer.html</loc><lastmod>2026-04-24</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
+
+  <url><loc>https://gulfcapitalintelligence.com/insights/uae-sme-valuation-methodology-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/gcc-family-office-governance-best-practices-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/saudi-mining-investment-guide-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dubai-free-zone-selection-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/mena-fintech-regulatory-landscape-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/bahrain-fintech-sandbox-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/neom-investment-reality-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/sukuk-investing-gcc-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/sharia-compliant-private-equity-gcc-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/adgm-crypto-framework-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dubai-marina-vs-palm-jumeirah-investment-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/off-plan-dubai-property-due-diligence-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/abu-dhabi-saadiyat-vs-yas-island-investment-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/saudi-real-estate-foreign-ownership-rules-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/uae-rental-yield-benchmarks-by-area-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/ras-al-khaimah-investment-thesis-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dubai-hotel-apartment-vs-residential-yield-math-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/riyadh-real-estate-entry-playbook-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dld-title-transfer-foreign-buyers-dubai-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/insights/dubai-off-plan-payment-plan-red-flags-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/verdicts.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/case-studies/boutique-hotel-dubai-marina.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/case-studies/aesthetic-clinic-abu-dhabi.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/case-studies/logistics-jv-saudi-arabia.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/press.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/contact.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/events.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/sitemap.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/insights/difc-vs-adgm-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/insights/saudi-vision-2030-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://gulfcapitalintelligence.com/ar/insights/gcc-family-office-governance-2026.html</loc><lastmod>2026-04-24</lastmod><changefreq>monthly</changefreq><priority>0.75</priority></url>
+</urlset>
