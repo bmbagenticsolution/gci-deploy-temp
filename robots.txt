@@ -39,7 +39,6 @@ Disallow: /_staging_deployment/
 Disallow: /reports/
 
 Sitemap: https://gulfcapitalintelligence.com/sitemap.xml
-Sitemap: https://gulfcapitalintelligence.com/sitemap-full.xml
 
 # GCI is a DIFC-registered investment intelligence platform.
 # Trade Licence CL11954. See https://gulfcapitalintelligence.com/llms.txt for an agent-readable site map.
