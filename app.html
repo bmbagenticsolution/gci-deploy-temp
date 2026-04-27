@@ -5228,8 +5228,9 @@ function clearUpload(){
 // ============================================================
 (function() {
  var AUTH_HTML = '<div class="auth-overlay hidden" id="aov"><div class="auth-box"><div class="auth-head"><div class="auth-logo-row"><div class="auth-mark">GCI</div><div class="auth-nm">Gulf Capital Intelligence</div></div><div class="auth-htitle" id="ah-title">Create Your Account</div><div class="auth-hsub" id="ah-sub">See the full platform. Pay only when you generate a report.</div></div><div class="auth-body"><div class="auth-tabs"><button class="auth-tab act" id="tab-su" onclick="switchTab(\'signup\')" type="button">Sign Up</button><button class="auth-tab" id="tab-si" onclick="switchTab(\'signin\')" type="button">Sign In</button></div><div class="auth-err" id="aerr"></div><div class="alf" id="name-field"><label class="all">Full Name</label><input class="ali" id="aname" placeholder="Your full name" type="text" name="aname"></div><div class="alf" id="company-field"><label class="all">Company / Fund Name</label><input class="ali" id="acompany" placeholder="Your company or fund" type="text" name="acompany"></div><div class="alf" id="mobile-field"><label class="all">Mobile Number</label><input class="ali" id="amobile" placeholder="+971 50 000 0000" type="tel" name="amobile"></div><div class="alf"><label class="all">Email Address</label><input class="ali" id="aemail" placeholder="your@email.com" type="email" name="aemail"></div><div class="alf"><label class="all">Password</label><input class="ali" id="apass" placeholder="Minimum 8 characters" type="password" name="apass" autocomplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" value=""></div><div id="fpw-link" style="display:none;text-align:right;margin-top:-4px"><button type="button" onclick="showForgotPw()" style="background:none;border:none;color:#C8A84B;font-size:11px;cursor:pointer;font-family:inherit;padding:0;text-decoration:underline">Forgot password?</button></div><div id="fpw-panel" style="display:none;flex-direction:column;gap:11px"><div class="alf"><label class="all">Email Address</label><input class="ali" id="fpw-email" placeholder="your@email.com" type="email" name="fpw-email"></div><button class="auth-submit" onclick="sendResetEmail()" type="button">Send Reset Link</button><button type="button" onclick="switchTab(\'signin\')" style="background:none;border:none;color:#8A9BB0;font-size:12px;cursor:pointer;font-family:inherit;padding:4px 0;text-align:center;width:100%">Back to Sign In</button></div><button class="auth-submit" id="asub" onclick="handleAuth()" type="button">Create Account</button><div class="auth-divider" id="adivider"><span>or continue with</span></div><div class="auth-social" id="asocial"><button class="auth-social-btn auth-social-google" onclick="socialLogin(\'google\')" type="button"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58z"/></svg><span>Google</span></button><button class="auth-social-btn auth-social-microsoft" onclick="socialLogin(\'microsoft\')" type="button"><svg width="18" height="18" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg><span>Microsoft</span></button><button class="auth-social-btn auth-social-linkedin" onclick="socialLogin(\'linkedin\')" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg><span>LinkedIn</span></button></div><div class="auth-fnote" id="anote">By creating an account you agree to our Terms of Use and Privacy Policy. Gulf Capital Intelligence , DIFC, Dubai. GCI Conviction Engine output - not regulated investment advice.</div></div></div></div>';
- var PAY_HTML = '<div class="pay-wall hidden" id="pwall"><div class="pay-box"><div class="pay-head"><div><div class="pay-htitle">Unlock Conviction Reports</div><div class="pay-hsub">Choose a plan. All plans include document upload and PDF export.</div></div><button class="pay-x" onclick="closePay()" type="button">&times;</button></div><div class="pay-plans"><div class="pay-plan" id="pp-cs" onclick="selPlan(\'conviction-screen\')"><div class="pp-nm">Conviction Screen</div><div class="pp-pr">$499</div><div class="pp-pe">one-time</div><div class="pp-it">1 conviction report</div><div class="pp-it">Full 10-section output</div><div class="pp-it">Document upload</div><div class="pp-it">PDF and Word export</div></div><div class="pay-plan" id="pp-dd" onclick="selPlan(\'due-diligence\')"><div class="pp-nm">Due Diligence</div><div class="pp-pr">$999</div><div class="pp-pe">per month</div><div class="pp-it">5 reports per month</div><div class="pp-it">All 6 agents</div><div class="pp-it">Market Monitor access</div><div class="pp-it">Priority support</div></div><div class="pay-plan sel" id="pp-ir" onclick="selPlan(\'intelligence-retainer\')"><div class="pp-nm">Intelligence Retainer</div><div class="pp-pr">$2,499</div><div class="pp-pe">per month</div><div class="pp-it">Unlimited reports</div><div class="pp-it">All 6 agents, full capacity</div><div class="pp-it">3 team seats included</div><div class="pp-it">Priority processing</div></div></div><div class="pay-foot"><div class="pay-billing-toggle" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px"><button id="pbill-mo" class="pay-bill-btn act" onclick="setBilling(\'monthly\')" type="button">Monthly</button><button id="pbill-yr" class="pay-bill-btn" onclick="setBilling(\'annual\')" type="button">Annual <span style="font-size:10px;background:#0A5C3E;color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px">2 months free</span></button></div><button class="pay-btn" id="pbtn" onclick="doPay()" type="button">Pay $2,499/mo - Secure Checkout</button><div class="pay-sec">Payments processed by Stripe. SSL secured.</div></div><div class="pay-note">Enterprise from $5,000/month - <a href="mailto:difc@gulfcapitalintelligence.com">request a proposal.</a></div></div></div>';
- document.body.insertAdjacentHTML('afterbegin', AUTH_HTML + PAY_HTML);
+ var PAY_HTML = '<div class="pay-wall hidden" id="pwall"><div class="pay-box"><div class="pay-head"><div><div class="pay-htitle">Unlock Conviction Reports</div><div class="pay-hsub">Choose a plan. All plans include document upload and PDF export.</div></div><button class="pay-x" onclick="closePay()" type="button">&times;</button></div><div class="pay-plans" style="grid-template-columns:repeat(4,1fr)"><div class="pay-plan" id="pp-cs" onclick="selPlan(\'conviction-screen\')"><div class="pp-nm">Conviction Screen</div><div class="pp-pr">$499</div><div class="pp-pe">one-time</div><div class="pp-it">1 conviction report</div><div class="pp-it">Full 10-section output</div><div class="pp-it">Document upload</div><div class="pp-it">PDF and Word export</div></div><div class="pay-plan" id="pp-dd" onclick="selPlan(\'due-diligence\')"><div class="pp-nm">Due Diligence</div><div class="pp-pr">$999</div><div class="pp-pe">per month</div><div class="pp-it">5 reports per month</div><div class="pp-it">All 6 agents</div><div class="pp-it">Market Monitor access</div><div class="pp-it">Priority support</div></div><div class="pay-plan sel" id="pp-ir" onclick="selPlan(\'intelligence-retainer\')"><div class="pp-nm">Intelligence Retainer</div><div class="pp-pr">$2,499</div><div class="pp-pe">per month</div><div class="pp-it">Unlimited reports</div><div class="pp-it">All 6 agents, full capacity</div><div class="pp-it">3 team seats included</div><div class="pp-it">Priority processing</div></div><div class="pay-plan" id="pp-en" onclick="selPlan(\'enterprise\')"><div class="pp-nm">Enterprise</div><div class="pp-pr">$5,000+</div><div class="pp-pe">per month</div><div class="pp-it">Unlimited seats and reports</div><div class="pp-it">API access</div><div class="pp-it">White-label reports</div><div class="pp-it">CRM integration</div></div></div><div class="pay-foot"><div class="pay-billing-toggle" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px"><button id="pbill-mo" class="pay-bill-btn act" onclick="setBilling(\'monthly\')" type="button">Monthly</button><button id="pbill-yr" class="pay-bill-btn" onclick="setBilling(\'annual\')" type="button">Annual <span style="font-size:10px;background:#0A5C3E;color:#fff;padding:1px 6px;border-radius:100px;margin-left:4px">2 months free</span></button></div><button class="pay-btn" id="pbtn" onclick="doPay()" type="button">Subscribe $2,499/mo - Secure Checkout</button><div class="pay-sec">Payments processed by Stripe. SSL secured.</div></div></div></div>';
+ var SI_PAY_HTML = '<div class="pay-wall hidden" id="siwall"><div class="pay-box"><div class="pay-head"><div><div class="pay-htitle">Unlock Strategic Intelligence</div><div class="pay-hsub">Full 5-stage strategic pipeline with assumption challenger and non-obvious linkage mapper.</div></div><button class="pay-x" onclick="closeSIPay()" type="button">&times;</button></div><div class="pay-plans" style="grid-template-columns:repeat(4,1fr)"><div class="pay-plan" id="sp-ss" onclick="selSIPlan(\'si-single\')"><div class="pp-nm">SI Single Territory</div><div class="pp-pr">$6,500</div><div class="pp-pe">one-time engagement</div><div class="pp-it">1 market, 1 sector</div><div class="pp-it">Full 5-stage SI pipeline</div><div class="pp-it">Assumption challenger</div><div class="pp-it">PDF and Word deliverable</div></div><div class="pay-plan" id="sp-sm" onclick="selSIPlan(\'si-multi\')"><div class="pp-nm">SI Multi-Territory</div><div class="pp-pr">$15,000</div><div class="pp-pe">one-time engagement</div><div class="pp-it">2 to 4 markets compared</div><div class="pp-it">Ranked recommendations</div><div class="pp-it">Cross-market linkage</div><div class="pp-it">PDF and Word deliverable</div></div><div class="pay-plan sel" id="sp-sq" onclick="selSIPlan(\'si-quarterly\')"><div class="pp-nm">SI Quarterly Retainer</div><div class="pp-pr">$18,000</div><div class="pp-pe">per quarter</div><div class="pp-it">4 analyses per quarter</div><div class="pp-it">Monthly intel briefs</div><div class="pp-it">Priority desk turnaround</div><div class="pp-it">2 team seats included</div></div><div class="pay-plan" id="sp-sa" onclick="selSIPlan(\'si-annual\')"><div class="pp-nm">SI Annual Partnership</div><div class="pp-pr">$95,000</div><div class="pp-pe">per year</div><div class="pp-it">Unlimited strategic analyses</div><div class="pp-it">Dedicated intel coverage</div><div class="pp-it">Quarterly portfolio review</div><div class="pp-it">3 team seats, direct access</div></div></div><div class="pay-foot"><button class="pay-btn" id="sibtn" onclick="doSIPay()" type="button">Subscribe $18,000/qtr - Secure Checkout</button><div class="pay-sec">Payments processed by Stripe. SSL secured.</div></div></div></div>';
+ document.body.insertAdjacentHTML('afterbegin', AUTH_HTML + PAY_HTML + SI_PAY_HTML);
  // Strategy Report Modal
  var SRM_HTML='<div class="srm-ov hidden" id="srm-ov"><div class="srm-box"><div class="srm-head"><div class="srm-head-l"><div class="srm-mark">GCI</div><div><div class="srm-agent-name" id="srm-agent-name">Intelligence Report</div><div class="srm-agent-date" id="srm-agent-date"></div></div></div><div class="srm-actions"><button class="srm-btn srm-btn-pdf" onclick="downloadStratPDF()" type="button">&#8595; Download PDF</button><button class="srm-btn srm-btn-copy" onclick="copyStratModal()" type="button">Copy</button><button class="srm-btn-close" onclick="closeStratModal()" type="button">&times;</button></div></div><div class="srm-body" id="srm-body"></div></div></div>';
  document.body.insertAdjacentHTML('beforeend', SRM_HTML);
@@ -5242,9 +5243,17 @@ function ensureAdminPlan(){if(isAdminUser()&&!gciP){gciP='intelligence-retainer'
 var PLANS={
  'conviction-screen': {lbl:'Conviction Screen',cls:'pp-s',price:'$499',priceAnnual:'$499'},
  'due-diligence': {lbl:'Due Diligence',cls:'pp-d',price:'$999/mo',priceAnnual:'$9,990/yr'},
- 'intelligence-retainer':{lbl:'Retainer',cls:'pp-r',price:'$2,499/mo',priceAnnual:'$24,990/yr'}
+ 'intelligence-retainer':{lbl:'Retainer',cls:'pp-r',price:'$2,499/mo',priceAnnual:'$24,990/yr'},
+ 'enterprise':{lbl:'Enterprise',cls:'pp-e',price:'$5,000+/mo',priceAnnual:'$5,000+/mo'}
+};
+var SI_PLANS={
+ 'si-single': {lbl:'Single Territory',price:'$6,500'},
+ 'si-multi': {lbl:'Multi-Territory',price:'$15,000'},
+ 'si-quarterly':{lbl:'Quarterly Retainer',price:'$18,000/qtr'},
+ 'si-annual':{lbl:'Annual Partnership',price:'$95,000/yr'}
 };
 var selBilling='monthly';
+var selSIPayPlan='si-quarterly';
 
 function initGCI(){
  var params=new URLSearchParams(window.location.search);
@@ -5543,6 +5552,34 @@ function showPayWall(){
  selPlan('intelligence-retainer');
 }
 function closePay(){var el=document.getElementById('pwall');if(el)el.classList.add('hidden');}
+function showSIPayWall(){
+ if(!gciU){showAuth('signup');return;}
+ var el=document.getElementById('siwall');if(el)el.classList.remove('hidden');
+ selSIPlan('si-quarterly');
+}
+function closeSIPay(){var el=document.getElementById('siwall');if(el)el.classList.add('hidden');}
+function selSIPlan(p){
+ selSIPayPlan=p;
+ document.querySelectorAll('#siwall .pay-plan').forEach(function(el){el.classList.remove('sel');});
+ var ids={'si-single':'sp-ss','si-multi':'sp-sm','si-quarterly':'sp-sq','si-annual':'sp-sa'};
+ var el=document.getElementById(ids[p]);if(el)el.classList.add('sel');
+ var planCfg=SI_PLANS[p]||{};
+ var isOneTime=(p==='si-single'||p==='si-multi');
+ var btnLabel=isOneTime?'Pay '+planCfg.price+' - Secure Checkout':'Subscribe '+planCfg.price+' - Secure Checkout';
+ var btn=document.getElementById('sibtn');if(btn)btn.textContent=btnLabel;
+}
+async function doSIPay(){
+ if(!gciU){showAuth('signup');return;}
+ var btn=document.getElementById('sibtn');if(btn){btn.disabled=true;btn.textContent='Redirecting to Stripe...';}
+ try{
+  var payload={plan:selSIPayPlan,email:gciU.email,billing:'monthly'};
+  var r=await fetch('/api/create-checkout-session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  var d=await r.json();
+  if(d.url){window.location.href=d.url;}
+  else if(d.error){showToast('Payment error: '+d.error,'#c0392b');if(btn){btn.disabled=false;btn.textContent='Try Again';}}
+  else{gciP=selSIPayPlan;localStorage.setItem('gci_plan',gciP);renderUB();closeSIPay();showToast((SI_PLANS[gciP]&&SI_PLANS[gciP].lbl||gciP)+' activated.','#0A5C3E');}
+ }catch(e){showToast('Unable to connect to payment server. Please try again.','#c0392b');if(btn){btn.disabled=false;btn.textContent='Try Again';}}
+}
 function setBilling(b){
  selBilling=b;
  var mo=document.getElementById('pbill-mo');var yr=document.getElementById('pbill-yr');
@@ -5553,18 +5590,20 @@ function setBilling(b){
 function selPlan(p){
  selPayPlan=p;
  document.querySelectorAll('.pay-plan').forEach(function(el){el.classList.remove('sel');});
- var ids={'conviction-screen':'pp-cs','due-diligence':'pp-dd','intelligence-retainer':'pp-ir'};
+ var ids={'conviction-screen':'pp-cs','due-diligence':'pp-dd','intelligence-retainer':'pp-ir','enterprise':'pp-en'};
  var el=document.getElementById(ids[p]);if(el)el.classList.add('sel');
  var planCfg=PLANS[p]||{};
  var priceStr=selBilling==='annual'?(planCfg.priceAnnual||planCfg.price):(planCfg.price||'');
- var btnLabel=p==='conviction-screen'?'Pay '+priceStr+' - Secure Checkout':'Subscribe '+priceStr+' - Secure Checkout';
+ var isOneTime=(p==='conviction-screen');
+ var isEnterprise=(p==='enterprise');
+ var btnLabel=isEnterprise?'Contact Sales for Enterprise':isOneTime?'Pay '+priceStr+' - Secure Checkout':'Subscribe '+priceStr+' - Secure Checkout';
  var btn=document.getElementById('pbtn');if(btn)btn.textContent=btnLabel;
- // Hide billing toggle for one-time plan
  var toggle=document.querySelector('.pay-billing-toggle');
- if(toggle)toggle.style.display=p==='conviction-screen'?'none':'flex';
+ if(toggle)toggle.style.display=(isOneTime||isEnterprise)?'none':'flex';
 }
 async function doPay(){
  if(!gciU){showAuth('signup');return;}
+ if(selPayPlan==='enterprise'){window.location.href='mailto:difc@gulfcapitalintelligence.com?subject=Enterprise%20Plan%20Inquiry&body=I%20am%20interested%20in%20the%20GCI%20Enterprise%20plan.';return;}
  var btn=document.getElementById('pbtn');if(btn){btn.disabled=true;btn.textContent='Redirecting to Stripe...';}
  try{
   var payload={plan:selPayPlan,email:gciU.email,billing:selBilling};
@@ -5648,7 +5687,7 @@ function siStageProgress(stage,label){
 async function runStrategicIntel(){
  if(!gciU){showAuth('signup');return;}
  ensureAdminPlan();
- if(!gciP){showPayWall();return;}
+ if(!gciP){showSIPayWall();return;}
  var question=document.getElementById('si-question').value.trim();
  if(question.length<30){gciToast('Please provide a more detailed strategic question (at least 30 characters).');return;}
 
@@ -5889,7 +5928,7 @@ function runStratAgent(){
  if(!currentStratAgent)return;
  if(!gciU){showAuth('signup');return;}
  ensureAdminPlan();
- if(!gciP){showPayWall();return;}
+ if(!gciP){showSIPayWall();return;}
  var cfg=stratAgentConfig[currentStratAgent];
  var fields={};
  cfg.fields.forEach(function(f){var el=document.getElementById(f.id);fields[f.id]=el?el.value.trim():'';});
