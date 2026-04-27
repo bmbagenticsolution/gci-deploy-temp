@@ -2304,12 +2304,13 @@ const API='/api/chat';
 // Vercel SSE endpoints - bypasses Azure SWA 230s buffer timeout.
 // Each endpoint streams tokens; final event carries full report text.
 const VERCEL_PROXY='https://gci-vercel-proxy.vercel.app';
+const GCI_PK='951af62762a61a26474a6ea926c6e6719665a1f9795a243f0df3a41e9b255b3f';
 async function streamVercelSSE(path, body, onDelta){
  const ctrl = new AbortController();
  const timer = setTimeout(function(){ ctrl.abort(); }, 295000);
  const resp = await fetch(VERCEL_PROXY + path, {
   method:'POST',
-  headers:{'content-type':'application/json','accept':'text/event-stream'},
+  headers:{'content-type':'application/json','accept':'text/event-stream','x-gci-proxy-key':GCI_PK},
   body: JSON.stringify(body||{}),
   signal: ctrl.signal
  });
@@ -5728,9 +5729,9 @@ async function runStrategicIntel(){
 
   // Call the Vercel-hosted streaming strategic-intel endpoint.
   // Bytes flow continuously so no buffering middleman can time out.
-  var response=await fetch('https://gci-vercel-proxy.vercel.app/strategic-intel',{
+  var response=await fetch(VERCEL_PROXY+'/strategic-intel',{
    method:'POST',
-   headers:{'Content-Type':'application/json'},
+   headers:{'Content-Type':'application/json','x-gci-proxy-key':GCI_PK},
    body:JSON.stringify(payload)
   });
   if(!response.ok){
