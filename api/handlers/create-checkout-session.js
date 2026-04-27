@@ -19,7 +19,9 @@ module.exports = async function handler(req, res) {
 
   try {
     const { default: Stripe } = await import('stripe');
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    const stripe = new Stripe(stripeKey);
+    const isTestMode = stripeKey && stripeKey.startsWith('sk_test_');
 
     const { plan, email, billing = 'monthly' } = req.body || {};
     const baseUrl = process.env.APP_URL || 'https://gulfcapitalintelligence.com';
@@ -28,6 +30,24 @@ module.exports = async function handler(req, res) {
     if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email address is required' });
 
     const cleanEmail = email.toLowerCase().trim();
+
+    // Test-mode price IDs (used when STRIPE_SECRET_KEY is sk_test_*)
+    const TEST_PRICES = {
+      dd_monthly: 'price_1TDC1H42YO00FnEZvdtnOZq9',
+      dd_annual: 'price_1TQxs242YO00FnEZDtqTDw5a',
+      retainer_monthly: 'price_1TDC1N42YO00FnEZ3ZSxsfiN',
+      retainer_annual: 'price_1TQxs442YO00FnEZGntK7Qxb',
+      enterprise: 'price_1TQxsU42YO00FnEZiCF1YMev',
+      si_single: 'price_1TQxsW42YO00FnEZ35MStzil',
+      si_multi: 'price_1TQxsX42YO00FnEZOEusKKiX',
+      si_quarterly: 'price_1TQxsa42YO00FnEZxAPs7iH7',
+      si_annual: 'price_1TQxsc42YO00FnEZDSqEtIjX',
+    };
+
+    function p(envKey, testKey) {
+      if (isTestMode) return TEST_PRICES[testKey];
+      return process.env[envKey] || TEST_PRICES[testKey];
+    }
 
     const PLANS = {
       'conviction-screen': {
@@ -40,48 +60,48 @@ module.exports = async function handler(req, res) {
       },
       'due-diligence': {
         mode: 'subscription',
-        monthlyPriceId: process.env.STRIPE_PRICE_DUE_DILIGENCE || process.env.STRIPE_PRICE_DD_MONTHLY || 'price_1TDC1H42YO00FnEZvdtnOZq9',
-        annualPriceId:  process.env.STRIPE_PRICE_DUE_DILIGENCE_ANNUAL || process.env.STRIPE_PRICE_DD_ANNUAL || 'price_1TQxs242YO00FnEZDtqTDw5a',
+        monthlyPriceId: p('STRIPE_PRICE_DUE_DILIGENCE', 'dd_monthly'),
+        annualPriceId:  p('STRIPE_PRICE_DUE_DILIGENCE_ANNUAL', 'dd_annual'),
         reportsPerMonth: '5',
         seats: '1',
       },
       'intelligence-retainer': {
         mode: 'subscription',
-        monthlyPriceId: process.env.STRIPE_PRICE_RETAINER || process.env.STRIPE_PRICE_RETAINER_MONTHLY || 'price_1TDC1N42YO00FnEZ3ZSxsfiN',
-        annualPriceId:  process.env.STRIPE_PRICE_RETAINER_ANNUAL || 'price_1TQxs442YO00FnEZGntK7Qxb',
+        monthlyPriceId: p('STRIPE_PRICE_RETAINER', 'retainer_monthly'),
+        annualPriceId:  p('STRIPE_PRICE_RETAINER_ANNUAL', 'retainer_annual'),
         reportsPerMonth: 'unlimited',
         seats: '3',
       },
       'enterprise': {
         mode: 'subscription',
-        monthlyPriceId: process.env.STRIPE_PRICE_ENTERPRISE || 'price_1TQxsU42YO00FnEZiCF1YMev',
-        annualPriceId:  process.env.STRIPE_PRICE_ENTERPRISE || 'price_1TQxsU42YO00FnEZiCF1YMev',
+        monthlyPriceId: p('STRIPE_PRICE_ENTERPRISE', 'enterprise'),
+        annualPriceId:  p('STRIPE_PRICE_ENTERPRISE', 'enterprise'),
         reportsPerMonth: 'unlimited',
         seats: 'unlimited',
       },
       'si-single': {
         mode: 'payment',
-        priceId: process.env.STRIPE_PRICE_SI_SINGLE || 'price_1TQxsW42YO00FnEZ35MStzil',
+        priceId: p('STRIPE_PRICE_SI_SINGLE', 'si_single'),
         reportsAllowed: '1',
         seats: '1',
       },
       'si-multi': {
         mode: 'payment',
-        priceId: process.env.STRIPE_PRICE_SI_MULTI || 'price_1TQxsX42YO00FnEZOEusKKiX',
+        priceId: p('STRIPE_PRICE_SI_MULTI', 'si_multi'),
         reportsAllowed: '1',
         seats: '1',
       },
       'si-quarterly': {
         mode: 'subscription',
-        monthlyPriceId: process.env.STRIPE_PRICE_SI_QUARTERLY || 'price_1TQxsa42YO00FnEZxAPs7iH7',
-        annualPriceId:  process.env.STRIPE_PRICE_SI_QUARTERLY || 'price_1TQxsa42YO00FnEZxAPs7iH7',
+        monthlyPriceId: p('STRIPE_PRICE_SI_QUARTERLY', 'si_quarterly'),
+        annualPriceId:  p('STRIPE_PRICE_SI_QUARTERLY', 'si_quarterly'),
         reportsPerMonth: '4-per-quarter',
         seats: '2',
       },
       'si-annual': {
         mode: 'subscription',
-        monthlyPriceId: process.env.STRIPE_PRICE_SI_ANNUAL || 'price_1TQxsc42YO00FnEZDSqEtIjX',
-        annualPriceId:  process.env.STRIPE_PRICE_SI_ANNUAL || 'price_1TQxsc42YO00FnEZDSqEtIjX',
+        monthlyPriceId: p('STRIPE_PRICE_SI_ANNUAL', 'si_annual'),
+        annualPriceId:  p('STRIPE_PRICE_SI_ANNUAL', 'si_annual'),
         reportsPerMonth: 'unlimited',
         seats: '3',
       },
