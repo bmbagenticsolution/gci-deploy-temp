@@ -40,8 +40,8 @@ module.exports = async function handler(req, res) {
     systemPrompt += '\nReply in Arabic, brief and natural.';
   }
 
-  // 1) Get text reply from Claude (via Cloudflare Workers proxy to avoid regional blocks)
-  const ANTHROPIC_URL = (process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com') + '/v1/messages';
+  // 1) Get text reply from Claude (direct call; Anthropic has no regional blocks unlike OpenAI)
+  const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
   let replyText;
   try {
     const r = await fetch(ANTHROPIC_URL, {
