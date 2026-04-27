@@ -1,5 +1,14 @@
 {
   "routes": [
+    { "route": "/index.html", "redirect": "/", "statusCode": 301 },
+    { "route": "/home.html", "redirect": "/", "statusCode": 301 },
+    { "route": "/home", "redirect": "/", "statusCode": 301 },
+    { "route": "/sitemap-full.xml", "redirect": "/sitemap.xml", "statusCode": 301 },
+    { "route": "/careers/business-development-associate", "redirect": "/careers/client-development-associate", "statusCode": 301 },
+    { "route": "/careers/client-director-riyadh", "redirect": "/careers/senior-client-director", "statusCode": 301 },
+    { "route": "/careers/client-director-dubai", "redirect": "/careers/senior-client-director", "statusCode": 301 },
+    { "route": "/careers/ai-research-engineer", "redirect": "/careers/technology-venture-intelligence-analyst", "statusCode": 301 },
+    { "route": "/careers/real-estate-research-analyst", "redirect": "/careers/real-estate-intelligence-analyst", "statusCode": 301 },
     { "route": "/app", "rewrite": "/app.html" },
     { "route": "/admin", "rewrite": "/admin.html" },
     { "route": "/admin-paywall", "rewrite": "/admin-paywall.html" },
@@ -25,13 +34,7 @@
     { "route": "/careers/real-estate-intelligence-analyst", "rewrite": "/careers/real-estate-intelligence-analyst.html" },
     { "route": "/careers/senior-client-director", "rewrite": "/careers/senior-client-director.html" },
     { "route": "/careers/senior-research-analyst-difc", "rewrite": "/careers/senior-research-analyst-difc.html" },
-    { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" },
-    { "route": "/reports/01 - Boutique Hotel Acquisition Dubai - GCI-2026-03-6WRECQ.pdf", "redirect": "/reports/gci-2026-04-r001-boutique-hotel-acquisition-dubai.pdf", "statusCode": 301 },
-    { "route": "/reports/02 - Greenfield Aesthetic Clinic Abu Dhabi - GCI-2026-03-ACOMWE.pdf", "redirect": "/reports/gci-2026-04-r002-greenfield-aesthetic-clinic-abu-dhabi.pdf", "statusCode": 301 },
-    { "route": "/reports/03 - Joint Venture Logistics Hub Saudi Arabia - GCI-2026-03-WTIDR8.pdf", "redirect": "/reports/gci-2026-04-r003-joint-venture-logistics-hub-saudi-arabia.pdf", "statusCode": 301 },
-    { "route": "/reports/06 - Franchise Japanese F&B UAE - GCI-2026-03-T9AV3K.pdf", "redirect": "/reports/gci-2026-04-r004-franchise-japanese-fb-uae.pdf", "statusCode": 301 },
-    { "route": "/reports/07 - Space AI Satellite Constellation JV Abu Dhabi - GCI-2026-04-TD24GE.pdf", "redirect": "/reports/gci-2026-04-r005-space-ai-satellite-constellation-jv-abu-dhabi.pdf", "statusCode": 301 },
-    { "route": "/reports/08 - Strategic Intelligence Space Economy GCC - GCI-2026-04-SI.pdf", "redirect": "/reports/gci-2026-04-r006-strategic-intelligence-space-economy-gcc.pdf", "statusCode": 301 }
+    { "route": "/careers/technology-venture-intelligence-analyst", "rewrite": "/careers/technology-venture-intelligence-analyst.html" }
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
