@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
     has_OPENAI_KEY: Boolean(process.env.OPENAI_API_KEY),
     has_GEMINI_KEY: Boolean(process.env.GEMINI_API_KEY),
     node_version: process.version,
-    build_marker: 'ea85cb7-plus-debug'
+    build_marker: 'v2-aria-proxy-fix'
   };
   res.status(200).json(info);
 };

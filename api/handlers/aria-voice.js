@@ -40,10 +40,11 @@ module.exports = async function handler(req, res) {
     systemPrompt += '\nReply in Arabic, brief and natural.';
   }
 
-  // 1) Get text reply from Claude
+  // 1) Get text reply from Claude (via Cloudflare Workers proxy to avoid regional blocks)
+  const ANTHROPIC_URL = (process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com') + '/v1/messages';
   let replyText;
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,14 +61,14 @@ module.exports = async function handler(req, res) {
     if (!r.ok) {
       const errText = await r.text();
       console.error('[aria-voice] Claude error', r.status, errText);
-      return res.status(502).json({ error: 'Reasoning service error' });
+      return res.status(502).json({ error: 'Reasoning service error', status: r.status, detail: errText.slice(0, 200) });
     }
     const data = await r.json();
     replyText = (data.content && data.content[0] && data.content[0].text) || '';
     if (!replyText) return res.status(502).json({ error: 'Empty reply from reasoning service' });
   } catch (e) {
     console.error('[aria-voice] Claude fetch failed', e.message);
-    return res.status(502).json({ error: 'Reasoning service unreachable' });
+    return res.status(502).json({ error: 'Reasoning service unreachable', detail: e.message });
   }
 
   // 2) Convert to speech via OpenAI TTS (if key available); otherwise return text-only response
@@ -76,8 +77,9 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ text: replyText, audio: null });
   }
 
+  const OPENAI_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com') + '/v1/audio/speech';
   try {
-    const ttsR = await fetch('https://api.openai.com/v1/audio/speech', {
+    const ttsR = await fetch(OPENAI_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
