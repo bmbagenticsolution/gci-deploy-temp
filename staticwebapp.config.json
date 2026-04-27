@@ -20,7 +20,6 @@
     { "route": "/careers", "rewrite": "/careers.html" },
     { "route": "/news", "rewrite": "/news.html" },
     { "route": "/news/*", "rewrite": "/news.html" },
-    { "route": "/sitemap.xml", "rewrite": "/api/sitemap" },
     { "route": "/llms.txt", "headers": { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } },
     { "route": "/robots.txt", "headers": { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=3600" } },
     { "route": "/careers/client-development-associate", "rewrite": "/careers/client-development-associate.html" },
