@@ -43,7 +43,7 @@ module.exports = async function handler(req, res) {
   // 1) Get text reply from Claude
   let replyText;
   try {
-    const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
