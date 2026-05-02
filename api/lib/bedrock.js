@@ -5,12 +5,22 @@
 const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime');
 
 // Map GCI model names to Bedrock model IDs
+// Uses cross-region inference prefix (us.) for broader availability
 const MODEL_MAP = {
   'claude-opus-4-6':               'us.anthropic.claude-opus-4-20250514-v1:0',
   'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-20250514-v1:0',
   'claude-haiku-4-5-20251001':     'us.anthropic.claude-haiku-4-5-20251001-v1:0',
   'claude-3-5-sonnet-20241022':    'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
   'claude-3-5-haiku-20241022':     'us.anthropic.claude-3-5-haiku-20241022-v1:0'
+};
+
+// Fallback without cross-region prefix (if us. prefix fails)
+const MODEL_MAP_DIRECT = {
+  'claude-opus-4-6':               'anthropic.claude-opus-4-20250514-v1:0',
+  'claude-sonnet-4-6':             'anthropic.claude-sonnet-4-20250514-v1:0',
+  'claude-haiku-4-5-20251001':     'anthropic.claude-haiku-4-5-20251001-v1:0',
+  'claude-3-5-sonnet-20241022':    'anthropic.claude-3-5-sonnet-20241022-v2:0',
+  'claude-3-5-haiku-20241022':     'anthropic.claude-3-5-haiku-20241022-v1:0'
 };
 
 let _client = null;
@@ -39,7 +49,6 @@ function getClient() {
  */
 async function callBedrock(params) {
   const client = getClient();
-  const modelId = MODEL_MAP[params.model] || MODEL_MAP['claude-sonnet-4-6'];
 
   // Build Bedrock request body (Anthropic Messages API format)
   const body = {
@@ -50,16 +59,35 @@ async function callBedrock(params) {
   if (params.system) body.system = params.system;
   if (typeof params.temperature === 'number') body.temperature = params.temperature;
 
-  const command = new InvokeModelCommand({
-    modelId,
-    contentType: 'application/json',
-    accept: 'application/json',
-    body: JSON.stringify(body)
-  });
+  // Try cross-region model ID first, then direct
+  const modelIds = [
+    MODEL_MAP[params.model] || MODEL_MAP['claude-sonnet-4-6'],
+    MODEL_MAP_DIRECT[params.model] || MODEL_MAP_DIRECT['claude-sonnet-4-6']
+  ];
 
-  const response = await client.send(command);
-  const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-  return responseBody;
+  let lastError;
+  for (const modelId of modelIds) {
+    try {
+      const command = new InvokeModelCommand({
+        modelId,
+        contentType: 'application/json',
+        accept: 'application/json',
+        body: JSON.stringify(body)
+      });
+      const response = await client.send(command);
+      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+      return responseBody;
+    } catch (e) {
+      lastError = e;
+      console.error('[bedrock] Model ' + modelId + ' failed:', e.message);
+      // If it's an access denied or model not found error, try the next model ID
+      if (e.name === 'AccessDeniedException' || e.name === 'ValidationException' || e.name === 'ResourceNotFoundException') {
+        continue;
+      }
+      throw e; // For other errors (network, etc.), throw immediately
+    }
+  }
+  throw lastError;
 }
 
 /**

@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
     has_AWS_KEY: Boolean(process.env.AWS_ACCESS_KEY_ID),
     AWS_REGION: process.env.AWS_REGION || '(unset)',
     node_version: process.version,
-    build_marker: 'v5-bedrock-integration'
+    build_marker: 'v6-bedrock-fallback-fix'
   };
   res.status(200).json(info);
 };

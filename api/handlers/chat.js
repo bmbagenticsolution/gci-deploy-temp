@@ -129,7 +129,12 @@ async function callAnthropicProxy(payload) {
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    return { data: { error: { message: 'Proxy returned non-JSON (status ' + response.status + ')' } }, status: 502, ok: false };
+  }
   return { data, status: response.status, ok: response.ok };
 }
 

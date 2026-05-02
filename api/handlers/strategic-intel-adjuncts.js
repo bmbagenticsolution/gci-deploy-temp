@@ -41,7 +41,10 @@ async function callClaudeSonnet(system, userPrompt, maxTokens) {
     },
     body: JSON.stringify(payload)
   });
-  const data = await r.json();
+  let data;
+  try { data = await r.json(); } catch (e) {
+    throw new Error('Proxy returned non-JSON (status ' + r.status + ')');
+  }
   if (!r.ok) throw new Error('Claude ' + r.status + ': ' + ((data && data.error && data.error.message) || 'unknown'));
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
