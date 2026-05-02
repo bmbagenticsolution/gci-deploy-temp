@@ -71,14 +71,14 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
-const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
   'anthropic-version': '2023-06-01'
 };
 
-// Call Claude via Bedrock (primary) or Vercel proxy (fallback)
+// Fallback chain: Bedrock -> Lambda proxy -> Cloudflare Worker proxy
 async function callClaude(system, userPrompt, maxTokens, model) {
   const payload = {
     model: model || 'claude-sonnet-4-6',
@@ -87,17 +87,27 @@ async function callClaude(system, userPrompt, maxTokens, model) {
     messages: [{ role: 'user', content: userPrompt }]
   };
 
-  // Try Bedrock first (no geo-blocks from Azure SWA)
+  // 1. Try Bedrock (direct AWS)
   if (isBedrockConfigured()) {
     try {
       const data = await callBedrock(payload);
       return (data.content && data.content[0] && data.content[0].text) || '';
     } catch (e) {
-      console.error('[strategic-intel] Bedrock callClaude failed, falling back:', e.message);
+      console.error('[strategic-intel] Bedrock failed, trying Lambda proxy:', e.message);
     }
   }
 
-  // Fallback: Vercel proxy
+  // 2. Try Lambda proxy in us-east-1
+  if (isLambdaProxyConfigured()) {
+    try {
+      const data = await callViaLambdaProxy(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Lambda proxy failed, trying CF Worker:', e.message);
+    }
+  }
+
+  // 3. Last resort: Cloudflare Worker proxy
   const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },

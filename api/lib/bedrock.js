@@ -98,4 +98,73 @@ function isBedrockConfigured() {
   return Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
 }
 
-module.exports = { callBedrock, isBedrockConfigured, MODEL_MAP };
+/**
+ * Call Claude via AWS Lambda proxy in us-east-1.
+ * The Lambda function proxies to api.anthropic.com from a US IP,
+ * bypassing Anthropic's geo-blocks on Azure SWA East Asia.
+ *
+ * @param {Object} params - Anthropic Messages API format
+ * @returns {Object} Anthropic Messages API compatible response
+ */
+async function callViaLambdaProxy(params) {
+  const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda');
+
+  const lambda = new LambdaClient({
+    region: 'us-east-1',
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+
+  const payload = {
+    model: params.model || 'claude-sonnet-4-6',
+    max_tokens: params.max_tokens || 4096,
+    messages: params.messages || []
+  };
+  if (params.system) payload.system = params.system;
+  if (typeof params.temperature === 'number') payload.temperature = params.temperature;
+
+  // Build a Lambda event that mimics an HTTP request to the proxy
+  const lambdaEvent = {
+    rawPath: '/v1/messages',
+    rawQueryString: '',
+    requestContext: { http: { method: 'POST' } },
+    headers: {
+      'content-type': 'application/json',
+      'anthropic-version': '2023-06-01',
+      'x-api-key': process.env.ANTHROPIC_API_KEY
+    },
+    body: JSON.stringify(payload),
+    isBase64Encoded: false
+  };
+
+  const command = new InvokeCommand({
+    FunctionName: 'gci-anthropic-proxy',
+    Payload: JSON.stringify(lambdaEvent)
+  });
+
+  const response = await lambda.send(command);
+  const responsePayload = JSON.parse(new TextDecoder().decode(response.Payload));
+
+  if (response.FunctionError) {
+    throw new Error('Lambda proxy error: ' + (responsePayload.errorMessage || 'unknown'));
+  }
+
+  // The Lambda returns { statusCode, headers, body }
+  const body = typeof responsePayload.body === 'string'
+    ? JSON.parse(responsePayload.body)
+    : responsePayload.body;
+
+  if (responsePayload.statusCode && responsePayload.statusCode >= 400) {
+    throw new Error('Anthropic ' + responsePayload.statusCode + ': ' + ((body.error && body.error.message) || JSON.stringify(body)));
+  }
+
+  return body;
+}
+
+function isLambdaProxyConfigured() {
+  return Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.ANTHROPIC_API_KEY);
+}
+
+module.exports = { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured, MODEL_MAP };

@@ -41,8 +41,10 @@ module.exports = async function handler(req, res) {
     AWS_REGION: process.env.AWS_REGION || '(unset)',
     aws_sdk: awsSdkStatus,
     bedrock_test: bedrockTest,
+    has_LAMBDA_SDK: (() => { try { require('@aws-sdk/client-lambda'); return true; } catch(e) { return false; } })(),
+    lambda_proxy_configured: Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.ANTHROPIC_API_KEY),
     node_version: process.version,
-    build_marker: 'v10-bedrock-diagnostic'
+    build_marker: 'v11-lambda-proxy'
   };
   res.status(200).json(info);
 };

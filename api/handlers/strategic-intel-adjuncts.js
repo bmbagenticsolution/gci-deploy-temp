@@ -11,7 +11,7 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
-const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 
 async function callClaudeSonnet(system, userPrompt, maxTokens) {
   const payload = {
@@ -21,17 +21,27 @@ async function callClaudeSonnet(system, userPrompt, maxTokens) {
     messages: [{ role: 'user', content: userPrompt }]
   };
 
-  // Try Bedrock first (no geo-blocks)
+  // 1. Try Bedrock (direct AWS)
   if (isBedrockConfigured()) {
     try {
       const data = await callBedrock(payload);
       return (data.content && data.content[0] && data.content[0].text) || '';
     } catch (e) {
-      console.error('[adjuncts] Bedrock failed, falling back:', e.message);
+      console.error('[adjuncts] Bedrock failed, trying Lambda proxy:', e.message);
     }
   }
 
-  // Fallback: Vercel proxy
+  // 2. Try Lambda proxy in us-east-1
+  if (isLambdaProxyConfigured()) {
+    try {
+      const data = await callViaLambdaProxy(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[adjuncts] Lambda proxy failed, trying CF Worker:', e.message);
+    }
+  }
+
+  // 3. Last resort: Cloudflare Worker proxy
   const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: {

@@ -115,7 +115,7 @@ const STRATEGY_MODES = new Set([
   'multi-thesis','multi-market-selection','multi-company-profile','multi-contrarian','multi-gtm-strategy','multi-deal-structuring'
 ]);
 
-const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
@@ -143,17 +143,28 @@ async function callAnthropicProxy(payload) {
   return { data, status: response.status, ok: response.ok };
 }
 
-// Primary: call Claude via AWS Bedrock (no geo-blocks from Azure SWA)
-// Falls back to Anthropic proxy if Bedrock fails
+// Primary: call Claude via AWS Bedrock or Lambda proxy (both use AWS credits)
+// Fallback chain: Bedrock -> Lambda proxy -> Cloudflare Worker proxy
 async function callClaude(payload) {
+  // 1. Try Bedrock (direct AWS, uses credits, may be geo-blocked from East Asia)
   if (isBedrockConfigured()) {
     try {
       const data = await callBedrock(payload);
       return { data, status: 200, ok: true };
     } catch (e) {
-      console.error('[chat] Bedrock failed, falling back to proxy:', e.message);
+      console.error('[chat] Bedrock failed, trying Lambda proxy:', e.message);
     }
   }
+  // 2. Try Lambda proxy in us-east-1 (US IP, bypasses geo-blocks, uses AWS credits for Lambda)
+  if (isLambdaProxyConfigured()) {
+    try {
+      const data = await callViaLambdaProxy(payload);
+      return { data, status: 200, ok: true };
+    } catch (e) {
+      console.error('[chat] Lambda proxy failed, trying CF Worker:', e.message);
+    }
+  }
+  // 3. Last resort: Cloudflare Worker proxy (may also be geo-blocked)
   return callAnthropicProxy(payload);
 }
 
