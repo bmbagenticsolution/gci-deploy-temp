@@ -188,7 +188,7 @@ module.exports = async function handler(req, res) {
       });
 
       const payload = {
-        model: 'claude-opus-4-7',
+        model: 'claude-opus-4-6',
         max_tokens: 32000,
         system: doctrine,
         messages
@@ -203,7 +203,7 @@ module.exports = async function handler(req, res) {
 
     // All other modes (generate-report, chat, agents, etc.)
     const KNOWN_MODELS = new Set([
-      'claude-opus-4-7','claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001',
+      'claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001',
       'claude-3-5-sonnet-20241022','claude-3-5-haiku-20241022'
     ]);
     let normalizedModel = body.model;

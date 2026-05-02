@@ -66,7 +66,7 @@ module.exports = async function handler(req, res) {
     userPrompt += '\nProduce the synthesized conviction report now.';
 
     const data = await callClaude({
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-6',
       max_tokens: 32000,
       system: SYNTHESIS_SYSTEM,
       messages: [{ role: 'user', content: userPrompt }]

@@ -656,7 +656,7 @@ module.exports = async function handler(req, res) {
 
     // Try non-streaming via Bedrock/Lambda first
     const finalPayload = {
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-6',
       max_tokens: 32000,
       system: systemPrompt,
       messages: researchMessages,

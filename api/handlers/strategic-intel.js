@@ -277,26 +277,39 @@ async function runPipeline(jobId, doctrine, userPrompt) {
   try {
     await kvSet('gci:si:' + jobId, JSON.stringify({ status: 'processing' }), 600);
 
-    // Skip Bedrock (geo-blocked from East Asia) and go straight to Lambda proxy
+    // Use Lambda proxy to call Claude via Bedrock (from us-east-1).
+    // Try Opus 4.6 first (confirmed available on Bedrock), then Sonnet 4.6 as fallback.
     let report = '';
-    const payload = {
-      model: 'claude-opus-4-7',
-      max_tokens: 32000,
-      system: doctrine,
-      messages: [{ role: 'user', content: userPrompt }]
-    };
+    const modelsToTry = ['claude-opus-4-6', 'claude-sonnet-4-6'];
 
     if (isLambdaProxyConfigured()) {
-      try {
-        const data = await callViaLambdaProxy(payload);
-        report = (data.content && data.content[0] && data.content[0].text) || '';
-      } catch (e) {
-        console.error('[strategic-intel] Lambda proxy failed:', e.message);
+      for (const model of modelsToTry) {
+        if (report) break;
+        const payload = {
+          model: model,
+          max_tokens: 32000,
+          system: doctrine,
+          messages: [{ role: 'user', content: userPrompt }]
+        };
+        try {
+          console.log('[strategic-intel] Trying Lambda proxy with model:', model);
+          const data = await callViaLambdaProxy(payload);
+          report = (data.content && data.content[0] && data.content[0].text) || '';
+          if (report) console.log('[strategic-intel] Success with model:', model, 'length:', report.length);
+        } catch (e) {
+          console.error('[strategic-intel] Lambda proxy failed with ' + model + ':', e.message);
+        }
       }
     }
 
-    // Fallback to CF Worker if Lambda failed
+    // Fallback to CF Worker proxy if all Lambda attempts failed
     if (!report) {
+      const payload = {
+        model: 'claude-opus-4-6',
+        max_tokens: 32000,
+        system: doctrine,
+        messages: [{ role: 'user', content: userPrompt }]
+      };
       const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
         method: 'POST',
         headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
@@ -319,7 +332,7 @@ async function runPipeline(jobId, doctrine, userPrompt) {
       version: DOCTRINE_VERSION,
       meta: {
         processing_time_ms: Date.now() - start,
-        engines: ['claude-opus-4-7'],
+        engines: ['claude-opus-4-6'],
         doctrine_version: DOCTRINE_VERSION
       }
     };

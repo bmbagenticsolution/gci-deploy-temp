@@ -285,7 +285,7 @@ module.exports = async function handler(req, res) {
     // 3. Call Claude to synthesise
     console.log('[LegalBrief] Calling Claude for synthesis...');
     const briefPayload = {
-      model: 'claude-opus-4-7',
+      model: 'claude-opus-4-6',
       max_tokens: 32000,
       messages: [{ role: 'user', content: prompt }]
     };
