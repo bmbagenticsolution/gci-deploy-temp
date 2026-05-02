@@ -568,7 +568,7 @@ module.exports = async function handler(req, res) {
 
       const researchPayload = {
         model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: researchMessages,
         tools: LEGAL_TOOLS,
@@ -656,8 +656,8 @@ module.exports = async function handler(req, res) {
 
     // Try non-streaming via Bedrock/Lambda first
     const finalPayload = {
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      model: 'claude-opus-4-7',
+      max_tokens: 32000,
       system: systemPrompt,
       messages: researchMessages,
       _anthropicBeta: 'pdfs-2024-09-25'

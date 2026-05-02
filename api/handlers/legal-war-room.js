@@ -295,7 +295,7 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
     while (toolIterations < MAX_TOOLS) {
       const researchPayload = {
         model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
+        max_tokens: 4096,
         system: systemPrompt,
         messages: researchMessages,
         tools: WAR_ROOM_TOOLS,
@@ -344,8 +344,8 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
 
     // Try non-streaming via Bedrock/Lambda first, fall back to CF Worker streaming
     const finalPayload = {
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
+      model: 'claude-opus-4-7',
+      max_tokens: 32000,
       system: systemPrompt,
       messages: researchMessages
     };

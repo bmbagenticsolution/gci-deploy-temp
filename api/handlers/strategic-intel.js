@@ -72,6 +72,7 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
 const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
+const { callAzureOpenAI, isAzureOpenAIConfigured } = require('../lib/azure-openai');
 
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
@@ -197,7 +198,28 @@ async function callClaudeStream(system, userPrompt, maxTokens, model) {
 }
 
 async function callOpenAI(system, userPrompt) {
-  if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
+  const oaMessages = [
+    { role: 'system', content: system },
+    { role: 'user', content: userPrompt }
+  ];
+
+  // 1. Try Azure OpenAI Service (billed to Azure credits)
+  if (isAzureOpenAIConfigured()) {
+    try {
+      const data = await callAzureOpenAI({
+        model: 'gpt-4.1',
+        messages: oaMessages,
+        max_tokens: 16000,
+        temperature: 0.4
+      });
+      return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Azure OpenAI failed:', e.message);
+    }
+  }
+
+  // 2. Fallback: CF Worker proxy with OpenAI API key
+  if (!process.env.OPENAI_API_KEY) throw new Error('No OpenAI backend configured');
   const _oaBase = 'https://gci-anthropic-proxy.gaurav-892.workers.dev/openai'.replace(/\/+$/, '');
   const _oaHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY };
   if (process.env.PROXY_SHARED_SECRET) _oaHeaders['x-proxy-secret'] = process.env.PROXY_SHARED_SECRET;
@@ -206,11 +228,8 @@ async function callOpenAI(system, userPrompt) {
     headers: _oaHeaders,
     body: JSON.stringify({
       model: 'gpt-4.1',
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: userPrompt }
-      ],
-      max_tokens: 8000,
+      messages: oaMessages,
+      max_tokens: 16000,
       temperature: 0.4
     })
   });
@@ -261,8 +280,8 @@ async function runPipeline(jobId, doctrine, userPrompt) {
     // Skip Bedrock (geo-blocked from East Asia) and go straight to Lambda proxy
     let report = '';
     const payload = {
-      model: 'claude-sonnet-4-6',
-      max_tokens: 6000,
+      model: 'claude-opus-4-7',
+      max_tokens: 32000,
       system: doctrine,
       messages: [{ role: 'user', content: userPrompt }]
     };
@@ -300,7 +319,7 @@ async function runPipeline(jobId, doctrine, userPrompt) {
       version: DOCTRINE_VERSION,
       meta: {
         processing_time_ms: Date.now() - start,
-        engines: ['claude-sonnet-4-6'],
+        engines: ['claude-opus-4-7'],
         doctrine_version: DOCTRINE_VERSION
       }
     };

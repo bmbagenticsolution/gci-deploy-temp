@@ -6,8 +6,9 @@ const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-be
 
 // Map GCI model names to Bedrock model IDs
 // Uses cross-region inference prefix (us.) for broader availability
-// Updated 2026-05-02: active model IDs, use case form approved
+// Updated 2026-05-02: added Claude Opus 4.7 (best available)
 const MODEL_MAP = {
+  'claude-opus-4-7':               'us.anthropic.claude-opus-4-7',
   'claude-opus-4-6':               'us.anthropic.claude-opus-4-6-v1',
   'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-6',
   'claude-haiku-4-5-20251001':     'us.anthropic.claude-haiku-4-5-20251001-v1:0',
@@ -17,12 +18,16 @@ const MODEL_MAP = {
 
 // Fallback: try alternate model if primary fails
 const MODEL_MAP_DIRECT = {
-  'claude-opus-4-6':               'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
-  'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
+  'claude-opus-4-7':               'us.anthropic.claude-opus-4-6-v1',
+  'claude-opus-4-6':               'us.anthropic.claude-sonnet-4-6',
+  'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-6',
   'claude-haiku-4-5-20251001':     'us.anthropic.claude-haiku-4-5-20251001-v1:0',
-  'claude-3-5-sonnet-20241022':    'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
+  'claude-3-5-sonnet-20241022':    'us.anthropic.claude-sonnet-4-6',
   'claude-3-5-haiku-20241022':     'us.anthropic.claude-haiku-4-5-20251001-v1:0'
 };
+
+// Models that do NOT support temperature/top_p/top_k parameters
+const NO_TEMPERATURE_MODELS = new Set(['claude-opus-4-7']);
 
 let _client = null;
 function getClient() {
@@ -54,11 +59,17 @@ async function callBedrock(params) {
   // Build Bedrock request body (Anthropic Messages API format)
   const body = {
     anthropic_version: 'bedrock-2023-05-31',
-    max_tokens: params.max_tokens || 4096,
+    max_tokens: params.max_tokens || 16000,
     messages: params.messages || []
   };
   if (params.system) body.system = params.system;
-  if (typeof params.temperature === 'number') body.temperature = params.temperature;
+  // Opus 4.7 does NOT support temperature/top_p/top_k - omit them
+  if (typeof params.temperature === 'number' && !NO_TEMPERATURE_MODELS.has(params.model)) {
+    body.temperature = params.temperature;
+  }
+  // Pass through tool_use params
+  if (Array.isArray(params.tools)) body.tools = params.tools;
+  if (params.tool_choice) body.tool_choice = params.tool_choice;
 
   // Try cross-region model ID first, then direct
   const modelIds = [
@@ -126,12 +137,14 @@ async function callViaLambdaProxy(params) {
   // Never stream through Lambda invoke (response is synchronous)
   delete payload.stream;
 
-  // Build a Lambda event that mimics an HTTP request to the proxy
+  // Build a Lambda event that mimics an HTTP request to the proxy.
+  // Lambda v2 uses Bedrock (IAM auth) so API key is not needed for Claude,
+  // but we still pass it for backward compatibility.
   const headers = {
     'content-type': 'application/json',
-    'anthropic-version': '2023-06-01',
-    'x-api-key': process.env.ANTHROPIC_API_KEY
+    'anthropic-version': '2023-06-01'
   };
+  if (process.env.ANTHROPIC_API_KEY) headers['x-api-key'] = process.env.ANTHROPIC_API_KEY;
   // Pass through anthropic-beta if present (needed for pdfs, tool use, etc.)
   if (params._anthropicBeta) headers['anthropic-beta'] = params._anthropicBeta;
 
@@ -169,7 +182,9 @@ async function callViaLambdaProxy(params) {
 }
 
 function isLambdaProxyConfigured() {
-  return Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.ANTHROPIC_API_KEY);
+  // Lambda v2 uses Bedrock (IAM auth), so only AWS creds are required.
+  // ANTHROPIC_API_KEY is no longer needed for the Lambda path.
+  return Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
 }
 
 module.exports = { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured, MODEL_MAP };

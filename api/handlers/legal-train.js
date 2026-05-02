@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
     // Extract knowledge using Claude
     const extractPayload = {
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 16000,
       system: buildExtractionPrompt(docType, jurisdiction, source || url),
       messages: [{
         role: 'user',

@@ -188,8 +188,8 @@ module.exports = async function handler(req, res) {
       });
 
       const payload = {
-        model: 'claude-opus-4-6',
-        max_tokens: 4096,
+        model: 'claude-opus-4-7',
+        max_tokens: 32000,
         system: doctrine,
         messages
       };
@@ -203,7 +203,7 @@ module.exports = async function handler(req, res) {
 
     // All other modes (generate-report, chat, agents, etc.)
     const KNOWN_MODELS = new Set([
-      'claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001',
+      'claude-opus-4-7','claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001',
       'claude-3-5-sonnet-20241022','claude-3-5-haiku-20241022'
     ]);
     let normalizedModel = body.model;
@@ -221,9 +221,9 @@ module.exports = async function handler(req, res) {
     if (normalizedMessages.length === 0) {
       return res.status(400).json({ error: 'No messages provided' });
     }
-    // Cap max_tokens at 8000 for generate-report to stay under the 230s gateway timeout.
-    let cappedMaxTokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? body.max_tokens : 4096;
-    if ((mode === 'generate-report' || mode === 'chat') && cappedMaxTokens > 8000) cappedMaxTokens = 8000;
+    // Increase default max_tokens. Using async job pattern means no SWA timeout concern.
+    let cappedMaxTokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? body.max_tokens : 16000;
+    if (cappedMaxTokens > 128000) cappedMaxTokens = 128000;
     const normalizedBody = {
       model: normalizedModel,
       max_tokens: cappedMaxTokens,

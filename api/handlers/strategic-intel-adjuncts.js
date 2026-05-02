@@ -16,7 +16,7 @@ const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfi
 async function callClaudeSonnet(system, userPrompt, maxTokens) {
   const payload = {
     model: 'claude-sonnet-4-6',
-    max_tokens: maxTokens || 1200,
+    max_tokens: maxTokens || 4000,
     system: system,
     messages: [{ role: 'user', content: userPrompt }]
   };
