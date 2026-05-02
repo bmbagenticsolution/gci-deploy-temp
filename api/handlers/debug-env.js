@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
     has_LAMBDA_SDK: (() => { try { require('@aws-sdk/client-lambda'); return true; } catch(e) { return false; } })(),
     lambda_proxy_configured: Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY),
     has_AZURE_OPENAI_ENDPOINT: Boolean(process.env.AZURE_OPENAI_ENDPOINT),
-    has_AZURE_OPENAI_KEY: Boolean(process.env.AZURE_OPENAI_API_KEY),
+    has_AZURE_OPENAI_KEY: Boolean(process.env.AZURE_OPENAI_KEY || process.env.AZURE_OPENAI_API_KEY),
     node_version: process.version,
     build_marker: 'v13-bedrock-opus47-azure-openai'
   };

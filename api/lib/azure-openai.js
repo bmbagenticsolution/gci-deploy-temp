@@ -3,7 +3,7 @@
 //
 // Environment variables:
 //   AZURE_OPENAI_ENDPOINT - e.g. https://gci-openai.openai.azure.com
-//   AZURE_OPENAI_API_KEY  - Azure OpenAI resource key
+//   AZURE_OPENAI_KEY      - Azure OpenAI resource key (also accepts AZURE_OPENAI_API_KEY)
 //   AZURE_OPENAI_API_VERSION - e.g. 2024-10-21 (defaults to 2024-10-21)
 //
 // Deployment names should match the model: e.g. 'gpt-4o' deployment for gpt-4o model.
@@ -22,7 +22,7 @@ const DEPLOYMENT_MAP = {
 };
 
 function isAzureOpenAIConfigured() {
-  return Boolean(process.env.AZURE_OPENAI_ENDPOINT && process.env.AZURE_OPENAI_API_KEY);
+  return Boolean(process.env.AZURE_OPENAI_ENDPOINT && (process.env.AZURE_OPENAI_KEY || process.env.AZURE_OPENAI_API_KEY));
 }
 
 /**
@@ -37,11 +37,12 @@ function isAzureOpenAIConfigured() {
  */
 async function callAzureOpenAI(params) {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT.replace(/\/+$/, '');
-  const apiKey = process.env.AZURE_OPENAI_API_KEY;
+  const apiKey = process.env.AZURE_OPENAI_KEY || process.env.AZURE_OPENAI_API_KEY;
   const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-10-21';
 
   const model = params.model || 'gpt-4.1';
-  const deployment = DEPLOYMENT_MAP[model] || model;
+  // Use AZURE_OPENAI_CHAT_DEPLOYMENT env var as override, then DEPLOYMENT_MAP, then model name
+  const deployment = process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || DEPLOYMENT_MAP[model] || model;
 
   const url = endpoint + '/openai/deployments/' + encodeURIComponent(deployment)
     + '/chat/completions?api-version=' + apiVersion;
