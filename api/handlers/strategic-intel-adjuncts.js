@@ -11,7 +11,27 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
+const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+
 async function callClaudeSonnet(system, userPrompt, maxTokens) {
+  const payload = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens || 1200,
+    system: system,
+    messages: [{ role: 'user', content: userPrompt }]
+  };
+
+  // Try Bedrock first (no geo-blocks)
+  if (isBedrockConfigured()) {
+    try {
+      const data = await callBedrock(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[adjuncts] Bedrock failed, falling back:', e.message);
+    }
+  }
+
+  // Fallback: Vercel proxy
   const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
     method: 'POST',
     headers: {
@@ -19,12 +39,7 @@ async function callClaudeSonnet(system, userPrompt, maxTokens) {
       'anthropic-version': '2023-06-01',
       'x-api-key': process.env.ANTHROPIC_API_KEY
     },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: maxTokens || 1200,
-      system: system,
-      messages: [{ role: 'user', content: userPrompt }]
-    })
+    body: JSON.stringify(payload)
   });
   const data = await r.json();
   if (!r.ok) throw new Error('Claude ' + r.status + ': ' + ((data && data.error && data.error.message) || 'unknown'));
@@ -35,7 +50,7 @@ function stripDashes(s){ return (s || '').replace(/\u2014/g, ', ').replace(/\u20
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  if (!process.env.ANTHROPIC_API_KEY && !isBedrockConfigured()) return res.status(500).json({ error: 'No AI backend configured' });
 
   const start = Date.now();
   try {

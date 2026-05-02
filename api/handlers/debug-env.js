@@ -8,8 +8,10 @@ module.exports = async function handler(req, res) {
     has_ANTHROPIC_KEY: Boolean(process.env.ANTHROPIC_API_KEY),
     has_OPENAI_KEY: Boolean(process.env.OPENAI_API_KEY),
     has_GEMINI_KEY: Boolean(process.env.GEMINI_API_KEY),
+    has_AWS_KEY: Boolean(process.env.AWS_ACCESS_KEY_ID),
+    AWS_REGION: process.env.AWS_REGION || '(unset)',
     node_version: process.version,
-    build_marker: 'v4-aria-azure-openai'
+    build_marker: 'v5-bedrock-integration'
   };
   res.status(200).json(info);
 };

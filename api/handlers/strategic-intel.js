@@ -71,31 +71,58 @@ const VIDURA_SYSTEM = `You are Vidura, the uncomfortable-truth advisor. After re
 
 const VIBHISHANA_SYSTEM = `You are Vibhishana, counterparty intelligence. After reading a strategic intelligence report, surface in 4-6 bullets what the competition (incumbents, new entrants, regulators, capital allocators) is doing right now in this exact space that the report did not address. Each bullet is one specific observation, not a generic risk. Name names where possible.`;
 
+const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
   'anthropic-version': '2023-06-01'
 };
 
+// Call Claude via Bedrock (primary) or Vercel proxy (fallback)
 async function callClaude(system, userPrompt, maxTokens, model) {
+  const payload = {
+    model: model || 'claude-sonnet-4-6',
+    max_tokens: maxTokens || 12000,
+    system: system,
+    messages: [{ role: 'user', content: userPrompt }]
+  };
+
+  // Try Bedrock first (no geo-blocks from Azure SWA)
+  if (isBedrockConfigured()) {
+    try {
+      const data = await callBedrock(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Bedrock callClaude failed, falling back:', e.message);
+    }
+  }
+
+  // Fallback: Vercel proxy
   const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
-    body: JSON.stringify({
-      model: model || 'claude-sonnet-4-6',
-      max_tokens: maxTokens || 12000,
-      system: system,
-      messages: [{ role: 'user', content: userPrompt }]
-    })
+    body: JSON.stringify(payload)
   });
   const data = await r.json();
   if (!r.ok) throw new Error('Claude ' + r.status + ': ' + ((data && data.error && data.error.message) || 'unknown'));
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
 
-// Streaming variant. Uses Anthropic server-sent events so the connection
-// starts flowing bytes within 1-3s and never idles, avoiding the SWA 230s
-// idle-gateway timeout even for long Sonnet 4.6 generations.
+// Non-streaming variant that works with both Bedrock and the proxy.
+// Bedrock InvokeModel is non-streaming, which is fine: the SWA gateway
+// 230s timeout applies to IDLE connections, not total duration, and
+// Bedrock returns the full response in one shot (typically 10-60s).
 async function callClaudeStream(system, userPrompt, maxTokens, model) {
+  // With Bedrock, we use non-streaming InvokeModel (simpler, equally fast)
+  if (isBedrockConfigured()) {
+    try {
+      return await callClaude(system, userPrompt, maxTokens, model);
+    } catch (e) {
+      console.error('[strategic-intel] Bedrock stream fallback:', e.message);
+    }
+  }
+
+  // Fallback: streaming via Vercel proxy
   const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY, 'Accept': 'text/event-stream' },
@@ -112,8 +139,6 @@ async function callClaudeStream(system, userPrompt, maxTokens, model) {
     try { errText = await r.text(); } catch(e) {}
     throw new Error('Claude stream ' + r.status + ': ' + errText.slice(0, 300));
   }
-  // Collect the streamed deltas into one final string. Node 18+ / undici exposes
-  // r.body as a web ReadableStream with an async iterator.
   let acc = '';
   const decoder = new TextDecoder();
   let buf = '';
@@ -191,7 +216,7 @@ async function callGemini(system, userPrompt) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  if (!process.env.ANTHROPIC_API_KEY && !isBedrockConfigured()) return res.status(500).json({ error: 'No AI backend configured (need ANTHROPIC_API_KEY or AWS credentials)' });
 
   const overallStart = Date.now();
   const stageTimings = {};

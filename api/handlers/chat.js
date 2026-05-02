@@ -115,10 +115,37 @@ const STRATEGY_MODES = new Set([
   'multi-thesis','multi-market-selection','multi-company-profile','multi-contrarian','multi-gtm-strategy','multi-deal-structuring'
 ]);
 
+const { callBedrock, isBedrockConfigured } = require('../lib/bedrock');
+
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
   'anthropic-version': '2023-06-01'
 };
+
+// Fallback: call Anthropic via Vercel proxy (used when Bedrock is not configured)
+async function callAnthropicProxy(payload) {
+  const response = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+    method: 'POST',
+    headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  return { data, status: response.status, ok: response.ok };
+}
+
+// Primary: call Claude via AWS Bedrock (no geo-blocks from Azure SWA)
+// Falls back to Anthropic proxy if Bedrock fails
+async function callClaude(payload) {
+  if (isBedrockConfigured()) {
+    try {
+      const data = await callBedrock(payload);
+      return { data, status: 200, ok: true };
+    } catch (e) {
+      console.error('[chat] Bedrock failed, falling back to proxy:', e.message);
+    }
+  }
+  return callAnthropicProxy(payload);
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -127,14 +154,13 @@ module.exports = async function handler(req, res) {
     const body = req.body;
     const mode = body.mode || '';
 
-    // Strategy agent modes — inject doctrine as system prompt and build clean payload
+    // Strategy agent modes: inject doctrine as system prompt and build clean payload
     if (STRATEGY_MODES.has(mode)) {
       const baseMode = mode.replace('multi-', '');
       const doctrine = DOCTRINES[baseMode];
       if (!doctrine) return res.status(400).json({ error: 'Unknown strategy mode: ' + mode });
 
       const messages = (body.messages || []).map(m => {
-        // Normalise message format — ensure content is string or array
         if (typeof m.content === 'string') return m;
         if (Array.isArray(m.content)) return m;
         return { role: m.role || 'user', content: String(m.content || '') };
@@ -147,21 +173,14 @@ module.exports = async function handler(req, res) {
         messages
       };
 
-      const response = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
-        method: 'POST',
-        headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        return res.status(response.status).json({ error: data.error?.message || 'Anthropic API error' });
+      const result = await callClaude(payload);
+      if (!result.ok) {
+        return res.status(result.status).json({ error: result.data.error?.message || 'AI service error' });
       }
-      return res.status(200).json(data);
+      return res.status(200).json(result.data);
     }
 
-    // All other modes (generate-report, chat, agents, etc.) — normalize required fields
-    // Defensive: ensure model, max_tokens, and messages are present and valid for Anthropic API.
+    // All other modes (generate-report, chat, agents, etc.)
     const KNOWN_MODELS = new Set([
       'claude-opus-4-6','claude-sonnet-4-6','claude-haiku-4-5-20251001',
       'claude-3-5-sonnet-20241022','claude-3-5-haiku-20241022'
@@ -171,7 +190,6 @@ module.exports = async function handler(req, res) {
       normalizedModel = 'claude-sonnet-4-6';
     }
     // Force sonnet 4.6 for generate-report so we fit in the 230s SWA gateway timeout.
-    // Opus is too slow for 20k-token report output.
     if (mode === 'generate-report' || mode === 'chat') {
       normalizedModel = 'claude-sonnet-4-6';
     }
@@ -182,7 +200,7 @@ module.exports = async function handler(req, res) {
     if (normalizedMessages.length === 0) {
       return res.status(400).json({ error: 'No messages provided' });
     }
-    // Cap max_tokens at 8000 for generate-report so we stay under the 230s gateway timeout.
+    // Cap max_tokens at 8000 for generate-report to stay under the 230s gateway timeout.
     let cappedMaxTokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? body.max_tokens : 4096;
     if ((mode === 'generate-report' || mode === 'chat') && cappedMaxTokens > 8000) cappedMaxTokens = 8000;
     const normalizedBody = {
@@ -193,14 +211,8 @@ module.exports = async function handler(req, res) {
     if (typeof body.system === 'string' && body.system.length > 0) normalizedBody.system = body.system;
     if (typeof body.temperature === 'number') normalizedBody.temperature = body.temperature;
 
-    const response = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
-      method: 'POST',
-      headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
-      body: JSON.stringify(normalizedBody)
-    });
-
-    const data = await response.json();
-    res.status(response.ok ? 200 : response.status).json(data);
+    const result = await callClaude(normalizedBody);
+    res.status(result.ok ? 200 : result.status).json(result.data);
 
   } catch (error) {
     res.status(500).json({ error: 'Internal server error: ' + error.message });
