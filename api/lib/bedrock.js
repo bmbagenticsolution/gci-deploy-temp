@@ -6,21 +6,22 @@ const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-be
 
 // Map GCI model names to Bedrock model IDs
 // Uses cross-region inference prefix (us.) for broader availability
+// Updated 2026-05-02: use active model IDs (legacy ones were deprecated)
 const MODEL_MAP = {
-  'claude-opus-4-6':               'us.anthropic.claude-opus-4-20250514-v1:0',
-  'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-20250514-v1:0',
+  'claude-opus-4-6':               'us.anthropic.claude-opus-4-6-v1',
+  'claude-sonnet-4-6':             'us.anthropic.claude-sonnet-4-6',
   'claude-haiku-4-5-20251001':     'us.anthropic.claude-haiku-4-5-20251001-v1:0',
-  'claude-3-5-sonnet-20241022':    'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-  'claude-3-5-haiku-20241022':     'us.anthropic.claude-3-5-haiku-20241022-v1:0'
+  'claude-3-5-sonnet-20241022':    'us.anthropic.claude-sonnet-4-6',
+  'claude-3-5-haiku-20241022':     'us.anthropic.claude-haiku-4-5-20251001-v1:0'
 };
 
 // Fallback without cross-region prefix (if us. prefix fails)
 const MODEL_MAP_DIRECT = {
-  'claude-opus-4-6':               'anthropic.claude-opus-4-20250514-v1:0',
-  'claude-sonnet-4-6':             'anthropic.claude-sonnet-4-20250514-v1:0',
+  'claude-opus-4-6':               'anthropic.claude-opus-4-6-v1',
+  'claude-sonnet-4-6':             'anthropic.claude-sonnet-4-6',
   'claude-haiku-4-5-20251001':     'anthropic.claude-haiku-4-5-20251001-v1:0',
-  'claude-3-5-sonnet-20241022':    'anthropic.claude-3-5-sonnet-20241022-v2:0',
-  'claude-3-5-haiku-20241022':     'anthropic.claude-3-5-haiku-20241022-v1:0'
+  'claude-3-5-sonnet-20241022':    'anthropic.claude-sonnet-4-6',
+  'claude-3-5-haiku-20241022':     'anthropic.claude-haiku-4-5-20251001-v1:0'
 };
 
 let _client = null;
