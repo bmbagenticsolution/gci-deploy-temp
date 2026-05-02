@@ -5727,11 +5727,10 @@ async function runStrategicIntel(){
   if(constraints)payload.constraints=constraints;
   if(horizon)payload.horizon=horizon;
 
-  // Call the Vercel-hosted streaming strategic-intel endpoint.
-  // Bytes flow continuously so no buffering middleman can time out.
-  var response=await fetch(VERCEL_PROXY+'/strategic-intel',{
+  // Call the Azure SWA strategic-intel endpoint (SSE streaming with keepalive).
+  var response=await fetch('/api/strategic-intel',{
    method:'POST',
-   headers:{'Content-Type':'application/json','x-gci-proxy-key':GCI_PK},
+   headers:gciHeaders(),
    body:JSON.stringify(payload)
   });
   if(!response.ok){

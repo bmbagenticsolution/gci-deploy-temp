@@ -250,6 +250,12 @@ module.exports = async function handler(req, res) {
   const overallStart = Date.now();
   const stageTimings = {};
 
+  // Check if client accepts SSE (streaming). The SWA gateway kills idle HTTP
+  // connections after ~45s, so we MUST stream keepalive data while Lambda/Bedrock
+  // processes the request (which can take 60-120s for large reports).
+  const useSSE = (req.headers.accept || '').includes('text/event-stream') ||
+                 (req.query && req.query.stream === '1');
+
   try {
     const body = req.body || {};
     const clientBrief = (body.clientBrief || '').toString().trim();
@@ -266,21 +272,48 @@ module.exports = async function handler(req, res) {
     if (horizon) userPrompt += '\n\nDECISION HORIZON: ' + horizon;
     userPrompt += '\n\nRun the full 5-stage Strategic Intelligence pipeline now. Produce the complete brief using the markdown headings specified in your doctrine. Remember: intelligence, not research. Surface what I cannot see on my own.';
 
-    // Stage A: Run Claude Opus (lead engine). Adjuncts now run in a SEPARATE
-    // /api/strategic-intel-adjuncts call from the client so we can return the
-    // main report as soon as it is ready and stop holding the gateway open.
+    // Use SSE to keep the SWA gateway alive during long AI generation.
+    // Send keepalive comments every 10s so the gateway does not consider
+    // the connection idle and terminate it.
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+    if (res.flushHeaders) res.flushHeaders();
+
+    // Send initial status event (event: status format for SSE)
+    res.write('event: status\ndata: ' + JSON.stringify({ message: 'Running strategic intelligence pipeline...' }) + '\n\n');
+
+    // Start keepalive interval (SSE comment every 10 seconds)
+    const keepalive = setInterval(function() {
+      try { res.write(':keepalive\n\n'); } catch(e) {}
+    }, 10000);
+
     const engineStart = Date.now();
-    // Sonnet 4.6 streamed. Streaming keeps the SWA gateway alive while Claude
-    // generates, so we can use the full-quality model without timing out.
-    const finalReport = await callClaudeStream(SI_DOCTRINE, userPrompt, 6000, 'claude-sonnet-4-6');
+    let finalReport = '';
+    let error = null;
+
+    try {
+      finalReport = await callClaudeStream(SI_DOCTRINE, userPrompt, 6000, 'claude-sonnet-4-6');
+    } catch (e) {
+      error = e;
+    }
+
+    clearInterval(keepalive);
     stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
 
-    const enginesUsed = ['claude-sonnet-4-6'];
+    if (error) {
+      res.write('event: error\ndata: ' + JSON.stringify({ message: 'strategic-intel error: ' + error.message }) + '\n\n');
+      res.end();
+      return;
+    }
 
-    // Strip em/en dashes per house style
+    const enginesUsed = ['claude-sonnet-4-6'];
     function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
 
-    return res.status(200).json({
+    // Send the final report as an SSE "final" event (matches frontend parser)
+    const result = {
       report: stripDashes(finalReport),
       vidura: '',
       vibhishana: '',
@@ -292,8 +325,19 @@ module.exports = async function handler(req, res) {
         doctrine_version: DOCTRINE_VERSION,
         stage_timings: stageTimings
       }
-    });
+    };
+    res.write('event: final\ndata: ' + JSON.stringify(result) + '\n\n');
+    res.end();
+
   } catch (err) {
+    // If headers already sent (SSE mode), send error as event
+    if (res.headersSent) {
+      try {
+        res.write('event: error\ndata: ' + JSON.stringify({ message: err.message }) + '\n\n');
+        res.end();
+      } catch(e) {}
+      return;
+    }
     return res.status(500).json({ error: 'strategic-intel error: ' + (err && err.message ? err.message : String(err)) });
   }
 }
