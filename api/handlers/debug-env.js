@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
     has_AWS_KEY: Boolean(process.env.AWS_ACCESS_KEY_ID),
     AWS_REGION: process.env.AWS_REGION || '(unset)',
     node_version: process.version,
-    build_marker: 'v8-bedrock-verified-models'
+    build_marker: 'v9-bedrock-all-models-live'
   };
   res.status(200).json(info);
 };
