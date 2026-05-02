@@ -17,6 +17,7 @@
 // Streams via SSE for real-time delivery
 
 const { kvGet, kvSet } = require('../redis-client');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 const ANTHROPIC_API_KEY  = process.env.ANTHROPIC_API_KEY;
 const ADMIN_SECRET       = process.env.ADMIN_SECRET;
 
@@ -292,25 +293,34 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
     const MAX_TOOLS = 6;
 
     while (toolIterations < MAX_TOOLS) {
-      const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1024,
-          system: systemPrompt,
-          messages: researchMessages,
-          tools: WAR_ROOM_TOOLS,
-          tool_choice: { type: 'auto' }
-        })
-      });
-
-      if (!r.ok) throw new Error(`Research error ${r.status}`);
-      const data = await r.json();
+      const researchPayload = {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: researchMessages,
+        tools: WAR_ROOM_TOOLS,
+        tool_choice: { type: 'auto' }
+      };
+      let data;
+      if (isBedrockConfigured()) {
+        try { data = await callBedrock(researchPayload); } catch (e) { console.error('[war-room] Bedrock research failed:', e.message); }
+      }
+      if (!data && isLambdaProxyConfigured()) {
+        try { data = await callViaLambdaProxy(researchPayload); } catch (e) { console.error('[war-room] Lambda research failed:', e.message); }
+      }
+      if (!data) {
+        const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify(researchPayload)
+        });
+        if (!r.ok) throw new Error('Research error ' + r.status);
+        data = await r.json();
+      }
       if (data.stop_reason !== 'tool_use') break;
 
       const toolBlocks = data.content.filter(b => b.type === 'tool_use');
@@ -332,7 +342,29 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
 
     send({ type: 'status', message: `Research complete. ${sourcesConsulted.length} sources consulted. Generating War Room strategy...` });
 
-    // Stream final war room analysis
+    // Try non-streaming via Bedrock/Lambda first, fall back to CF Worker streaming
+    const finalPayload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8192,
+      system: systemPrompt,
+      messages: researchMessages
+    };
+    let nonStreamResult;
+    if (isBedrockConfigured()) {
+      try { nonStreamResult = await callBedrock(finalPayload); } catch (e) { console.error('[war-room] Bedrock final failed:', e.message); }
+    }
+    if (!nonStreamResult && isLambdaProxyConfigured()) {
+      try { nonStreamResult = await callViaLambdaProxy(finalPayload); } catch (e) { console.error('[war-room] Lambda final failed:', e.message); }
+    }
+    if (nonStreamResult) {
+      // Got result via Bedrock/Lambda, send as single chunk and skip streaming
+      const text = (nonStreamResult.content && nonStreamResult.content[0] && nonStreamResult.content[0].text) || '';
+      send({ type: 'text', text: text });
+      send({ type: 'done', sources: sourcesConsulted });
+      return;
+    }
+
+    // Last resort: stream via CF Worker proxy
     const finalResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
       method: 'POST',
       headers: {
@@ -340,16 +372,10 @@ Conduct a complete War Room analysis. Use the fetch_legal_source tool to researc
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json'
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 8192,
-        stream: true,
-        system: systemPrompt,
-        messages: researchMessages
-      })
+      body: JSON.stringify(Object.assign({}, finalPayload, { stream: true }))
     });
 
-    if (!finalResp.ok) throw new Error(`Final response error ${finalResp.status}`);
+    if (!finalResp.ok) throw new Error('Final response error ' + finalResp.status);
 
     const reader = finalResp.body.getReader();
     const decoder = new TextDecoder();

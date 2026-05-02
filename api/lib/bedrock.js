@@ -117,24 +117,29 @@ async function callViaLambdaProxy(params) {
     }
   });
 
-  const payload = {
-    model: params.model || 'claude-sonnet-4-6',
-    max_tokens: params.max_tokens || 4096,
-    messages: params.messages || []
-  };
-  if (params.system) payload.system = params.system;
-  if (typeof params.temperature === 'number') payload.temperature = params.temperature;
+  // Pass through all Anthropic API params (model, max_tokens, messages, system,
+  // temperature, tools, tool_choice, etc.) with sensible defaults
+  const payload = Object.assign({}, params);
+  if (!payload.model) payload.model = 'claude-sonnet-4-6';
+  if (!payload.max_tokens) payload.max_tokens = 4096;
+  if (!payload.messages) payload.messages = [];
+  // Never stream through Lambda invoke (response is synchronous)
+  delete payload.stream;
 
   // Build a Lambda event that mimics an HTTP request to the proxy
+  const headers = {
+    'content-type': 'application/json',
+    'anthropic-version': '2023-06-01',
+    'x-api-key': process.env.ANTHROPIC_API_KEY
+  };
+  // Pass through anthropic-beta if present (needed for pdfs, tool use, etc.)
+  if (params._anthropicBeta) headers['anthropic-beta'] = params._anthropicBeta;
+
   const lambdaEvent = {
     rawPath: '/v1/messages',
     rawQueryString: '',
     requestContext: { http: { method: 'POST' } },
-    headers: {
-      'content-type': 'application/json',
-      'anthropic-version': '2023-06-01',
-      'x-api-key': process.env.ANTHROPIC_API_KEY
-    },
+    headers: headers,
     body: JSON.stringify(payload),
     isBase64Encoded: false
   };

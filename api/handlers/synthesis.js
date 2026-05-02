@@ -16,10 +16,29 @@ const SYNTHESIS_SYSTEM = `You are the GCI Conviction Synthesizer. You receive 2 
 
 Output the synthesized report in clean markdown. Do not mention the engines by name in the body of the report. Do not water down strong claims. The reader is an investment committee.`;
 
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
+
 const ANTHROPIC_HEADERS = {
   'Content-Type': 'application/json',
   'anthropic-version': '2023-06-01'
 };
+
+async function callClaude(payload) {
+  if (isBedrockConfigured()) {
+    try { return await callBedrock(payload); } catch (e) { console.error('[synthesis] Bedrock failed:', e.message); }
+  }
+  if (isLambdaProxyConfigured()) {
+    try { return await callViaLambdaProxy(payload); } catch (e) { console.error('[synthesis] Lambda proxy failed:', e.message); }
+  }
+  const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+    method: 'POST',
+    headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
+    body: JSON.stringify(payload)
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error((data && data.error && data.error.message) || 'Anthropic ' + r.status);
+  return data;
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -35,7 +54,7 @@ module.exports = async function handler(req, res) {
     if (!claudeReport && !openaiReport && !geminiReport) {
       return res.status(400).json({ error: 'At least one source report is required' });
     }
-    if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+    if (!process.env.ANTHROPIC_API_KEY && !isBedrockConfigured()) return res.status(500).json({ error: 'No AI backend configured' });
 
     let userPrompt = 'DEAL CONTEXT:\n' + dealContext + '\n\n';
     if (originalSystem) userPrompt += 'ORIGINAL ANALYTICAL DOCTRINE (for reference, do not repeat):\n' + originalSystem.substring(0, 2000) + '\n\n';
@@ -46,21 +65,13 @@ module.exports = async function handler(req, res) {
     if (viduraOpinion) userPrompt += 'LEGAL OPINION (Vidura):\n' + viduraOpinion + '\n\n====================\n';
     userPrompt += '\nProduce the synthesized conviction report now.';
 
-    const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
-      method: 'POST',
-      headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 6000,
-        system: SYNTHESIS_SYSTEM,
-        messages: [{ role: 'user', content: userPrompt }]
-      })
+    const data = await callClaude({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 6000,
+      system: SYNTHESIS_SYSTEM,
+      messages: [{ role: 'user', content: userPrompt }]
     });
 
-    const data = await r.json();
-    if (!r.ok) {
-      return res.status(r.status).json({ error: (data && data.error && data.error.message) || 'Anthropic synthesis error' });
-    }
     return res.status(200).json(data);
   } catch (err) {
     return res.status(500).json({ error: 'synthesis error: ' + (err && err.message ? err.message : String(err)) });

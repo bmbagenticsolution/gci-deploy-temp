@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
     has_LAMBDA_SDK: (() => { try { require('@aws-sdk/client-lambda'); return true; } catch(e) { return false; } })(),
     lambda_proxy_configured: Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.ANTHROPIC_API_KEY),
     node_version: process.version,
-    build_marker: 'v11-lambda-proxy'
+    build_marker: 'v12-lambda-all-handlers'
   };
   res.status(200).json(info);
 };

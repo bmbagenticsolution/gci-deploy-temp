@@ -4,6 +4,7 @@
 // Tool use: fetch_legal_document for live access to DIFC, DFSA, UAE, GCC, FATF, international law
 
 const { kvGet, kvSet } = require('../redis-client');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 const ANTHROPIC_API_KEY  = process.env.ANTHROPIC_API_KEY;
 const ADMIN_SECRET       = process.env.ADMIN_SECRET;
 
@@ -565,26 +566,45 @@ module.exports = async function handler(req, res) {
       const researchController = new AbortController();
       const researchTimeout = setTimeout(() => researchController.abort(), 45000);
 
-      let researchResp;
+      const researchPayload = {
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: researchMessages,
+        tools: LEGAL_TOOLS,
+        tool_choice: { type: 'auto' },
+        _anthropicBeta: 'pdfs-2024-09-25'
+      };
+      let researchData;
       try {
-        researchResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
-          method: 'POST',
-          headers: {
-            'x-api-key': ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01',
-            'anthropic-beta': 'pdfs-2024-09-25',
-            'content-type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-6',
-            max_tokens: 1024,
-            system: systemPrompt,
-            messages: researchMessages,
-            tools: LEGAL_TOOLS,
-            tool_choice: { type: 'auto' }
-          }),
-          signal: researchController.signal
-        });
+        // 3-tier fallback: Bedrock -> Lambda -> CF Worker
+        if (isBedrockConfigured()) {
+          try { researchData = await callBedrock(researchPayload); } catch (e) { console.error('[legal] Bedrock research failed:', e.message); }
+        }
+        if (!researchData && isLambdaProxyConfigured()) {
+          try { researchData = await callViaLambdaProxy(researchPayload); } catch (e) { console.error('[legal] Lambda research failed:', e.message); }
+        }
+        if (!researchData) {
+          const researchResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+            method: 'POST',
+            headers: {
+              'x-api-key': ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01',
+              'anthropic-beta': 'pdfs-2024-09-25',
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify(researchPayload),
+            signal: researchController.signal
+          });
+          clearTimeout(researchTimeout);
+          if (!researchResp.ok) {
+            const errData = await researchResp.json().catch(() => ({}));
+            throw new Error(errData.error?.message || 'Research phase error ' + researchResp.status);
+          }
+          researchData = await researchResp.json();
+        } else {
+          clearTimeout(researchTimeout);
+        }
       } catch (fetchErr) {
         clearTimeout(researchTimeout);
         if (fetchErr.name === 'AbortError') {
@@ -592,14 +612,6 @@ module.exports = async function handler(req, res) {
         }
         throw fetchErr;
       }
-      clearTimeout(researchTimeout);
-
-      if (!researchResp.ok) {
-        const errData = await researchResp.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `Research phase error ${researchResp.status}`);
-      }
-
-      const researchData = await researchResp.json();
 
       // No tool calls needed — proceed directly to streaming
       if (researchData.stop_reason !== 'tool_use') break;
@@ -642,6 +654,35 @@ module.exports = async function handler(req, res) {
     const finalController = new AbortController();
     const finalTimeout = setTimeout(() => finalController.abort(), 90000);
 
+    // Try non-streaming via Bedrock/Lambda first
+    const finalPayload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: researchMessages,
+      _anthropicBeta: 'pdfs-2024-09-25'
+    };
+    let nonStreamResult;
+    if (isBedrockConfigured()) {
+      try { nonStreamResult = await callBedrock(finalPayload); } catch (e) { console.error('[legal] Bedrock final failed:', e.message); }
+    }
+    if (!nonStreamResult && isLambdaProxyConfigured()) {
+      try { nonStreamResult = await callViaLambdaProxy(finalPayload); } catch (e) { console.error('[legal] Lambda final failed:', e.message); }
+    }
+    if (nonStreamResult) {
+      clearTimeout(finalTimeout);
+      // Got result via Bedrock/Lambda, send full text as SSE events
+      const fullText = (nonStreamResult.content && nonStreamResult.content[0] && nonStreamResult.content[0].text) || '';
+      // Send in chunks to maintain SSE format the client expects
+      const chunkSize = 200;
+      for (let i = 0; i < fullText.length; i += chunkSize) {
+        send({ type: 'text_delta', text: fullText.substring(i, i + chunkSize) });
+      }
+      send({ type: 'done', sources: sourcesConsulted });
+      return;
+    }
+
+    // Last resort: stream via CF Worker proxy
     let finalResp;
     try {
       finalResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
@@ -652,13 +693,7 @@ module.exports = async function handler(req, res) {
           'anthropic-beta': 'pdfs-2024-09-25',
           'content-type': 'application/json'
         },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4096,
-          stream: true,
-          system: systemPrompt,
-          messages: researchMessages
-        }),
+        body: JSON.stringify(Object.assign({}, finalPayload, { stream: true })),
         signal: finalController.signal
       });
     } catch (fetchErr) {
@@ -669,7 +704,7 @@ module.exports = async function handler(req, res) {
     if (!finalResp.ok) {
       clearTimeout(finalTimeout);
       const errData = await finalResp.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Final response error ${finalResp.status}`);
+      throw new Error(errData.error?.message || 'Final response error ' + finalResp.status);
     }
 
     // Stream text chunks to client

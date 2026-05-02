@@ -4,6 +4,7 @@
 // Trigger via Vercel Cron: "0 6 * * *" (06:00 UTC = 10:00 Dubai time)
 
 const { kvGet, kvSet } = require('../redis-client');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 const RESEND_API_KEY    = process.env.RESEND_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const CRON_SECRET       = process.env.CRON_SECRET; // optional guard
@@ -283,27 +284,35 @@ module.exports = async function handler(req, res) {
 
     // 3. Call Claude to synthesise
     console.log('[LegalBrief] Calling Claude for synthesis...');
-    const claudeResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!claudeResp.ok) {
-      const err = await claudeResp.json().catch(() => ({}));
-      throw new Error(`Claude API error: ${err.error?.message || claudeResp.status}`);
+    const briefPayload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }]
+    };
+    let claudeData;
+    if (isBedrockConfigured()) {
+      try { claudeData = await callBedrock(briefPayload); } catch (e) { console.error('[LegalBrief] Bedrock failed:', e.message); }
     }
-
-    const claudeData = await claudeResp.json();
-    const rawText = claudeData.content?.[0]?.text || '';
+    if (!claudeData && isLambdaProxyConfigured()) {
+      try { claudeData = await callViaLambdaProxy(briefPayload); } catch (e) { console.error('[LegalBrief] Lambda proxy failed:', e.message); }
+    }
+    if (!claudeData) {
+      const claudeResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(briefPayload)
+      });
+      if (!claudeResp.ok) {
+        const err = await claudeResp.json().catch(() => ({}));
+        throw new Error('Claude API error: ' + (err.error && err.error.message || claudeResp.status));
+      }
+      claudeData = await claudeResp.json();
+    }
+    const rawText = (claudeData.content && claudeData.content[0] && claudeData.content[0].text) || '';
 
     // 4. Parse Claude's JSON response (defensive: handle markdown fences and prose wrapping)
     let briefData;

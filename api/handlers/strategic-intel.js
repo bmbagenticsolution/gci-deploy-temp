@@ -135,7 +135,23 @@ async function callClaudeStream(system, userPrompt, maxTokens, model) {
     }
   }
 
-  // Fallback: streaming via Vercel proxy
+  // 2. Try Lambda proxy in us-east-1 (US IP, bypasses geo-blocks)
+  if (isLambdaProxyConfigured()) {
+    try {
+      const payload = {
+        model: model || 'claude-sonnet-4-6',
+        max_tokens: maxTokens || 12000,
+        system: system,
+        messages: [{ role: 'user', content: userPrompt }]
+      };
+      const data = await callViaLambdaProxy(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Lambda proxy stream fallback:', e.message);
+    }
+  }
+
+  // 3. Last resort: streaming via CF Worker proxy
   const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY, 'Accept': 'text/event-stream' },

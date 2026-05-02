@@ -20,6 +20,7 @@
 //   gci:legal:training-log — log of all training sessions
 
 const { kvGet, kvSet } = require('../redis-client');
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 const ANTHROPIC_API_KEY  = process.env.ANTHROPIC_API_KEY;
 const ADMIN_SECRET       = process.env.ADMIN_SECRET;
 
@@ -155,30 +156,40 @@ module.exports = async function handler(req, res) {
 
   try {
     // Extract knowledge using Claude
-    const extractResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
-        system: buildExtractionPrompt(docType, jurisdiction, source || url),
-        messages: [{
-          role: 'user',
-          content: `LEGAL MATERIAL TO PROCESS:\n\n${contentToProcess.substring(0, 10000)}`
-        }]
-      })
-    });
+    const extractPayload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      system: buildExtractionPrompt(docType, jurisdiction, source || url),
+      messages: [{
+        role: 'user',
+        content: `LEGAL MATERIAL TO PROCESS:\n\n${contentToProcess.substring(0, 10000)}`
+      }]
+    };
 
-    if (!extractResp.ok) {
-      const err = await extractResp.json().catch(() => ({}));
-      throw new Error(err.error?.message || `Extraction API error ${extractResp.status}`);
+    let extractData;
+    // 3-tier fallback: Bedrock -> Lambda proxy -> CF Worker
+    if (isBedrockConfigured()) {
+      try { extractData = await callBedrock(extractPayload); } catch (e) { console.error('[legal-train] Bedrock failed:', e.message); }
     }
-
-    const extractData = await extractResp.json();
+    if (!extractData && isLambdaProxyConfigured()) {
+      try { extractData = await callViaLambdaProxy(extractPayload); } catch (e) { console.error('[legal-train] Lambda proxy failed:', e.message); }
+    }
+    if (!extractData) {
+      const extractResp = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(extractPayload)
+      });
+      if (!extractResp.ok) {
+        const err = await extractResp.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Extraction API error ${extractResp.status}`);
+      }
+      extractData = await extractResp.json();
+    }
     const rawText = extractData.content?.[0]?.text || '';
 
     // Parse extracted knowledge
