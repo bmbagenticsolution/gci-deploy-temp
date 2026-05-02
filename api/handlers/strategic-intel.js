@@ -98,7 +98,7 @@ async function callClaude(system, userPrompt, maxTokens, model) {
   }
 
   // Fallback: Vercel proxy
-  const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+  const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
     body: JSON.stringify(payload)
@@ -126,7 +126,7 @@ async function callClaudeStream(system, userPrompt, maxTokens, model) {
   }
 
   // Fallback: streaming via Vercel proxy
-  const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+  const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY, 'Accept': 'text/event-stream' },
     body: JSON.stringify({
@@ -172,7 +172,7 @@ async function callClaudeStream(system, userPrompt, maxTokens, model) {
 
 async function callOpenAI(system, userPrompt) {
   if (!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
-  const _oaBase = 'https://gci-vercel-proxy.vercel.app/openai'.replace(/\/+$/, '');
+  const _oaBase = 'https://gci-anthropic-proxy.gaurav-892.workers.dev/openai'.replace(/\/+$/, '');
   const _oaHeaders = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY };
   if (process.env.PROXY_SHARED_SECRET) _oaHeaders['x-proxy-secret'] = process.env.PROXY_SHARED_SECRET;
   const r = await fetch(_oaBase + '/v1/chat/completions', {
@@ -195,7 +195,7 @@ async function callOpenAI(system, userPrompt) {
 
 async function callGemini(system, userPrompt) {
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY missing');
-  const _gmBase = 'https://gci-vercel-proxy.vercel.app/gemini'.replace(/\/+$/, '');
+  const _gmBase = 'https://gci-anthropic-proxy.gaurav-892.workers.dev/gemini'.replace(/\/+$/, '');
   const url = _gmBase + '/v1beta/models/gemini-2.5-pro:generateContent?key=' + encodeURIComponent(process.env.GEMINI_API_KEY);
   const _gmHeaders = { 'Content-Type': 'application/json' };
   if (process.env.PROXY_SHARED_SECRET) _gmHeaders['x-proxy-secret'] = process.env.PROXY_SHARED_SECRET;

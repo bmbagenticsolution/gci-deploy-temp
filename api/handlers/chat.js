@@ -122,9 +122,14 @@ const ANTHROPIC_HEADERS = {
   'anthropic-version': '2023-06-01'
 };
 
-// Fallback: call Anthropic via Vercel proxy (used when Bedrock is not configured)
+// Fallback: call Anthropic via Cloudflare Worker proxy (bypasses geo-blocks)
+function getProxyBase() {
+  return (process.env.ANTHROPIC_BASE_URL || 'https://gci-anthropic-proxy.gaurav-892.workers.dev').replace(/\/+$/, '');
+}
+
 async function callAnthropicProxy(payload) {
-  const response = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+  const url = getProxyBase() + '/v1/messages';
+  const response = await fetch(url, {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
     body: JSON.stringify(payload)

@@ -32,7 +32,7 @@ async function callClaudeSonnet(system, userPrompt, maxTokens) {
   }
 
   // Fallback: Vercel proxy
-  const r = await fetch('https://gci-vercel-proxy.vercel.app/v1/messages', {
+  const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
