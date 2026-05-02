@@ -243,18 +243,89 @@ async function callGemini(system, userPrompt) {
   return text;
 }
 
+// Async job pattern: SWA functions cannot stream and time out after ~45s.
+// The Lambda proxy takes 60-120s for full reports. Solution:
+// 1. POST /api/strategic-intel -> kick off Lambda async, store jobId in Redis, return immediately
+// 2. GET /api/strategic-intel?jobId=xxx -> poll Redis for result
+const { kvGet, kvSet } = require('../redis-client');
+const crypto = require('crypto');
+
+function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
+
+// Fire-and-forget: run the AI pipeline and store result in Redis
+async function runPipeline(jobId, doctrine, userPrompt) {
+  const start = Date.now();
+  try {
+    await kvSet('gci:si:' + jobId, JSON.stringify({ status: 'processing' }), 600);
+
+    // Skip Bedrock (geo-blocked from East Asia) and go straight to Lambda proxy
+    let report = '';
+    const payload = {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 6000,
+      system: doctrine,
+      messages: [{ role: 'user', content: userPrompt }]
+    };
+
+    if (isLambdaProxyConfigured()) {
+      try {
+        const data = await callViaLambdaProxy(payload);
+        report = (data.content && data.content[0] && data.content[0].text) || '';
+      } catch (e) {
+        console.error('[strategic-intel] Lambda proxy failed:', e.message);
+      }
+    }
+
+    // Fallback to CF Worker if Lambda failed
+    if (!report) {
+      const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
+        method: 'POST',
+        headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
+        body: JSON.stringify(payload)
+      });
+      let data;
+      try { data = await r.json(); } catch (e) {
+        throw new Error('Proxy returned non-JSON (status ' + r.status + ')');
+      }
+      if (!r.ok) throw new Error('Claude ' + r.status + ': ' + ((data && data.error && data.error.message) || 'unknown'));
+      report = (data.content && data.content[0] && data.content[0].text) || '';
+    }
+
+    const result = {
+      status: 'complete',
+      report: stripDashes(report),
+      vidura: '',
+      vibhishana: '',
+      adjuncts_pending: true,
+      version: DOCTRINE_VERSION,
+      meta: {
+        processing_time_ms: Date.now() - start,
+        engines: ['claude-sonnet-4-6'],
+        doctrine_version: DOCTRINE_VERSION
+      }
+    };
+    await kvSet('gci:si:' + jobId, JSON.stringify(result), 600);
+  } catch (err) {
+    const errResult = { status: 'error', error: err.message || String(err) };
+    try { await kvSet('gci:si:' + jobId, JSON.stringify(errResult), 600); } catch(e) {}
+  }
+}
+
 module.exports = async function handler(req, res) {
+  // GET: poll for job result
+  if (req.method === 'GET' && req.query && req.query.jobId) {
+    try {
+      const raw = await kvGet('gci:si:' + req.query.jobId);
+      if (!raw) return res.status(404).json({ error: 'Job not found or expired' });
+      const data = JSON.parse(raw);
+      return res.status(200).json(data);
+    } catch (err) {
+      return res.status(500).json({ error: 'Poll error: ' + err.message });
+    }
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.ANTHROPIC_API_KEY && !isBedrockConfigured()) return res.status(500).json({ error: 'No AI backend configured (need ANTHROPIC_API_KEY or AWS credentials)' });
-
-  const overallStart = Date.now();
-  const stageTimings = {};
-
-  // Check if client accepts SSE (streaming). The SWA gateway kills idle HTTP
-  // connections after ~45s, so we MUST stream keepalive data while Lambda/Bedrock
-  // processes the request (which can take 60-120s for large reports).
-  const useSSE = (req.headers.accept || '').includes('text/event-stream') ||
-                 (req.query && req.query.stream === '1');
 
   try {
     const body = req.body || {};
@@ -272,72 +343,20 @@ module.exports = async function handler(req, res) {
     if (horizon) userPrompt += '\n\nDECISION HORIZON: ' + horizon;
     userPrompt += '\n\nRun the full 5-stage Strategic Intelligence pipeline now. Produce the complete brief using the markdown headings specified in your doctrine. Remember: intelligence, not research. Surface what I cannot see on my own.';
 
-    // Use SSE to keep the SWA gateway alive during long AI generation.
-    // Send keepalive comments every 10s so the gateway does not consider
-    // the connection idle and terminate it.
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
+    // Generate job ID and kick off pipeline (runs in background, survives past response)
+    const jobId = crypto.randomBytes(12).toString('hex');
+    await kvSet('gci:si:' + jobId, JSON.stringify({ status: 'processing' }), 600);
+
+    // Fire and forget: the pipeline runs async, stores result in Redis.
+    // We don't await it -- the SWA function returns immediately.
+    runPipeline(jobId, SI_DOCTRINE, userPrompt).catch(function(e) {
+      console.error('[strategic-intel] Pipeline error:', e.message);
     });
-    if (res.flushHeaders) res.flushHeaders();
 
-    // Send initial status event (event: status format for SSE)
-    res.write('event: status\ndata: ' + JSON.stringify({ message: 'Running strategic intelligence pipeline...' }) + '\n\n');
-
-    // Start keepalive interval (SSE comment every 10 seconds)
-    const keepalive = setInterval(function() {
-      try { res.write(':keepalive\n\n'); } catch(e) {}
-    }, 10000);
-
-    const engineStart = Date.now();
-    let finalReport = '';
-    let error = null;
-
-    try {
-      finalReport = await callClaudeStream(SI_DOCTRINE, userPrompt, 6000, 'claude-sonnet-4-6');
-    } catch (e) {
-      error = e;
-    }
-
-    clearInterval(keepalive);
-    stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
-
-    if (error) {
-      res.write('event: error\ndata: ' + JSON.stringify({ message: 'strategic-intel error: ' + error.message }) + '\n\n');
-      res.end();
-      return;
-    }
-
-    const enginesUsed = ['claude-sonnet-4-6'];
-    function stripDashes(s){ return (s||'').replace(/\u2014/g,', ').replace(/\u2013/g,'-'); }
-
-    // Send the final report as an SSE "final" event (matches frontend parser)
-    const result = {
-      report: stripDashes(finalReport),
-      vidura: '',
-      vibhishana: '',
-      adjuncts_pending: true,
-      version: DOCTRINE_VERSION,
-      meta: {
-        processing_time_ms: Date.now() - overallStart,
-        engines: enginesUsed,
-        doctrine_version: DOCTRINE_VERSION,
-        stage_timings: stageTimings
-      }
-    };
-    res.write('event: final\ndata: ' + JSON.stringify(result) + '\n\n');
-    res.end();
+    // Return job ID immediately (< 1 second)
+    return res.status(202).json({ jobId: jobId, status: 'processing', pollUrl: '/api/strategic-intel?jobId=' + jobId });
 
   } catch (err) {
-    // If headers already sent (SSE mode), send error as event
-    if (res.headersSent) {
-      try {
-        res.write('event: error\ndata: ' + JSON.stringify({ message: err.message }) + '\n\n');
-        res.end();
-      } catch(e) {}
-      return;
-    }
     return res.status(500).json({ error: 'strategic-intel error: ' + (err && err.message ? err.message : String(err)) });
   }
 }

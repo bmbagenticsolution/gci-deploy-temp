@@ -5727,41 +5727,39 @@ async function runStrategicIntel(){
   if(constraints)payload.constraints=constraints;
   if(horizon)payload.horizon=horizon;
 
-  // Call the Azure SWA strategic-intel endpoint (SSE streaming with keepalive).
-  var response=await fetch('/api/strategic-intel',{
+  // Submit job to Azure SWA strategic-intel endpoint (async pattern).
+  // POST returns a jobId immediately; we poll GET until the result is ready.
+  var startResp=await fetch('/api/strategic-intel',{
    method:'POST',
    headers:gciHeaders(),
    body:JSON.stringify(payload)
   });
-  if(!response.ok){
-   var errTxt=await response.text();
-   throw new Error('Strategic Intelligence pipeline failed ('+response.status+'): '+errTxt.slice(0,200));
+  if(!startResp.ok && startResp.status!==202){
+   var errTxt=await startResp.text();
+   throw new Error('Strategic Intelligence pipeline failed ('+startResp.status+'): '+errTxt.slice(0,200));
   }
-  // Parse Server-Sent Events stream; final event carries the structured result
-  var reader=response.body.getReader();
-  var decoder=new TextDecoder();
-  var sseBuf='';
+  var startData=await startResp.json();
+  var jobId=startData.jobId;
+  if(!jobId) throw new Error('Strategic Intelligence: no jobId returned');
+
+  // Poll for result every 3 seconds, timeout after 5 minutes
+  var pollUrl='/api/strategic-intel?jobId='+encodeURIComponent(jobId);
   var data=null;
-  while(true){
-   var chunk=await reader.read();
-   if(chunk.done)break;
-   sseBuf+=decoder.decode(chunk.value,{stream:true});
-   var parts=sseBuf.split(/\n\n/);
-   sseBuf=parts.pop();
-   for(var pi=0;pi<parts.length;pi++){
-    var block=parts[pi];
-    var evMatch=block.match(/^event:\s*(.+)$/m);
-    var dataMatch=block.match(/^data:\s*(.+)$/m);
-    if(!evMatch||!dataMatch)continue;
-    var evName=evMatch[1].trim();
-    var evData;
-    try{evData=JSON.parse(dataMatch[1]);}catch(e){continue;}
-    if(evName==='final'){data=evData;}
-    else if(evName==='error'){throw new Error('Strategic Intelligence error: '+(evData.message||'unknown'));}
-   }
+  var pollStart=Date.now();
+  var maxPollMs=300000; // 5 minutes
+  while(Date.now()-pollStart < maxPollMs){
+   await new Promise(function(r){setTimeout(r,3000);});
+   var pollResp=await fetch(pollUrl,{headers:gciHeaders()});
+   if(!pollResp.ok){continue;}
+   var pollData=await pollResp.json();
+   if(pollData.status==='processing'){continue;}
+   if(pollData.status==='error'){throw new Error('Strategic Intelligence error: '+(pollData.error||'unknown'));}
+   if(pollData.status==='complete'){data=pollData;break;}
+   // Legacy: if no status field but has report, treat as complete
+   if(pollData.report){data=pollData;break;}
   }
   clearInterval(stageTimer);
-  if(!data){throw new Error('Strategic Intelligence pipeline returned no final payload.');}
+  if(!data){throw new Error('Strategic Intelligence pipeline timed out. Please try again.');}
 
   _siRawData=data;
   renderStrategicIntelReport(data);
