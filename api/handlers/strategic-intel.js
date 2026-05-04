@@ -188,7 +188,7 @@ async function callClaude(system, userPrompt, maxTokens, model) {
   const payload = {
     model: model || 'claude-opus-4-6',
     max_tokens: maxTokens || 8000,
-    system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+    system: system,
     messages: [{ role: 'user', content: userPrompt }]
   };
 
