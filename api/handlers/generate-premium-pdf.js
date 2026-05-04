@@ -79,6 +79,33 @@ Rules:
 
 Respond ONLY with valid JSON. No markdown, no explanation, no code blocks.`;
 
+function extractJSON(text) {
+  if (!text) return null;
+  let cleaned = text.trim();
+  // Strip markdown code blocks
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
+  }
+  // Try direct parse
+  try { return JSON.parse(cleaned); } catch (e) {}
+  // Try finding first { to last }
+  var first = cleaned.indexOf('{');
+  var last = cleaned.lastIndexOf('}');
+  if (first >= 0 && last > first) {
+    try { return JSON.parse(cleaned.slice(first, last + 1)); } catch (e) {}
+  }
+  return null;
+}
+
+function truncateReport(text, maxChars) {
+  if (!text || text.length <= maxChars) return text;
+  // Keep the first maxChars characters, try to cut at a section boundary
+  var cut = text.slice(0, maxChars);
+  var lastSection = cut.lastIndexOf('\n##');
+  if (lastSection > maxChars * 0.7) cut = cut.slice(0, lastSection);
+  return cut + '\n\n[Report truncated for formatting. Full content preserved in PDF.]';
+}
+
 async function generatePremiumPdf(req, res) {
   try {
     const { report, vidura, vibhishana, agentLabel } = req.body;
@@ -87,31 +114,24 @@ async function generatePremiumPdf(req, res) {
       return res.status(400).json({ error: 'Missing report parameter' });
     }
 
-    // Build full report text
-    let fullText = report;
+    // Build full report text, truncate if very long to stay within token budget
+    let fullText = truncateReport(report, 24000);
     if (vidura) {
-      fullText += '\n\n---\n\nUNCOMFORTABLE TRUTHS - Questions this analysis cannot afford to ignore:\n\n' + vidura;
+      fullText += '\n\n---\n\nUNCOMFORTABLE TRUTHS - Questions this analysis cannot afford to ignore:\n\n' + truncateReport(vidura, 4000);
     }
     if (vibhishana) {
-      fullText += '\n\n---\n\nCOUNTERPARTY INTELLIGENCE - What the competition is doing that you are not seeing:\n\n' + vibhishana;
+      fullText += '\n\n---\n\nCOUNTERPARTY INTELLIGENCE - What the competition is doing that you are not seeing:\n\n' + truncateReport(vibhishana, 4000);
     }
 
-    const userPrompt = `Format this strategic intelligence report into a premium PDF structure. Report type: ${agentLabel || 'Strategic Intelligence'}\n\n${fullText}`;
+    const userPrompt = 'Format this strategic intelligence report into a premium PDF structure. Report type: ' + (agentLabel || 'Strategic Intelligence') + '\n\n' + fullText;
 
     console.log('[generate-premium-pdf] Generating premium PDF structure (' + fullText.length + ' chars input)');
-    const responseText = await callClaude(PREMIUM_PDF_SYSTEM, userPrompt, 8000);
+    const responseText = await callClaude(PREMIUM_PDF_SYSTEM, userPrompt, 12000);
 
-    let pdfJson;
-    try {
-      // Try to extract JSON if wrapped in code blocks
-      let cleaned = responseText.trim();
-      if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      }
-      pdfJson = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error('[generate-premium-pdf] JSON parse failed:', parseErr.message);
-      return res.status(500).json({ error: 'Failed to parse PDF structure', details: parseErr.message });
+    const pdfJson = extractJSON(responseText);
+    if (!pdfJson) {
+      console.error('[generate-premium-pdf] JSON parse failed. Response starts with:', (responseText || '').slice(0, 200));
+      return res.status(500).json({ error: 'Failed to parse PDF structure' });
     }
 
     if (!pdfJson.sections || !Array.isArray(pdfJson.sections)) {

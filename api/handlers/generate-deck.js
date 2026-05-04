@@ -39,6 +39,29 @@ async function callClaude(system, userPrompt, maxTokens) {
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
 
+function extractJSON(text) {
+  if (!text) return null;
+  let cleaned = text.trim();
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?\s*```\s*$/, '');
+  }
+  try { return JSON.parse(cleaned); } catch (e) {}
+  var first = cleaned.indexOf('{');
+  var last = cleaned.lastIndexOf('}');
+  if (first >= 0 && last > first) {
+    try { return JSON.parse(cleaned.slice(first, last + 1)); } catch (e) {}
+  }
+  return null;
+}
+
+function truncateReport(text, maxChars) {
+  if (!text || text.length <= maxChars) return text;
+  var cut = text.slice(0, maxChars);
+  var lastSection = cut.lastIndexOf('\n##');
+  if (lastSection > maxChars * 0.7) cut = cut.slice(0, lastSection);
+  return cut + '\n\n[Truncated for slide formatting.]';
+}
+
 async function generateDeck(req, res) {
   try {
     const { report, mode = 'full', vidura, vibhishana } = req.body;
@@ -53,11 +76,16 @@ async function generateDeck(req, res) {
       ? 'C-suite executives and board members who need quick, actionable insights'
       : 'detailed audience of investors, analysts, and strategic planners';
 
+    // Truncate to stay within token limits
+    const truncatedReport = truncateReport(report, 20000);
+    const truncatedVidura = vidura ? truncateReport(vidura, 3000) : '';
+    const truncatedVibhishana = vibhishana ? truncateReport(vibhishana, 3000) : '';
+
     let systemPrompt = `You are a strategic intelligence expert creating a professional PowerPoint deck from an intelligence report.
 
 Generate exactly ${slideCount} slides with a professional, data-driven design suitable for ${audienceContext}.
 
-${vidura ? `Vidura insights (competitive intelligence): ${vidura}\n` : ''}${vibhishana ? `Vibhishana intelligence (stakeholder views): ${vibhishana}\n` : ''}
+${truncatedVidura ? 'Vidura insights (competitive intelligence): ' + truncatedVidura + '\n' : ''}${truncatedVibhishana ? 'Vibhishana intelligence (stakeholder views): ' + truncatedVibhishana + '\n' : ''}
 
 Each slide must have:
 - title (required, concise)
@@ -104,17 +132,15 @@ Use varied layouts (content, two-column, table, key-metrics). Provide detailed b
 
 Respond ONLY with valid JSON. No preamble, no markdown, no explanation. JSON must be parseable immediately.`;
 
-    const userPrompt = `Generate the deck based on this strategic intelligence report:\n\n${report}`;
+    const userPrompt = 'Generate the deck based on this strategic intelligence report:\n\n' + truncatedReport;
 
-    console.log(`[generate-deck] Generating ${mode} deck (${slideCount} slides)`);
-    const responseText = await callClaude(systemPrompt, userPrompt, 8000);
+    console.log('[generate-deck] Generating ' + mode + ' deck (' + slideCount + ' slides, ' + truncatedReport.length + ' chars input)');
+    const responseText = await callClaude(systemPrompt, userPrompt, 10000);
 
-    let deckJson;
-    try {
-      deckJson = JSON.parse(responseText);
-    } catch (parseErr) {
-      console.error('[generate-deck] JSON parse failed:', parseErr.message);
-      return res.status(500).json({ error: 'Failed to parse deck JSON', details: parseErr.message });
+    const deckJson = extractJSON(responseText);
+    if (!deckJson) {
+      console.error('[generate-deck] JSON parse failed. Response starts with:', (responseText || '').slice(0, 200));
+      return res.status(500).json({ error: 'Failed to parse deck JSON' });
     }
 
     if (!deckJson.slides || !Array.isArray(deckJson.slides)) {
