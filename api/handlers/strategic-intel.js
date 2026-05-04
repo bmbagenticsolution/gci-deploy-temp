@@ -187,8 +187,8 @@ const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfi
 async function callClaude(system, userPrompt, maxTokens, model) {
   const payload = {
     model: model || 'claude-opus-4-6',
-    max_tokens: maxTokens || 16000,
-    system: system,
+    max_tokens: maxTokens || 8000,
+    system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: userPrompt }]
   };
 
@@ -327,7 +327,7 @@ module.exports = async function handler(req, res) {
     // /api/strategic-intel-adjuncts call from the client so we can return the
     // main report as soon as it is ready and stop holding the gateway open.
     const engineStart = Date.now();
-    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 16000);
+    const finalReport = await callClaude(SI_DOCTRINE, userPrompt, 8000);
     stageTimings.engine_pass = { duration_ms: Date.now() - engineStart };
 
     const enginesUsed = ['claude-opus-4-6'];
