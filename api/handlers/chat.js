@@ -191,6 +191,7 @@ module.exports = async function handler(req, res) {
   try {
     const body = req.body || {};
     const mode = body.mode || '';
+    console.log('[chat] mode:', mode, 'model:', body.model, 'system_len:', (body.system||'').length, 'msgs:', (body.messages||[]).length);
 
     // Strategy agent modes: inject doctrine as system prompt and build clean payload
     if (STRATEGY_MODES.has(mode)) {
@@ -253,6 +254,7 @@ module.exports = async function handler(req, res) {
     res.status(result.ok ? 200 : result.status).json(result.data);
 
   } catch (error) {
+    console.error('[chat] CAUGHT ERROR:', error.message, 'stack:', (error.stack||'').slice(0,300));
     res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 }

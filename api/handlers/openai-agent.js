@@ -139,6 +139,7 @@ module.exports = async function handler(req, res) {
       usage: data.usage || null
     });
   } catch (err) {
+    console.error('[openai-agent] CAUGHT ERROR:', err && err.message, 'stack:', (err && err.stack || '').slice(0,300));
     return res.status(500).json({ error: 'openai-agent error: ' + (err && err.message ? err.message : String(err)) });
   }
 }

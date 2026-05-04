@@ -66,6 +66,7 @@ module.exports = async function handler(req, res) {
       usage: data.usageMetadata || null
     });
   } catch (err) {
+    console.error('[gemini-agent] CAUGHT ERROR:', err && err.message, 'stack:', (err && err.stack || '').slice(0,300));
     return res.status(500).json({ error: 'gemini-agent error: ' + (err && err.message ? err.message : String(err)) });
   }
 }
