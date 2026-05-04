@@ -189,7 +189,12 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const body = req.body;
+    let body;
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+    } catch (parseErr) {
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
     const mode = body.mode || '';
 
     // Strategy agent modes: inject doctrine as system prompt and build clean payload
