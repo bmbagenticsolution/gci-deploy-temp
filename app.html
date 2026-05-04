@@ -5859,8 +5859,15 @@ function renderStrategicIntelReport(data){
 
 function downloadSiPdf(){
  if(!_siRawData)return;
- // Reuse existing PDF generation with the report text
- _srmRawText=_siRawData.report||'';
+ // Build full report text including Vidura and Vibhishana sections
+ var fullText=_siRawData.report||'';
+ if(_siRawData.vidura){
+  fullText+='\n\n---\n\n## Uncomfortable Truths\n### Questions this analysis cannot afford to ignore\n\n'+_siRawData.vidura;
+ }
+ if(_siRawData.vibhishana){
+  fullText+='\n\n---\n\n## Counterparty Intelligence\n### What the competition is doing that you are not seeing\n\n'+_siRawData.vibhishana;
+ }
+ _srmRawText=fullText;
  _srmAgentLabel='Strategic Intelligence';
  if(typeof downloadStratPDF==='function')downloadStratPDF();
  else showToast('PDF generation loading...','#0B1D35');
@@ -5882,11 +5889,19 @@ function saveSiManually(){
 
 function downloadSiWord(){
  if(!_siRawData||!_siRawData.report){showToast('No report to download','#b91c1c');return;}
- _srmRawText=_siRawData.report||'';
+ // Build full report text including Vidura and Vibhishana sections
+ var fullText=_siRawData.report||'';
+ if(_siRawData.vidura){
+  fullText+='\n\n---\n\n## Uncomfortable Truths\n### Questions this analysis cannot afford to ignore\n\n'+_siRawData.vidura;
+ }
+ if(_siRawData.vibhishana){
+  fullText+='\n\n---\n\n## Counterparty Intelligence\n### What the competition is doing that you are not seeing\n\n'+_siRawData.vibhishana;
+ }
+ _srmRawText=fullText;
  _srmAgentLabel='Strategic Intelligence';
  if(typeof downloadStratWord==='function'){downloadStratWord();return;}
  // Fallback: simple .doc via Blob
- var html='<html><head><meta charset="utf-8"><title>Strategic Intelligence</title></head><body>'+mdToHtml(_siRawData.report||'')+'</body></html>';
+ var html='<html><head><meta charset="utf-8"><title>Strategic Intelligence</title></head><body>'+mdToHtml(fullText)+'</body></html>';
  var blob=new Blob(['\ufeff',html],{type:'application/msword'});
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Strategic_Intelligence_'+Date.now()+'.doc';document.body.appendChild(a);a.click();document.body.removeChild(a);
  showToast('Word document downloaded','#0B1D35');
