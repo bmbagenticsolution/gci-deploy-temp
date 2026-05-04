@@ -97,7 +97,7 @@ module.exports = async function handler(req, res) {
     has_AZURE_OPENAI_KEY: Boolean(process.env.AZURE_OPENAI_KEY || process.env.AZURE_OPENAI_API_KEY),
     AZURE_OPENAI_CHAT_DEPLOYMENT: process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || '(unset)',
     node_version: process.version,
-    build_marker: 'v16-vercel-proxy-max-quality'
+    build_marker: 'v17-direct-anthropic-api'
   };
   res.status(200).json(info);
 };

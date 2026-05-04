@@ -212,7 +212,30 @@ async function callClaude(system, userPrompt, maxTokens, model) {
     }
   }
 
-  // 3. Last resort: Cloudflare Worker proxy
+  // 3. Direct Anthropic API (works from Vercel in US, no geo-block)
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const directR = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'x-api-key': process.env.ANTHROPIC_API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      let directData;
+      try { directData = await directR.json(); } catch (e) {
+        throw new Error('Anthropic API returned non-JSON (status ' + directR.status + ')');
+      }
+      if (!directR.ok) throw new Error('Claude ' + directR.status + ': ' + ((directData && directData.error && directData.error.message) || 'unknown'));
+      return (directData.content && directData.content[0] && directData.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Direct Anthropic API failed, trying CF Worker:', e.message);
+    }
+  }
+
+  // 4. Last resort: Cloudflare Worker proxy
   const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: {

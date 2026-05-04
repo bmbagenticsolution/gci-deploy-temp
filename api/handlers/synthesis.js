@@ -30,6 +30,22 @@ async function callClaude(payload) {
   if (isLambdaProxyConfigured()) {
     try { return await callViaLambdaProxy(payload); } catch (e) { console.error('[synthesis] Lambda proxy failed:', e.message); }
   }
+  // Direct Anthropic API (works from Vercel in US, no geo-block)
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const directR = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
+        body: JSON.stringify(payload)
+      });
+      const directData = await directR.json();
+      if (!directR.ok) throw new Error((directData && directData.error && directData.error.message) || 'Anthropic ' + directR.status);
+      return directData;
+    } catch (e) {
+      console.error('[synthesis] Direct Anthropic API failed, trying CF Worker:', e.message);
+    }
+  }
+  // Last resort: CF Worker proxy
   const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
     headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },

@@ -164,7 +164,24 @@ async function callClaude(payload) {
       console.error('[chat] Lambda proxy failed, trying CF Worker:', e.message);
     }
   }
-  // 3. Last resort: Cloudflare Worker proxy (may also be geo-blocked)
+  // 3. Direct Anthropic API (works from Vercel in US, no geo-block)
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const directResp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
+        body: JSON.stringify(payload)
+      });
+      let directData;
+      try { directData = await directResp.json(); } catch (e) {
+        console.error('[chat] Direct Anthropic API returned non-JSON');
+      }
+      if (directData) return { data: directData, status: directResp.status, ok: directResp.ok };
+    } catch (e) {
+      console.error('[chat] Direct Anthropic API failed, trying CF Worker:', e.message);
+    }
+  }
+  // 4. Last resort: Cloudflare Worker proxy
   return callAnthropicProxy(payload);
 }
 
