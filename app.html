@@ -5753,39 +5753,24 @@ async function runStrategicIntel(){
   if(constraints)payload.constraints=constraints;
   if(horizon)payload.horizon=horizon;
 
-  // Submit job to Azure SWA strategic-intel endpoint (async pattern).
-  // POST returns a jobId immediately; we poll GET until the result is ready.
-  var startResp=await fetch('/api/strategic-intel',{
-   method:'POST',
-   headers:gciHeaders(),
-   body:JSON.stringify(payload)
-  });
-  if(!startResp.ok && startResp.status!==202){
+  // Route through Vercel proxy (Bedrock works from US, fails from Azure SWA geo).
+  // Direct call, no async polling needed - Vercel has 300s function timeout.
+  var siHeaders=Object.assign({'Content-Type':'application/json'},gciHeaders());
+  var siUrl=VERCEL_PROXY+'/api/strategic-intel';
+  var startResp;
+  try {
+   startResp=await fetch(siUrl,{method:'POST',headers:siHeaders,body:JSON.stringify(payload)});
+  } catch(e) {
+   // Fallback to Azure SWA if Vercel unreachable
+   startResp=await fetch('/api/strategic-intel',{method:'POST',headers:gciHeaders(),body:JSON.stringify(payload)});
+  }
+  if(!startResp.ok){
    var errTxt=await startResp.text();
    throw new Error('Strategic Intelligence pipeline failed ('+startResp.status+'): '+errTxt.slice(0,200));
   }
-  var startData=await startResp.json();
-  var jobId=startData.jobId;
-  if(!jobId) throw new Error('Strategic Intelligence: no jobId returned');
-
-  // Poll for result every 3 seconds, timeout after 5 minutes
-  var pollUrl='/api/strategic-intel?jobId='+encodeURIComponent(jobId);
-  var data=null;
-  var pollStart=Date.now();
-  var maxPollMs=300000; // 5 minutes
-  while(Date.now()-pollStart < maxPollMs){
-   await new Promise(function(r){setTimeout(r,3000);});
-   var pollResp=await fetch(pollUrl,{headers:gciHeaders()});
-   if(!pollResp.ok){continue;}
-   var pollData=await pollResp.json();
-   if(pollData.status==='processing'){continue;}
-   if(pollData.status==='error'){throw new Error('Strategic Intelligence error: '+(pollData.error||'unknown'));}
-   if(pollData.status==='complete'){data=pollData;break;}
-   // Legacy: if no status field but has report, treat as complete
-   if(pollData.report){data=pollData;break;}
-  }
+  var data=await startResp.json();
   clearInterval(stageTimer);
-  if(!data){throw new Error('Strategic Intelligence pipeline timed out. Please try again.');}
+  if(!data||!data.report){throw new Error('Strategic Intelligence: no report returned');}
 
   _siRawData=data;
   renderStrategicIntelReport(data);
@@ -5806,7 +5791,7 @@ async function runStrategicIntel(){
 
   // Lazy-load Vidura + Vibhishana adjuncts in the background
   if(data.adjuncts_pending&&data.report){
-   fetch('/api/strategic-intel-adjuncts',{method:'POST',headers:gciHeaders(),body:JSON.stringify({clientBrief:question,finalReport:data.report})})
+   fetch(VERCEL_PROXY+'/api/strategic-intel-adjuncts',{method:'POST',headers:siHeaders,body:JSON.stringify({clientBrief:question,finalReport:data.report})})
     .then(function(r){return r.json();})
     .then(function(adj){
      if(!adj||adj.error)return;
