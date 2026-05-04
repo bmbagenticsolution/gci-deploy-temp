@@ -182,23 +182,50 @@ Rules:
 - Minimum 5 entries, maximum 8.
 - Focus on moves that are happening now or have been announced in the last 12 months. Historical context is allowed only to explain a current move.`;
 
-const ANTHROPIC_HEADERS = {
-  'Content-Type': 'application/json',
-  'anthropic-version': '2023-06-01'
-};
+const { callBedrock, isBedrockConfigured, callViaLambdaProxy, isLambdaProxyConfigured } = require('../lib/bedrock');
 
 async function callClaude(system, userPrompt, maxTokens, model) {
-  const r = await fetch((process.env.ANTHROPIC_BASE_URL||'https://gci-anthropic-proxy.gaurav-892.workers.dev')+'/v1/messages', {
+  const payload = {
+    model: model || 'claude-opus-4-6',
+    max_tokens: maxTokens || 16000,
+    system: system,
+    messages: [{ role: 'user', content: userPrompt }]
+  };
+
+  // 1. Try Bedrock (direct AWS, fastest)
+  if (isBedrockConfigured()) {
+    try {
+      const data = await callBedrock(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Bedrock failed, trying Lambda proxy:', e.message);
+    }
+  }
+
+  // 2. Try Lambda proxy in us-east-1
+  if (isLambdaProxyConfigured()) {
+    try {
+      const data = await callViaLambdaProxy(payload);
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    } catch (e) {
+      console.error('[strategic-intel] Lambda proxy failed, trying CF Worker:', e.message);
+    }
+  }
+
+  // 3. Last resort: Cloudflare Worker proxy
+  const r = await fetch('https://gci-anthropic-proxy.gaurav-892.workers.dev/v1/messages', {
     method: 'POST',
-    headers: { ...ANTHROPIC_HEADERS, 'x-api-key': process.env.ANTHROPIC_API_KEY },
-    body: JSON.stringify({
-      model: model || 'claude-opus-4-6',
-      max_tokens: maxTokens || 12000,
-      system: system,
-      messages: [{ role: 'user', content: userPrompt }]
-    })
+    headers: {
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01',
+      'x-api-key': process.env.ANTHROPIC_API_KEY
+    },
+    body: JSON.stringify(payload)
   });
-  const data = await r.json();
+  let data;
+  try { data = await r.json(); } catch (e) {
+    throw new Error('Proxy returned non-JSON (status ' + r.status + ')');
+  }
   if (!r.ok) throw new Error('Claude ' + r.status + ': ' + ((data && data.error && data.error.message) || 'unknown'));
   return (data.content && data.content[0] && data.content[0].text) || '';
 }
