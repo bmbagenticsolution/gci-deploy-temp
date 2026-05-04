@@ -5,12 +5,7 @@
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   try {
-    let body;
-    try {
-      body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    } catch (parseErr) {
-      return res.status(400).json({ error: 'Invalid JSON body' });
-    }
+    const body = req.body || {};
     const system = typeof body.system === 'string' ? body.system : '';
     const max_tokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? Math.min(body.max_tokens, 65536) : 16000;
     const messages = Array.isArray(body.messages) ? body.messages : [];

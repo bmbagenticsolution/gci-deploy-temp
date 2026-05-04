@@ -5794,15 +5794,37 @@ async function runStrategicIntel(){
 
   // Lazy-load Vidura + Vibhishana adjuncts in the background
   if(data.adjuncts_pending&&data.report){
-   fetch(VERCEL_PROXY+'/api/strategic-intel-adjuncts',{method:'POST',headers:siHeaders,body:JSON.stringify({clientBrief:question,finalReport:data.report})})
-    .then(function(r){return r.json();})
+   // Show loading indicator for adjuncts
+   var adjLoadDiv=document.createElement('div');
+   adjLoadDiv.id='si-adjuncts-loading';
+   adjLoadDiv.style.cssText='margin-top:20px;padding:16px;background:rgba(147,51,234,0.04);border:1px solid rgba(147,51,234,0.15);border-radius:10px;text-align:center';
+   adjLoadDiv.innerHTML='<div style="font-size:12px;color:#9333ea;font-weight:600">Loading Vidura & Vibhishana intelligence layers...</div><div style="font-size:11px;color:rgba(147,51,234,0.6);margin-top:4px">Two parallel AI analyses running (30 to 90 seconds)</div>';
+   var siOutput=document.getElementById('si-output');
+   if(siOutput)siOutput.appendChild(adjLoadDiv);
+
+   var adjCtrl=new AbortController();
+   var adjTimeout=setTimeout(function(){adjCtrl.abort();},240000);
+   fetch(VERCEL_PROXY+'/api/strategic-intel-adjuncts',{method:'POST',headers:siHeaders,signal:adjCtrl.signal,body:JSON.stringify({clientBrief:question,finalReport:data.report})})
+    .then(function(r){
+     clearTimeout(adjTimeout);
+     if(!r.ok)throw new Error('Adjuncts HTTP '+r.status);
+     return r.json();
+    })
     .then(function(adj){
-     if(!adj||adj.error)return;
+     var loadEl=document.getElementById('si-adjuncts-loading');
+     if(loadEl)loadEl.remove();
+     if(!adj||adj.error){console.error('[GCI] Adjuncts error:',adj&&adj.error);return;}
      _siRawData.vidura=adj.vidura||'';
      _siRawData.vibhishana=adj.vibhishana||'';
-     try{renderStrategicIntelReport(_siRawData);}catch(e){}
+     console.log('[GCI] Adjuncts loaded, vidura:',(_siRawData.vidura||'').length+'chars, vibhishana:',(_siRawData.vibhishana||'').length+'chars');
+     try{renderStrategicIntelReport(_siRawData);}catch(e){console.error('[GCI] Adjuncts render error:',e);}
     })
-    .catch(function(){});
+    .catch(function(e){
+     clearTimeout(adjTimeout);
+     var loadEl=document.getElementById('si-adjuncts-loading');
+     if(loadEl)loadEl.innerHTML='<div style="font-size:12px;color:#b91c1c">Vidura & Vibhishana could not be loaded: '+(e.message||'timeout')+'</div><div style="font-size:11px;color:rgba(185,28,28,0.6);margin-top:4px">The main report is complete. Try regenerating for these sections.</div>';
+     console.error('[GCI] Adjuncts fetch failed:',e);
+    });
   }
 
  }catch(err){
