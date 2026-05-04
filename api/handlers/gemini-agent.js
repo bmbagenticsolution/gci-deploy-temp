@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
   try {
     const body = req.body || {};
     const system = typeof body.system === 'string' ? body.system : '';
-    const max_tokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? Math.min(body.max_tokens, 16000) : 4096;
+    const max_tokens = typeof body.max_tokens === 'number' && body.max_tokens > 0 ? Math.min(body.max_tokens, 65536) : 16000;
     const messages = Array.isArray(body.messages) ? body.messages : [];
 
     if (messages.length === 0) return res.status(400).json({ error: 'No messages provided' });

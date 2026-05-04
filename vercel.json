@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "api/handlers/*.js": {
+      "maxDuration": 300
+    },
+    "api/handlers/**/*.js": {
+      "maxDuration": 300
+    }
+  },
+  "rewrites": [
+    { "source": "/api/handlers/:path*", "destination": "/api/handlers/:path*" },
+    { "source": "/api/:path*", "destination": "/api/handlers/:path*" }
+  ]
+}

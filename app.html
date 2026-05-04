@@ -2301,17 +2301,32 @@ function toggleLang(){
 /* ============================================================ */
 
 const API='/api/chat';
-// Engine call: routes through Azure SWA API (Bedrock/Lambda fallback).
-// Handles both SSE (text/event-stream) and plain JSON responses.
+// Engine call: routes through Vercel proxy to bypass Azure SWA timeout.
+// Vercel proxy handles Bedrock/Lambda fallback for Claude, plus OpenAI and Gemini.
+// Auth: sends Authorization bearer token (GCI session) which middleware accepts.
+const VERCEL_PROXY='https://gci-vercel-proxy.vercel.app';
 async function streamVercelSSE(path, body, onDelta){
  const ctrl = new AbortController();
- const timer = setTimeout(function(){ ctrl.abort(); }, 295000);
- const resp = await fetch('/api' + path, {
-  method:'POST',
-  headers: Object.assign({'content-type':'application/json'}, gciHeaders()),
-  body: JSON.stringify(body||{}),
-  signal: ctrl.signal
- });
+ const timer = setTimeout(function(){ ctrl.abort(); }, 600000);
+ var hdrs = Object.assign({'content-type':'application/json'}, gciHeaders());
+ var url = VERCEL_PROXY + '/api' + path;
+ var resp;
+ try {
+  resp = await fetch(url, {
+   method:'POST',
+   headers: hdrs,
+   body: JSON.stringify(body||{}),
+   signal: ctrl.signal
+  });
+ } catch(proxyErr) {
+  // Fallback to Azure SWA if Vercel proxy unreachable
+  resp = await fetch('/api' + path, {
+   method:'POST',
+   headers: hdrs,
+   body: JSON.stringify(body||{}),
+   signal: ctrl.signal
+  });
+ }
  if(!resp.ok){ clearTimeout(timer); const t = await resp.text().catch(function(){return '';}); throw new Error(path+' '+resp.status+': '+t.slice(0,200)); }
  const ct = (resp.headers.get('content-type')||'').toLowerCase();
  // Plain JSON response (Azure SWA handlers)
@@ -3474,14 +3489,14 @@ Data currency note: All figures reflect intelligence current as of April 2026. V
   
   // Fire all 3 engines + VIDURA in parallel
   const [claudeResult, openaiResult, geminiResult, viduraResult] = await Promise.allSettled([
-   // Engine 1: Claude Opus 4.7 (Lead Engine) - Vercel SSE, 300s budget
-   streamVercelSSE('/chat', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
+   // Engine 1: Claude Opus 4.6 (Lead Engine) via Vercel proxy, max quality
+   streamVercelSSE('/chat', {model:'claude-opus-4-6', system:sys, max_tokens:32000, messages:[{role:'user',content:userPrompt}]}),
 
-   // Engine 2: GPT-4.1 (Cross-check Engine) - Vercel SSE
-   streamVercelSSE('/openai-agent', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
+   // Engine 2: GPT-4.1 (Cross-check Engine) via Vercel proxy, max quality
+   streamVercelSSE('/openai-agent', {system:sys, max_tokens:16000, messages:[{role:'user',content:userPrompt}]}),
 
-   // Engine 3: Gemini 2.5 Pro (Validator Engine) - Vercel SSE
-   streamVercelSSE('/gemini-agent', {system:sys, max_tokens:8000, messages:[{role:'user',content:userPrompt}]}),
+   // Engine 3: Gemini 2.5 Pro (Validator Engine) via Vercel proxy, max quality
+   streamVercelSSE('/gemini-agent', {system:sys, max_tokens:16000, messages:[{role:'user',content:userPrompt}]}),
 
    // VIDURA Legal Agent
    fetch('/api/legal-agent', {
