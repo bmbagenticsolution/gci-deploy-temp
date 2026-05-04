@@ -97,7 +97,7 @@ module.exports = async function handler(req, res) {
     has_AZURE_OPENAI_KEY: Boolean(process.env.AZURE_OPENAI_KEY || process.env.AZURE_OPENAI_API_KEY),
     AZURE_OPENAI_CHAT_DEPLOYMENT: process.env.AZURE_OPENAI_CHAT_DEPLOYMENT || '(unset)',
     node_version: process.version,
-    build_marker: 'v20-pdf-word-full-report'
+    build_marker: 'v21-premium-pdf-deck-gen'
   };
   res.status(200).json(info);
 };

@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS@3.12.0/dist/pptxgen.bundle.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -1587,8 +1588,11 @@ html[dir="rtl"] .tog-g{direction:rtl}
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
        <button id="si-save-btn" onclick="saveSiManually()" style="background:#0A5C3E;color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" type="button">Save to History</button>
-       <button onclick="downloadSiPdf()" style="background:var(--gold2);color:var(--navy);border:none;border-radius:9px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" type="button">Download PDF</button>
-       <button onclick="downloadSiWord()" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:9px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" type="button">Download Word</button>
+       <button onclick="downloadSiPdf()" style="background:var(--gold2);color:var(--navy);border:none;border-radius:9px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" type="button">PDF</button>
+       <button onclick="downloadSiWord()" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:9px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" type="button">Word</button>
+       <button onclick="generatePremiumPdf()" id="si-premium-pdf-btn" style="background:linear-gradient(135deg,#C8A84B,#a8883b);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" type="button">Premium PDF</button>
+       <button onclick="generateSiDeck('full')" id="si-full-deck-btn" style="background:rgba(124,58,237,0.85);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap" type="button">Full Deck</button>
+       <button onclick="generateSiDeck('executive')" id="si-exec-deck-btn" style="background:rgba(124,58,237,0.6);color:#fff;border:1px solid rgba(124,58,237,0.4);border-radius:9px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" type="button">Exec Summary</button>
        <button onclick="closeStrategicIntel()" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:9px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" type="button">Close</button>
       </div>
      </div>
@@ -5905,6 +5909,420 @@ function downloadSiWord(){
  var blob=new Blob(['\ufeff',html],{type:'application/msword'});
  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Strategic_Intelligence_'+Date.now()+'.doc';document.body.appendChild(a);a.click();document.body.removeChild(a);
  showToast('Word document downloaded','#0B1D35');
+}
+
+// ========== PREMIUM PDF GENERATION (AI-powered formatting) ==========
+function generatePremiumPdf(){
+ if(!_siRawData||!_siRawData.report){showToast('No report to format','#b91c1c');return;}
+ var btn=document.getElementById('si-premium-pdf-btn');
+ if(btn){btn.disabled=true;btn.textContent='Generating...';}
+ showToast('AI is formatting your premium PDF...','#0B1D35');
+ var token=localStorage.getItem('gci_token')||'';
+ fetch(VERCEL_PROXY+'/api/generate-premium-pdf',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+  body:JSON.stringify({
+   report:_siRawData.report||'',
+   vidura:_siRawData.vidura||'',
+   vibhishana:_siRawData.vibhishana||'',
+   agentLabel:'Strategic Intelligence'
+  })
+ }).then(function(r){return r.json();}).then(function(data){
+  if(data.error){showToast('PDF generation failed: '+data.error,'#b91c1c');return;}
+  renderPremiumPdf(data);
+ }).catch(function(e){
+  showToast('PDF generation error: '+e.message,'#b91c1c');
+ }).finally(function(){
+  if(btn){btn.disabled=false;btn.textContent='Premium PDF';}
+ });
+}
+
+function renderPremiumPdf(pdfData){
+ var jsPDFLib=null;
+ if(typeof window.jspdf!=='undefined'&&window.jspdf.jsPDF)jsPDFLib=window.jspdf.jsPDF;
+ else if(typeof jsPDF!=='undefined')jsPDFLib=jsPDF;
+ if(!jsPDFLib){showToast('PDF library loading, please retry','#b91c1c');return;}
+
+ var doc=new jsPDFLib({orientation:'portrait',unit:'mm',format:'a4'});
+ var pw=210,ph=297,mg=18,maxW=pw-mg*2;
+ var HDR=10,TOP=HDR+10,BOT=20,pageNum=1;
+ var reportId=pdfData.reportId||('GCI-'+Date.now().toString(36).toUpperCase().slice(-6));
+ var reportDate=pdfData.date||new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+ function hexRgb(h){h=(h||'#0B1D35').replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+ var colorMap={navy:'#0B1D35',gold:'#C8A84B',green:'#0A5C3E',red:'#B91C1C',purple:'#7C3AED'};
+
+ function drawChrome(){
+  doc.setFillColor(11,29,53);doc.rect(0,0,pw,HDR,'F');
+  doc.setFillColor(200,168,75);doc.rect(0,HDR,pw,0.6,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(200,168,75);
+  doc.text('GULF CAPITAL INTELLIGENCE',mg,7);
+  doc.setFont('helvetica','normal');doc.setTextColor(180,180,180);
+  doc.text('Strategic Intelligence Report',pw/2,7,{align:'center'});
+  doc.setTextColor(140,140,140);doc.setFontSize(6);
+  doc.text(reportId,pw-mg,7,{align:'right'});
+  // Footer
+  doc.setFillColor(200,168,75);doc.rect(mg,ph-BOT+4,maxW,0.3,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(140,140,140);
+  doc.text('Gulf Capital Intelligence | DIFC, Dubai | Confidential',mg,ph-8);
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(11,29,53);
+  doc.text('Page '+String(pageNum),pw-mg,ph-8,{align:'right'});
+ }
+
+ // ---- COVER PAGE ----
+ doc.setFillColor(11,29,53);doc.rect(0,0,pw,ph,'F');
+ doc.setFillColor(200,168,75);doc.rect(0,0,pw,2.5,'F');
+ // Logo circle
+ doc.setFillColor(200,168,75);doc.circle(pw/2,55,16,'F');
+ doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(11,29,53);
+ doc.text('GCI',pw/2,60,{align:'center'});
+ // Brand
+ doc.setTextColor(200,168,75);doc.setFont('helvetica','bold');doc.setFontSize(30);
+ doc.text('Gulf Capital',pw/2,92,{align:'center'});
+ doc.text('Intelligence',pw/2,108,{align:'center'});
+ // Gold divider
+ doc.setFillColor(200,168,75);doc.rect(pw/2-35,116,70,0.6,'F');
+ // Title
+ doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(16);
+ var titleLines=doc.splitTextToSize(pdfData.title||'Strategic Intelligence Report',maxW-20);
+ doc.text(titleLines,pw/2,132,{align:'center'});
+ // Subtitle
+ if(pdfData.subtitle){
+  doc.setFontSize(11);doc.setTextColor(200,200,200);
+  doc.text(pdfData.subtitle,pw/2,132+titleLines.length*9+4,{align:'center'});
+ }
+ // Date
+ doc.setFontSize(11);doc.setTextColor(200,168,75);
+ doc.text(reportDate,pw/2,165,{align:'center'});
+ // Metadata bar
+ doc.setFillColor(200,168,75);doc.rect(0,ph-50,pw,0.5,'F');
+ doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(130,130,130);
+ doc.text('DATE',mg+2,ph-38);doc.text('REPORT ID',mg+70,ph-38);doc.text('CLASSIFICATION',mg+130,ph-38);
+ doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(200,168,75);
+ doc.text(reportDate,mg+2,ph-30);doc.text(reportId,mg+70,ph-30);doc.text('CONFIDENTIAL',mg+130,ph-30);
+ // Bottom bar
+ doc.setFillColor(200,168,75);doc.rect(0,ph-18,pw,18,'F');
+ doc.setTextColor(11,29,53);doc.setFont('helvetica','normal');doc.setFontSize(8);
+ doc.text('Gulf Capital Intelligence | DIFC, Dubai | gulfcapitalintelligence.com',pw/2,ph-9,{align:'center'});
+ doc.setFontSize(6.5);
+ doc.text('GCI Conviction Engine output. Not regulated investment advice.',pw/2,ph-4,{align:'center'});
+
+ // ---- CONTENT PAGES ----
+ doc.addPage();pageNum=2;drawChrome();
+ var y=TOP+4;
+
+ function resetFont(){doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(55,65,81);}
+ function checkPage(extra){
+  if(y+(extra||14)>ph-BOT){pageNum++;doc.addPage();drawChrome();y=TOP+4;resetFont();}
+ }
+
+ var sections=pdfData.sections||[];
+ for(var si=0;si<sections.length;si++){
+  var sec=sections[si];
+  var baseColor=colorMap[sec.color]||'#0B1D35';
+  var rgb=hexRgb(baseColor);
+
+  // Section heading
+  if(sec.heading){
+   checkPage(24);y+=4;
+   doc.setFillColor(rgb[0],rgb[1],rgb[2]);doc.rect(mg,y-5,3.5,16,'F');
+   doc.setFillColor(248,247,244);doc.rect(mg+3.5,y-5,maxW-3.5,16,'F');
+   doc.setFont('helvetica','bold');doc.setFontSize(11);
+   doc.setTextColor(rgb[0],rgb[1],rgb[2]);
+   doc.text(sec.heading.toUpperCase(),mg+9,y+5);
+   y+=18;
+   doc.setDrawColor(rgb[0],rgb[1],rgb[2]);doc.setLineWidth(0.2);
+   doc.line(mg,y,pw-mg,y);y+=6;
+   if(sec.subheading){
+    doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(120,120,120);
+    doc.text(sec.subheading,mg,y);y+=6;
+   }
+  }
+
+  resetFont();
+
+  // Prose type
+  if(sec.type==='prose'&&sec.content){
+   var lines=sec.content.split('\n');
+   for(var li=0;li<lines.length;li++){
+    var txt=lines[li].trim();
+    if(!txt)continue;
+    txt=txt.replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
+    checkPage(8);
+    var wr=doc.splitTextToSize(txt,maxW);
+    doc.text(wr,mg,y);y+=wr.length*5.5+2;
+   }
+   y+=3;
+  }
+
+  // Bullets type
+  if(sec.type==='bullets'&&sec.bullets){
+   for(var bi=0;bi<sec.bullets.length;bi++){
+    var bt=sec.bullets[bi].replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
+    checkPage(8);
+    doc.setFillColor(200,168,75);doc.circle(mg+3,y-0.8,0.9,'F');
+    var wr=doc.splitTextToSize(bt,maxW-8);
+    doc.text(wr,mg+7,y);y+=wr.length*5.5+2.5;
+   }
+   y+=3;
+  }
+
+  // Table type
+  if(sec.type==='table'&&sec.table&&typeof doc.autoTable==='function'){
+   checkPage(30);
+   var prevPg=pageNum;
+   doc.autoTable({
+    startY:y,head:[sec.table.headers||[]],body:sec.table.rows||[],
+    theme:'grid',
+    headStyles:{fillColor:[11,29,53],textColor:[255,255,255],fontSize:7.5,fontStyle:'bold',cellPadding:{top:5,bottom:5,left:4,right:4}},
+    bodyStyles:{fontSize:8,textColor:[55,65,81],cellPadding:{top:4,bottom:4,left:4,right:4},lineColor:[230,228,220],lineWidth:0.15,valign:'top'},
+    alternateRowStyles:{fillColor:[249,248,246]},
+    columnStyles:{0:{fontStyle:'bold',textColor:[11,29,53]}},
+    margin:{left:mg,right:mg},tableWidth:maxW,
+    didDrawPage:function(){pageNum++;drawChrome();}
+   });
+   if(doc.lastAutoTable)y=doc.lastAutoTable.finalY+8;
+   resetFont();
+  }
+
+  // Metrics type
+  if(sec.type==='metrics'&&sec.metrics){
+   checkPage(28);
+   var mw=(maxW-6)/Math.min(sec.metrics.length,4);
+   for(var mi=0;mi<sec.metrics.length;mi++){
+    var m=sec.metrics[mi];
+    var mx=mg+(mi%4)*(mw+2);
+    if(mi>0&&mi%4===0){y+=28;checkPage(28);}
+    var mColor=m.trend==='up'?'#0A5C3E':m.trend==='down'?'#B91C1C':'#14387a';
+    var mRgb=hexRgb(mColor);
+    doc.setFillColor(248,247,244);doc.roundedRect(mx,y,mw,24,2,2,'F');
+    doc.setFillColor(mRgb[0],mRgb[1],mRgb[2]);doc.rect(mx,y,2.5,24,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(120,120,120);
+    doc.text((m.label||'').toUpperCase(),mx+6,y+8);
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(mRgb[0],mRgb[1],mRgb[2]);
+    doc.text(m.value||'',mx+6,y+18);
+   }
+   y+=30;
+  }
+
+  // Callout type
+  if(sec.type==='callout'&&sec.callout){
+   var cType=sec.callout.type||'insight';
+   var cColor=cType==='warning'?'#B91C1C':cType==='opportunity'?'#0A5C3E':'#14387a';
+   var cRgb=hexRgb(cColor);
+   checkPage(16);
+   doc.setFillColor(cRgb[0]+(255-cRgb[0])*0.92,cRgb[1]+(255-cRgb[1])*0.92,cRgb[2]+(255-cRgb[2])*0.92);
+   doc.roundedRect(mg,y-2,maxW,16,2,2,'F');
+   doc.setFillColor(cRgb[0],cRgb[1],cRgb[2]);doc.rect(mg,y-2,3,16,'F');
+   doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(cRgb[0],cRgb[1],cRgb[2]);
+   doc.text(cType.toUpperCase(),mg+6,y+3);
+   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(55,65,81);
+   var cWr=doc.splitTextToSize(sec.callout.text||'',maxW-12);
+   doc.text(cWr,mg+6,y+9);
+   y+=Math.max(16,cWr.length*5+10)+4;
+  }
+
+  // Verdict type
+  if(sec.type==='verdict'&&sec.verdict){
+   var vColor=sec.verdict.rating==='HIGH'?'#0A5C3E':sec.verdict.rating==='LOW'?'#B91C1C':'#C8A84B';
+   var vRgb=hexRgb(vColor);
+   checkPage(20);
+   doc.setFillColor(vRgb[0]+(255-vRgb[0])*0.9,vRgb[1]+(255-vRgb[1])*0.9,vRgb[2]+(255-vRgb[2])*0.9);
+   doc.roundedRect(mg,y-2,maxW,18,2,2,'F');
+   doc.setFillColor(vRgb[0],vRgb[1],vRgb[2]);doc.rect(mg,y-2,4,18,'F');
+   doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(vRgb[0],vRgb[1],vRgb[2]);
+   doc.text('CONVICTION: '+sec.verdict.rating,mg+8,y+5);
+   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(55,65,81);
+   var vWr=doc.splitTextToSize(sec.verdict.text||'',maxW-14);
+   doc.text(vWr,mg+8,y+12);
+   y+=Math.max(18,vWr.length*5+14)+4;
+  }
+ }
+
+ // Footer notes on last page
+ if(pdfData.footer_notes&&pdfData.footer_notes.length){
+  checkPage(20);y+=6;
+  doc.setDrawColor(200,168,75);doc.setLineWidth(0.3);doc.line(mg,y,pw-mg,y);y+=5;
+  doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(140,140,140);
+  for(var fi=0;fi<pdfData.footer_notes.length;fi++){
+   var fn=pdfData.footer_notes[fi];
+   var fnWr=doc.splitTextToSize(fn,maxW);
+   doc.text(fnWr,mg,y);y+=fnWr.length*4+2;
+  }
+ }
+
+ var fname='GCI-Strategic-Intelligence-Premium-'+new Date().toISOString().slice(0,10)+'.pdf';
+ doc.save(fname);
+ showToast('Premium PDF downloaded','#0A5C3E');
+}
+
+// ========== DECK GENERATION (AI-powered slide structuring) ==========
+function generateSiDeck(mode){
+ if(!_siRawData||!_siRawData.report){showToast('No report to convert','#b91c1c');return;}
+ var btnId=mode==='executive'?'si-exec-deck-btn':'si-full-deck-btn';
+ var btn=document.getElementById(btnId);
+ var origText=btn?btn.textContent:'';
+ if(btn){btn.disabled=true;btn.textContent='Generating...';}
+ var label=mode==='executive'?'Executive Summary Deck (5-7 slides)':'Full Deck (10-15 slides)';
+ showToast('AI is structuring your '+label+'...','#0B1D35');
+ var token=localStorage.getItem('gci_token')||'';
+ fetch(VERCEL_PROXY+'/api/generate-deck',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+  body:JSON.stringify({
+   report:_siRawData.report||'',
+   mode:mode,
+   vidura:_siRawData.vidura||'',
+   vibhishana:_siRawData.vibhishana||''
+  })
+ }).then(function(r){return r.json();}).then(function(data){
+  if(data.error){showToast('Deck generation failed: '+data.error,'#b91c1c');return;}
+  buildPptx(data,mode);
+ }).catch(function(e){
+  showToast('Deck generation error: '+e.message,'#b91c1c');
+ }).finally(function(){
+  if(btn){btn.disabled=false;btn.textContent=origText;}
+ });
+}
+
+function buildPptx(deckData,mode){
+ if(typeof PptxGenJS==='undefined'){showToast('PPTX library loading, please retry','#b91c1c');return;}
+ var pptx=new PptxGenJS();
+ pptx.author='Gulf Capital Intelligence';
+ pptx.company='GCI';
+ pptx.subject='Strategic Intelligence Report';
+ pptx.title=deckData.slides&&deckData.slides[0]?deckData.slides[0].title:'Strategic Intelligence';
+
+ // GCI brand colors
+ var NAVY='0B1D35';
+ var GOLD='C8A84B';
+ var WHITE='FFFFFF';
+ var LIGHT_BG='F9F8F4';
+ var DARK_TEXT='374151';
+
+ var slides=deckData.slides||[];
+ for(var i=0;i<slides.length;i++){
+  var s=slides[i];
+  var slide=pptx.addSlide();
+  var layout=s.layout||'content';
+
+  // Background
+  if(i===0){
+   slide.background={fill:NAVY};
+  } else {
+   slide.background={fill:WHITE};
+   // Navy header bar
+   slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:'100%',h:0.08,fill:{color:NAVY}});
+   // Gold accent line
+   slide.addShape(pptx.ShapeType.rect,{x:0,y:0.08,w:'100%',h:0.03,fill:{color:GOLD}});
+  }
+
+  // Footer on all slides
+  slide.addText('Gulf Capital Intelligence | DIFC, Dubai | Confidential',{x:0.3,y:7.0,w:9.4,h:0.3,fontSize:7,color:'999999',align:'center'});
+
+  // Page number (skip title slide)
+  if(i>0){
+   slide.addText(String(i+1),{x:9.2,y:7.0,w:0.5,h:0.3,fontSize:7,color:NAVY,bold:true,align:'right'});
+  }
+
+  // Title slide
+  if(i===0||layout==='title'){
+   if(i===0){
+    // GCI logo text
+    slide.addText('GCI',{x:3.7,y:0.8,w:2.5,h:1.2,fontSize:36,bold:true,color:GOLD,align:'center'});
+    slide.addShape(pptx.ShapeType.rect,{x:3.5,y:2.1,w:3,h:0.02,fill:{color:GOLD}});
+    slide.addText(s.title||'Strategic Intelligence',{x:0.5,y:2.5,w:9,h:1.5,fontSize:28,bold:true,color:WHITE,align:'center',valign:'middle'});
+    if(s.subtitle){
+     slide.addText(s.subtitle,{x:1,y:4.0,w:8,h:0.8,fontSize:14,color:'BBBBBB',align:'center'});
+    }
+    slide.addText(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),{x:1,y:5.2,w:8,h:0.5,fontSize:12,color:GOLD,align:'center'});
+    slide.addShape(pptx.ShapeType.rect,{x:0,y:6.6,w:'100%',h:0.02,fill:{color:GOLD}});
+   }
+   continue;
+  }
+
+  // Slide title
+  slide.addText(s.title||'',{x:0.4,y:0.2,w:9.2,h:0.6,fontSize:20,bold:true,color:NAVY,valign:'middle'});
+  if(s.subtitle){
+   slide.addText(s.subtitle,{x:0.4,y:0.75,w:9.2,h:0.35,fontSize:11,color:'888888',italic:true});
+  }
+  var contentY=s.subtitle?1.2:0.95;
+
+  // Content layout
+  if(layout==='content'&&s.bullets){
+   var bulletObjs=[];
+   for(var bi=0;bi<s.bullets.length;bi++){
+    bulletObjs.push({text:s.bullets[bi].replace(/\*\*([^*]+)\*\*/g,'$1'),options:{bullet:{code:'2022',color:GOLD},fontSize:13,color:DARK_TEXT,breakLine:true,paraSpaceAfter:8}});
+   }
+   slide.addText(bulletObjs,{x:0.5,y:contentY,w:9,h:5.5,valign:'top'});
+  }
+
+  // Two-column layout
+  if(layout==='two-column'){
+   var lc=s.left_column||{};
+   var rc=s.right_column||{};
+   // Left column
+   if(lc.heading){
+    slide.addText(lc.heading,{x:0.3,y:contentY,w:4.5,h:0.4,fontSize:14,bold:true,color:NAVY});
+   }
+   if(lc.bullets){
+    var lBullets=[];
+    for(var lb=0;lb<lc.bullets.length;lb++){
+     lBullets.push({text:lc.bullets[lb].replace(/\*\*([^*]+)\*\*/g,'$1'),options:{bullet:{code:'2022',color:GOLD},fontSize:11,color:DARK_TEXT,breakLine:true,paraSpaceAfter:6}});
+    }
+    slide.addText(lBullets,{x:0.3,y:contentY+0.45,w:4.5,h:5.0,valign:'top'});
+   }
+   // Divider
+   slide.addShape(pptx.ShapeType.rect,{x:4.9,y:contentY,w:0.015,h:5.5,fill:{color:GOLD}});
+   // Right column
+   if(rc.heading){
+    slide.addText(rc.heading,{x:5.2,y:contentY,w:4.5,h:0.4,fontSize:14,bold:true,color:NAVY});
+   }
+   if(rc.bullets){
+    var rBullets=[];
+    for(var rb=0;rb<rc.bullets.length;rb++){
+     rBullets.push({text:rc.bullets[rb].replace(/\*\*([^*]+)\*\*/g,'$1'),options:{bullet:{code:'2022',color:GOLD},fontSize:11,color:DARK_TEXT,breakLine:true,paraSpaceAfter:6}});
+    }
+    slide.addText(rBullets,{x:5.2,y:contentY+0.45,w:4.5,h:5.0,valign:'top'});
+   }
+  }
+
+  // Table layout
+  if(layout==='table'&&s.table){
+   var tHeaders=(s.table.headers||[]).map(function(h){return{text:h,options:{bold:true,color:WHITE,fill:{color:NAVY},fontSize:10}};});
+   var tRows=(s.table.rows||[]).map(function(row,ri){
+    return row.map(function(cell){return{text:cell.replace(/\*\*([^*]+)\*\*/g,'$1'),options:{fontSize:9,color:DARK_TEXT,fill:{color:ri%2===0?LIGHT_BG:WHITE}}};});
+   });
+   slide.addTable([tHeaders].concat(tRows),{x:0.3,y:contentY,w:9.4,colW:Array(tHeaders.length).fill(9.4/tHeaders.length),border:{pt:0.5,color:'DDDDDD'},autoPage:true,autoPageRepeatHeader:true});
+  }
+
+  // Key metrics layout
+  if(layout==='key-metrics'&&s.metrics){
+   var mCount=s.metrics.length;
+   var mWidth=(9.0/Math.min(mCount,4))-0.15;
+   for(var mi=0;mi<s.metrics.length;mi++){
+    var met=s.metrics[mi];
+    var mx=0.5+(mi%4)*(mWidth+0.15);
+    var my=contentY+Math.floor(mi/4)*1.6;
+    var mColor=met.color||NAVY;
+    if(mColor.charAt(0)==='#')mColor=mColor.slice(1);
+    slide.addShape(pptx.ShapeType.rect,{x:mx,y:my,w:mWidth,h:1.4,fill:{color:LIGHT_BG},rectRadius:0.08});
+    slide.addShape(pptx.ShapeType.rect,{x:mx,y:my,w:0.06,h:1.4,fill:{color:mColor}});
+    slide.addText((met.label||'').toUpperCase(),{x:mx+0.15,y:my+0.1,w:mWidth-0.3,h:0.4,fontSize:8,color:'888888',bold:true});
+    slide.addText(met.value||'',{x:mx+0.15,y:my+0.55,w:mWidth-0.3,h:0.6,fontSize:22,bold:true,color:mColor});
+   }
+  }
+
+  // Speaker notes
+  if(s.notes){
+   slide.addNotes(s.notes);
+  }
+ }
+
+ var fname='GCI-'+(mode==='executive'?'Executive-Summary':'Full-Deck')+'-'+new Date().toISOString().slice(0,10)+'.pptx';
+ pptx.writeFile({fileName:fname}).then(function(){
+  showToast('Deck downloaded: '+fname,'#0A5C3E');
+ });
 }
 
 var currentStratAgent=null;
